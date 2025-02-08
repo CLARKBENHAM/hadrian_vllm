@@ -1,0 +1,50 @@
+Using a vLLM to solve Hadrian's Conversions Issues
+"Take CAD Model of ideal shape, Blueprint with tolerances, return unified standard.
+
+# Standards
+
+
+# Data Sources
+NIST - 10 labeled examples
+More advanced AP242 case http://www.asd-ssg.org/step-ap242-benchmark.html
+
+# Competitors
+
+Automates measurment routines from (most Similar)
+	https://blog.manufacturing.hexagon.com/integrate-2d-blueprints-to-3d-cad-models-at-the-click-of-a-button-in-pc-dmis/ (2019)
+Create 2d Drawings for inspection from CAD
+	https://www.babtec.com/products/cad-integration?utm_source=chatgpt.com
+	"GD&T Selection from File"
+Multiple people do analysis once part is made with tolerances
+	uses cad from the start: https://www.3dcs.com/tolerance-analysis-software-and-spc-systems/3dcs-software/catia-v5-integrated?utm_source=chatgpt.com
+	https://www.sigmetrix.com/software/cetol
+Create CNC plan from 3D model
+	adjusts tolerances to fit part https://camworks.com/tolerance-based-machining/?utm_source=chatgpt.com
+
+
+# Which vLLM
+Try Azure for 4o
+
+Itar complient:
+	Try Sonnet 3.5, 4o.
+	Don't go to self-hosting yet.
+Without ITAR it'd be:
+	google gemini-2.0 (only via api not console unless advanced user)
+
+ITAR compliant:
+	aws has GovCloud and any US-WEST  `AWS GovCloud (US-West)` qualifies
+		sonnet 3.5, Haiku 3.5, Llama 3 70B Instruct,
+		https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-bedrock.html
+		Can finetune haiku 3.5; not sonnet. Unclear if allowed while ITAR compliant
+	Azure Gov
+		can use 4o via "FedRAMP High Authorization for Azure Government"  https://devblogs.microsoft.com/azuregov/azure-openai-fedramp-high-for-government/?utm_source=chatgpt.com
+			unclear if can finetune
+		but none of o-class model yet https://learn.microsoft.com/en-us/azure/ai-services/openai/azure-government
+	Google "Assured Workflows"
+		ITAR services https://cloud.google.com/assured-workloads/docs/itar-restrictions-limitations
+			doesn't seem to include an models?
+		Requires an org to start using: https://console.cloud.google.com/projectselector2/compliance/assuredworkloads?hl=en&pli=1&supportedpurview=organizationId&orgonly=true
+
+
+
+
