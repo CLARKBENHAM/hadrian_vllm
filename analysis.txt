@@ -1,11 +1,11 @@
 Using a vLLM to solve Hadrian's Conversions Issues
-"Take CAD Model of ideal shape, Blueprint with tolerances, return unified standard.
+Take CAD Model of ideal shape, Blueprint with tolerances, return unified standard.
 
 # Standards
 
 
 # Data Sources
-NIST - 10 labeled examples
+NIST - 12 labeled assembly and part examples
 More advanced AP242 case http://www.asd-ssg.org/step-ap242-benchmark.html
 
 # Competitors
