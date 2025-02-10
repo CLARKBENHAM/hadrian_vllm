@@ -2,14 +2,20 @@ Using a vLLM to solve Hadrian's Conversions Issues
 Take CAD Model of ideal shape, Blueprint with tolerances, return unified standard.
 
 # Standards
+semantic PMI for machine, graphic PMI for humans
 
 
 # Data Sources
 NIST - 12 labeled assembly and part examples
 More advanced AP242 case http://www.asd-ssg.org/step-ap242-benchmark.html
+Forum for checking cad integrations: https://www.mbx-if.org/home/cax/
+
+
+Synthetic Data:
+	get CAD model, create 2d plans from render, add a bunch of notation see if can map back to part?
+		How to annotate each part on blueprint via cad?
 
 # Competitors
-
 Automates measurment routines from (most Similar)
 	https://blog.manufacturing.hexagon.com/integrate-2d-blueprints-to-3d-cad-models-at-the-click-of-a-button-in-pc-dmis/ (2019)
 Create 2d Drawings for inspection from CAD
