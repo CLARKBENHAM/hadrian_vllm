@@ -1,0 +1,517 @@
+Feature ID,Feature Description,Specification,Element ID,Comments,assembly id
+F1,Datum Feature A,Flatness .01,T1,,06
+,,Datum Feature Symbol A,DF1,,06
+F2,Datum Feature B,12.00 ±.01,D1,,06
+,,Perpendicularity .012|A,T2,,06
+,,Datum Feature Symbol B,DF2,,06
+F3,Datum Feature C,Perpendicularity .012|A|B,T3,,06
+,,Datum Feature Symbol C,DF3,,06
+F4,Datum Feature D,Profile Surface .02|A|B|C,T4,,06
+,,Flatness .01,T5,,06
+,,Datum Feature Symbol D,DF4,,06
+F5,Datum Feature E,Profile Surface .02|A|B|C,T6,,06
+,,Flatness .01,T7,,06
+,,Datum Feature Symbol E,DF5,,06
+F6-F9,Datum Feature F,4X .281 ±.008,D2,,06
+,,Position .015|E|A|B,T8,,06
+,,Datum Feature Symbol F,DF6,,06
+,,4X INDIVIDUALLY,STR1,,06
+F10,Datum Target G1,Datum Target Symbol G1,DT1,,06
+,,Represented line element,RLE1,"Circular line element for datum target
+G1 and controlled element",06
+,,(1.000),D3,Defines RLE1,06
+F11-F12,Datum Target H1,Datum Target Symbol H1,DT2,,06
+,,Represented line element,RLE2,"Circular line element for datum target
+H1 and controlled element",06
+,,(1.000),D4,Defines RLE2,06
+F12-F13,"Datum Target J1, J2",Datum Target Symbols J1-J2,"DT3, DT4",,06
+,,"Profile Surface .05|D|B|C
+Profile Surface .01|D",T9,Surfaces are grouped,06
+,,2 SURFACES,STR2,Groups surfaces for T9,06
+,,Represented line element,RLE3,,06
+,,Represented line element,RLE4,,06
+,,-1.106,D5,Applies to datum target lines,06
+F14-F15,"Datum Target K1, K2",Datum Target Symbols K1-K2,"DT5, DT6",,06
+,,"Profile Surface .05|D|B|C
+Profile Surface .01|D",T10,Surfaces are grouped,06
+,,2 SURFACES,STR3,Groups surfaces for T10,06
+,,Represented line element,RLE5,,06
+,,Represented line element,RLE6,,06
+,,-1.106,D6,Applies to datum target lines,06
+F16-F17,Spherical Diameter Surfaces,2X S 1.250 ±.008,D7,,06
+,,Position S.025|D|B|C,T11,,06
+F18-21,Counterbored Holes - Set 1,4X .415 ±.008,D8,,06
+F22-F25,,.625 ±.020,D9-1,,06
+,,Position .025|A|B|C,T12,Applies to F18-F28,06
+F26-F29,,.50 ±.02,D9-2,,06
+F30-F31,Counterbored Holes - Set 2,2X ∅.562 ±.008,D10,,06
+,,Position .015|C|A|B,T13,,06
+F32-F33,,2X  ∅.812 ±.020,D11-1,,06
+,,Position .025|C|A|B,T14,,06
+F34-F35,,.56 ±.02,D11-2,,06
+F36-F39,Counterbored Holes - Set 3,.40 ±.01,D12-1,,06
+,,Position .02|F,T15,Applies individually to 4 holes,06
+F40-F43,,.31 ±.02,D12-2,,06
+Feature ID,Feature Description,Specification,Element ID,Comments,06
+,,4X INDIVIDUALLY,STR4,,06
+F44-F67,Fillets,24X R.125 ±.020,D13,,06
+F68,Spherical Cutout,(SR.500),D14,Reference Dimension,06
+F69-F70,Large External Rounds,2X CR.50 ±.02,D15,,06
+F71,Tapered Center Rib Surface, 1.00 : 2.00,D16,Basic Dimension,06
+,,Profile Surface .04|A|B|C,T16,,06
+F72-F73,Conic Surfaces,2X 1.00 : 3.00,D17,Basic Dimension,06
+,Cone w/ G1,"Profile Surface .05|D|B|C
+Profile Surface .01|D",T17,Applies to cone and cylinder,06
+F74,Cylindrical Cone Support,"Profile Surface .05|D|B|C
+Profile Surface .01|D",T17,Applies to cone and cylinder,06
+,Cone w/ H1,"Profile Surface .05|D|B|C
+Profile Surface .01|D",T18,Applies to cone and cylinder,06
+F75,Cylindrical Cone Support,"Profile Surface .05|D|B|C
+Profile Surface .01|D",T18,Applies to cone and cylinder,06
+F76,Cylindrical hole in cone w/ G1,.250  ±.008,D18,,06
+,,Position .015|D|G,T19,,06
+F77,Bottom of Hole,.50 ±.05,D19,,06
+F78,Cylindrical hole in cone w/ H1,.250  ±.008,D20,,06
+,,Position .015|D|H,T20,,06
+F79,Bottom of Hole,.50 ±.05,D21,,06
+F80,Width feature of size @ J1-J2,.500 ±.008,D22,,06
+,,Position .025|D|C|J,T21,,06
+F81,Width feature of size @ K1-K2,.500 ±.008,D23,,06
+,,Position .025|D|C|K,T22,,06
+-,General Profile Tolerance 1,Profile Surface .05|A|B|C,T23,,06
+MCS1,"MCS for Views 1, 2, 3",,CS1-1,Main MCS for model,06
+,MCS for DRF A,,CS1-2,Same location as CS1-1,06
+,MCS for DRF A|B,,CS1-3,Same location as CS1-1,06
+,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,06
+,MCS for DRF C|A|B,,CS1-5,Same location as CS1-1,06
+MCS2,MCS for DRF D|B|C,,CS2,,06
+MCS3,MCS for DRF E|A|B,,CS3,,06
+MCS4,MCS for DRF F1,,CS4,"First of 4 individual datum reference
+frames for F",06
+MCS5,MCS for DRF F2,,CS5,"Second of 4 individual datum
+reference frames for F",06
+MCS6,MCS for DRF F3,,CS6,"Third of 4 individual datum reference
+frames for F",06
+MCS7,MCS for DRF F4,,CS7,"Fourth of 4 individual datum reference
+frames for F",06
+MCS8,MCS for DRF D|G,,CS8,,06
+MCS9,MCS for DRF D|H,,CS9,,06
+MCS10,MCS for DRF D|C|J,,CS10,,06
+MCS11,MCS for DRF D|C|K,,CS11,,06
+-,General Notes,NOTES…,STR5,Flat to screen,06
+F1-F2,Datum Feature A,Profile .015,T1,,07
+,,2 SURFACES F1.1 AND F1.2,STR1,,07
+,,Datum Feature Symbol A,DF1,,07
+,,Leader-Directed Note F1.1,LDN1,"Labels one of the datum feature A
+surfaces",07
+,,Leader-Directed Note F1.2,LDN2,"Labels one of the datum feature A
+surfaces",07
+F3,Datum Feature B,.250 +.003/-.000,D1,"Holes are sized for threaded insert
+with 10-32 UNF-2B threads",07
+F4,,.30 .02,D2,"Controls edge curve intersection of
+hole and cone at bottom",07
+,,Perpendicularity .015.425|A,T2,,07
+,,Datum Feature Symbol B,DF2,,07
+F5,Datum Feature C,.250 +.003/-.000,D3,"Holes are sized for threaded insert
+with 10-32 UNF-2B threads",07
+F6,,.30 .02,D4,"Controls edge curve intersection of
+hole and cone at bottom",07
+,,Position .020.425|A|B,T3,,07
+,,Datum Feature Symbol C,DF3,,07
+F7-F10,Datum Feature D,"Profile .04|A|B|C
+Profile .01|A",T4,,07
+,,4 COPLANAR SURFACES,STR2,,07
+,,Datum Feature Symbol D,DF4,,07
+F11-F14,Datum Feature E,"Profile .070|A|B|C
+Profile .015|A",T5,,07
+,,4 COPLANAR SURFACES,STR3,,07
+,,SIM REQT,STR4,,07
+,,Datum Feature Symbol E,DF5,,07
+F15-F16,Pattern of 2 Other Cover Mtg Holes,2X .250 +.003/-.000,D5,,07
+F17-F18,,.30 .02,D6,"Controls edge curve intersection of
+hole and cone at bottom",07
+,,Position .023.425|A|B|C,T6,,07
+F19-F22,Pattern of 4 Back Panel Mtg Holes,4X .250 +.003/-.001,D7,,07
+F23-F26,,.30 .02,D8,"Controls edge curve intersection of
+hole and cone at bottom",07
+,,Position .023.150|D|B|C,T7,"Holes are sized for threaded insert
+with 10-32 UNF-2B threads",07
+F27,Bottom Inside Surface,Flatness .01/1.00,T8,,07
+,,Parallelism .03|A,T9,,07
+,,Profile .06|A|B|C,T10,,07
+F28-F31,"Pattern of 4 Counterbored Holes for
+Cover Mtg",4X .281 +.006/-.001,D9,,07
+F32-F35,,.438 .010,D10,,07
+F36-F39,,.30 .02,D11,"Controls flat surface at bottom of
+counterbore",07
+,,"Position .06|E|B|C
+Position .02|E|B|C",T11,,07
+F40-F42,Pattern of 3 Gland Mtg Holes,3X .875 ±.020  ,D12,,07
+,,3X .875 ±.010,D13,,07
+,,Position .050|A|B|C,T12,,07
+F43-F46,Pattern of 4 Placard Mtg Holes,4X .173 +.005/-.001,D14,,07
+,,"Position .060|A|B|C
+Position .015|A",T13,,07
+F47-F48,Pattern of 2 Bulkhead Union Holes,2X .594 +.012/-.002,D15,,07
+Feature ID,Feature Description,Specification,Element ID,Comments,07
+,,Position .040|.045 MAX|A|B|C,T14,,07
+F49-F50,Pattern of 2 Bulkhead Union Holes,2X .594 +.012/-.002,D16,,07
+,,Position .040|.045 MAX|A|B|C,T15,,07
+F51-F52,Radii at Bottom of Face Seal Groove,R.012 - .022,D17,,07
+,,INNER AND OUTER RADII OF ENTIRE GROOVE,STR5,"Note is for clarification only.
+Applicability indicated by dual-leader and associativity.",07
+F53-F54,"Inner and Outer Wall of Face Seal
+Groove","Profile .030|A|B|C
+Profile .005|A|B|C",T16,"Imposes simultaneous requirement on
+both sides of groove",07
+,,INNER AND OUTER WALL OF ENTIRE GROOVE,STR6,Note is for clarification only.  Grouping by dual-leader and associativity.,07
+F55,Bottom of Face Seal Groove,Profile .006|A|B|C,T17,,07
+F56,"Bottom Outside Surface
+(.100 offset from mounting feet)","Profile .070|A|B|C
+Profile .015|A",T18,,07
+,,SIM REQT,STR7,,07
+-,General Profile Tolerance,Profile .06|A|B|C,T19,,07
+MCS1,"MCS for Views A, B, C, D",,CS1-1,Main MCS for model,07
+,MCS for DRF A,,CS1-2,Same location as CS1-1,07
+,MCS for DRF A|B,,CS1-3,Same location as CS1-1,07
+,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,07
+MCS2,MCS for DRF D|B|C,,CS2,,07
+MCS3,MCS for DRF E|B|C,,CS3,,07
+-,General Notes,NOTES…,STR8,Flat to screen,07
+-,Identifier for Detail View D,,VSI1,,07
+F1,Datum Feature A,Flatness .03,T1,Applies in free state,08
+,,Flatness .015,T2,,08
+,,Datum Feature Symbol A,DF1,,08
+F2,Datum Feature B,.238 +.005/-.001,D1,,08
+,,Perpendicularity .015|A,T3,Applies in free state,08
+,,Datum Feature Symbol B,DF2,,08
+F3,Datum Feature C,.238 +.005/-.001,D2,,08
+,,Position .020|A|B,T4,Applies in free state,08
+,,Datum Feature Symbol C,DF3,,08
+F4,Datum Feature D,Parallelism .03|A,T5,,08
+,,Profile .06|A|B|C,T6,,08
+,,Datum Feature Symbol D,DF4,,08
+F5,Datum Feature E,Datum Feature Symbol E,DF5,Controlled by D3 and T7,08
+F6,Datum Feature F,Datum Feature Symbol F,DF6,Controlled by D3 and T7,08
+F5-F14,Pattern of PCB Mtg Holes,10X .213 +.005/-.001,D3,Controls DF E and DF F,08
+,,"Position .04|D|B|C
+Position .02|D|B|C",T7,Controls DF E and DF F,08
+F15-F16,Datum Feature G,2X .250 +.006/-.001,D4,,08
+,,Position .03|D|B|C,T8,,08
+,,Datum Feature Symbol G,DF7,,08
+F17,Datum Feature H,.228 +.005/-.001,D5,,08
+,,"Position .050|D|B|C
+Position .020|D|B|C",T9,,08
+,,SIM REQT 1,STR1,"Constrains lower segment positional
+tolerance zones for datum features H and J into a group",08
+,,Datum Feature Symbol H,DF8,,08
+F18,Datum Feature J,.242 +.005/-.001,D6,,08
+,,"Position .050|D|B|C
+Position .020|D|B|C",T10,,08
+,,SIM REQT 1,STR2,"Constrains lower segment positional
+tolerance zones for datum features H and J into a group",08
+,,Datum Feature Symbol J,DF9,,08
+F19,Datum Feature K,.228 +.005/-.001,D7,,08
+,,"Position .050|D|B|C
+Position .020|D|B|C",T11,,08
+,,SIM REQT 2,STR3,"Constrains lower segment positional
+tolerance zones for datum features L and L into a group",08
+,,Datum Feature Symbol K,DF10,,08
+F20,Datum Feature L,.242 +.005/-.001,D8,,08
+,,"Position .050|D|B|C
+Position .020|D|B|C",T12,,08
+,,SIM REQT 2,STR4,"Constrains lower segment positional
+tolerance zones for datum features L and L into a group",08
+,,Datum Feature Symbol L,DF11,,08
+F21-F22,Pattern of 2 Other Main Mtg Holes,2X .238 +.005/-.001,D9,,08
+,,Position .023|A|B|C,T13,Applies in free state,08
+F23,Bottom Inside Surface,Parallelism .02|D,T14,,08
+,,Profile .06|A|B|C,T15,,08
+Feature ID,Feature Description,Specification,Element ID,Comments,08
+F24,Surface Opposite Datum Feature A,Parallelism .015|A,T16,,08
+,,Parallelism .03|A,T17,Applies in free state,08
+,,Profile .05|A|B|C,T18,,08
+F25,External Sidewall in -X Direction,Profile .06|A|B|C,T19,,08
+F25.1,"Limited Area on External Sidewall in -X
+Direction",Flatness .015,T20,,08
+,,L1L2,STR5,"Defines that flatness applies between
+line elements L1 and L2",08
+,,Represented line element,RLE1,L1,08
+,,Represented line element,RLE2,L2,08
+,,Leader-Directed Note L1,LDN1,Labels RLE 1 that bounds limited area,08
+,,Leader-Directed Note L2,LDN2,Labels RLE 2 that bounds limited area,08
+,,Crosshatch between L1 and L2,CH1,,08
+F26,Recess for Placard,Parallelism .015|D,T21,,08
+,,Profile .035|D|B|C,T22,,08
+F27,Cutout for PCB Mtg,"Profile .04|D|E-F
+All Around",T23,,08
+F28,Square hole cutout,(1.100),D10,,08
+,,Profile .015|D|G All Around,T24,,08
+F29,Cutout for E Stop,"Profile .040|D|B|C Profile .005|D|B|C
+All Around",T25,,08
+F30,Cutout for Middle Switch on -X Side,Profile .015|D|H-J All Around,T26,,08
+F31,Cutout for Middle Switch on +X Side,Profile .015|D|K|L All Around,T27,,08
+-,General Profile Tolerance,Profile Surface .06|A|B|C,T28,,08
+MCS1,"MCS for Views A, B",,CS1-1,Main MCS for model,08
+,MCS for DRF A,,CS1-2,Same location as CS1-1,08
+,MCS for DRF A|B,,CS1-3,Same location as CS1-1,08
+,MCS for DRF A|B|C - Free State,,CS1-4,Same location as CS1-1,08
+,MCS for DRF A|B|C - Restrained,,CS1-5,Same location as CS1-1,08
+MCS2,"MCS for Views C, D",,CS2-1,,08
+,MCS for DRF D,,CS2-2,Same location as CS2-1,08
+,MCS for DRF D|B|C,,CS2-3,Same location as CS2-1,08
+MCS3,MCS for DRF D|E-F,,CS3,,08
+MCS4,MCS for DRF D|G,,CS4,,08
+MCS5,MCS for DRF D|H-J,,CS5,,08
+MCS6,MCS for DRF D|K|L,,CS6,,08
+-,General Notes,NOTES…,STR6,Flat to screen,08
+Feature ID,Feature Description,Specification,Element ID,Comments,08
+F1,Datum Feature A,Flatness .01,T1,,09
+,,Datum Feature Symbol A,DF1,,09
+F2,Datum Feature B,.234 ±.008,D1,,09
+,,Perpendicularity .016|A,T2,,09
+,,Datum Feature Symbol B,DF2,,09
+F3,Datum Feature C,.234 ±.008,D2,,09
+,,Position .016|A|B,T3,,09
+,,Datum Feature Symbol C,DF3,,09
+F4,Datum Feature D,.750 ±.008,D3,,09
+,,Perpendicularity .010|A,T4,,09
+,,Position .050|A|B|C,T5,,09
+,,Datum Feature Symbol D,DF4,,09
+F5-F6,Datum Feature E,2X .221 ±.008,D4,,09
+,,Position .020|A|D|B,T6,,09
+,,Datum Feature Symbol E,DF5,,09
+F7-F10,Datum Feature F,4X .250 ±.008,D5,,09
+,,Position .030|A|B|C,T7,,09
+,,Datum Feature Symbol F,DF6,,09
+F11,Datum Feature G,.375 ±.008,D6,,09
+,,Position .040|A|B|C,T8,,09
+,,Perpendicularity .010|A,T9,,09
+,,Datum Feature Symbol G,DF7,,09
+F12,Datum Feature H,.140 ± .008,D7,SIELD,09
+,,Position .010|A|G|B,T10,SIELD,09
+,,Datum Feature Symbol H,DF8,,09
+F13,Radial End - Datum Feature H,Profile .008|A|G|H,T11,,09
+F14-F17,Chamfers (cones),4X .03 ±.01 X .03 ±.01,D8,2 dims and tols in one spec,09
+F18-F19,Hole Pattern 1 - Panel Mounting,2X.234 ±.008,D9,Other 2 panel mounting holes,09
+,,Position .016|A|B|C,T12,,09
+F20-F23,Hole Pattern 2 - Horizontal,3X .250 +.003/-.000,D10,"Holes sized for PEM CLSS-032-3 self-
+clinching nuts",09
+,,"Position .050 .260|A|B|C
+Position .010 .260|A",T13,Composite Position 2 Segments with Projected tolerance zone,09
+F24-F27,Hole Pattern 3 - Vertical,3X .250 +.003/-.000,D11,"Holes sized for PEM CLSS-032-3 self-
+clinching nuts",09
+,,"Position .050 .260|A|B|C
+Position .010 .260|A",T14,Composite Position 2 Segments with Projected tolerance zone,09
+F28,Cutout - for FTC10 Insert,Profile .02|A|F All Around,T15,Cutout for insert into FTC10,09
+F29-F30,Small Slots,2X .25 ±.01,D12,Width - SIELD,09
+,,Position .02|A|B|C,T16,SIELD,09
+,,BOUNDARY,STR1,SIELD,09
+,,2X 1.00 ±.02,D13,Length - SIELD,09
+,,Position .06|A|B|C,T17,SIELD,09
+,,BOUNDARY,STR2,SIELD,09
+,,4X R,D14,Ends,09
+F31,Large Slot,.375 ±.008 X 1.500 ±.012,D15,2 dims and tols in one spec,09
+,,Position .030|A|B|C All-Around,T18,,09
+,,BOUNDARY,STR3,,09
+,,2X R,D16,Ends,09
+Feature ID,Feature Description,Specification,Element ID,Comments,09
+F32-F34,Hole Pattern 4 - Polar,3X .156 ±.008,D17,,09
+,,3X Position .03|A|G|H,T19,Radial Direction - SIELD,09
+,,Represented line element,RLE1,Curve represents radial path,09
+F32,Polar Hole 1 - Horizontal,Position .01|A|G|H,T20,Applies in X direction - SIELD,09
+,,Represented line element,RLE2,Line represents X direction,09
+F33,Polar Hole 2 - Diagonal,Position .01|A|G|H,T21,Applies 45° to X direction - SIELD,09
+,,Represented line element,RLE3,Line represents  45° to X direction,09
+F34,Polar Hole 3 - Vertical,Position .01|A|G|H,T22,Applies in Y direction - SIELD,09
+,,Represented line element,RLE4,Line represents Y direction,09
+F35-F36,Dual Unit Holes,2X .315 ±.008 [8 ±0.2],D18,Inch and [mm] per DRM 11th ed.,09
+,,Position .030 [0.76]|A|B|C,T23,Inch and [mm] per DRM 11th ed.,09
+F37-F39,Hole Pattern 5 - Bidirectional Tols,3X .281 ±.008,D19,,09
+,,Perpendicularity .010|A,T24,,09
+,,3X Position .020|A|B|C,T25,Applies in X direction - SIELD,09
+,,Represented line element,RLE5,Line represents X direction,09
+,,3X Position .060|A|B|C,T26,Applies in Y direction - SIELD,09
+,,Represented line element,RLE6,Line represents Y direction,09
+F40-F41,Hole Pattern 6 - SIM REQT LH,2X .156 ±.008,D20,,09
+,,Position .025|A|D|E,T27,,09
+,,SEP REQT,STR4,,09
+F42-F43,Hole Pattern 7 - SIM REQT RH,2X .156 ±.008,D21,,09
+,,Position .025|A|D|E,T28,,09
+,,SEP REQT,STR5,,09
+F44-F67,Profile Tolerance 1,"Profile .05|A|B|C
+All Around",T29,Peripheral (sheared) surfaces,09
+MCS1,"MCS for Views A, B, C, D",,CS1-1,Main MCS for model,09
+,MCS for DRF A,,CS1-2,Same location as CS1-1,09
+,MCS for DRF A|B,,CS1-3,Same location as CS1-1,09
+,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,09
+MCS2,MCS for DRF A|D|B,,CS2-1,,09
+,MCS for DRF A|D|E,,CS2-2,Same location as CS2-1,09
+MCS3,MCS for DRF A|F,,CS3,,09
+MCS4,MCS for DRF A|G|B,,CS4-1,,09
+,MCS for DRF A|G|H,,CS4-2,Same location as CS4-1,09
+-,General Notes,NOTES…,STR6,Flat to screen,09
+-,Identifier for Detail View C,,VSI1,,09
+F1,Datum Feature A,Flatness 0.2,T1,,10
+,,Datum Feature Symbol A,DF1,,10
+F2,Datum Feature B,6 ±0.15,D1,,10
+,,Perpendicularity 0.25|A,T2,,10
+,,Datum Feature Symbol B,DF2,,10
+F3,Datum Feature C,6 ±0.15,D2,,10
+,,Position 0.5|A|B,T3,,10
+,,Datum Feature Symbol C,DF3,,10
+F4-F6,Datum Feature D,"Profile 1.2|A|B|C
+Profile 0.2|A",T4,,10
+,,3 COPLANAR SURFACES,STR1,,10
+,,Datum Feature Symbol D,DF4,,10
+F7,Datum Feature E,3.5 G6,D3,,10
+,,Flag Note Symbol 4,FN1,,10
+,,Position 0.8|D|B|C,T5,,10
+,,Perpendicularity 0.12|D,T6,,10
+,,Datum Feature Symbol E,DF5,,10
+F8,Datum Feature F,3.5 G6,D4,,10
+,,Flag Note Symbol 4,FN2,,10
+,,Position 0.8|D|B|C,T7,,10
+,,Perpendicularity 0.12|D,T8,,10
+,,Datum Feature Symbol F,DF6,,10
+F9,Datum Feature G,3.5 G6,D5,,10
+,,Flag Note Symbol 4,FN3,,10
+,,Position 0.8|D|B|C,T9,,10
+,,Perpendicularity 0.12|D,T10,,10
+,,Datum Feature Symbol G,DF7,,10
+F10,Datum Feature H,"Profile 1.2|A|B|C
+Profile 0.15|A",T11,,10
+,,Datum Feature Symbol H,DF8,,10
+F11,Datum Feature J,15 ±0.2,D6,,10
+,,Position 1|A|B|C,T12,,10
+,,Perpendicularity 0.1|A,T13,,10
+,,Datum Feature Symbol J,DF9,,10
+F12-F13,"Datum Target K1, K2","Supplemental geometry planes
+representing Vee K1-K2",SG1,Features 12 and 13 are not on model,10
+,,Datum Target Symbols K1-K2,"DT1, DT2",,10
+F14-F15,"Movable Datum Target L1, L2","Supplemental geometry planes
+representing Vee L1-L2",SG2,Features 14 and 15 are not on model,10
+,,"Movable Datum Target Symbols L1-
+L2","MDT1, MDT2","Movable datum targets from ASME
+Y14.41-2003",10
+F16-F17,Pattern of 2 Other Mtg Holes,2X 6 ±0.15,D7,,10
+,,Position 0.65|A|B|C,T14,,10
+F18-F25,Pattern of 8 Holes in Pocket,8X 2.5 ±0.15,D8,,10
+,,Flag Note Symbol 4,FN4,,10
+,,Position 0.75|A|B|C,T15,,10
+F26-F42,17 Surfaces Inside Pocket,Profile 1.2|A|B|C,T16,,10
+,,ALL SURFACES INSIDE POCKET,STR2,,10
+F43-F46,"Pattern of 4 Counterbored Holes
+Perpendicular to Base",4X 10 0.25,D9,,10
+,,Position 1|A|B|C,T17,,10
+F47-F50,Bottom of Holes,2 ±0.15,D10,"Moved to end of stack in this chart for
+feature numbering",10
+Feature ID,Feature Description,Specification,Element ID,Comments,10
+F51-F54,"Edge Curves at Bottom of Counterbored
+Holes",4X R0.2 MAX,LDN1,"Applies at bottom of counterbored
+holes",10
+F55,"Cross-Drilled Hole Below 3 Rectangular
+Bosses",5.5 ±0.2,D11,Applies to entire hole,10
+,,5.5 ±0.08,D13,Applies to limited length,10
+,,INDICATED AREA,STR3,,10
+,,Position .08|D|E-F-G,T18,,10
+F56,Bottom of Holes,35 ±1,D12,"Moved to end of stack in this chart for
+feature numbering",10
+F57-F60,Pattern of 4 Counterbored Holes,4X 10 0.25,D14,"Holes on side of part in +X direction of
+A|B|C",10
+,,Position 0.8|A|B|C,T19,,10
+,,AT SURFACE F65,STR4,"Outside surface  on +X side of part
+pierced by counterbored holes",10
+,,Position 1.2|A|B|C,T20,,10
+,,AT BOTTOM OF COUNTERBORES,STR5,,10
+F61-F64,Bottom of Holes,10± 0.2,D15,"Moved to end of stack in this chart for
+feature numbering",10
+F65,"Outside Surface  on +X Side of Part
+Pierced by Counterbored Holes",Leader-Directed Note F65,LDN3,"Needed for semantic reference in
+counterbore spec",10
+F66,Hemi-Cylindrical Surface on Top,Profile 1.75|A|B|C,T21,,10
+,,Straightness 0.2 / 15,T22,"Direction-dependent tolerance; direction defined semantically by rule
+and by RLE1",10
+,,Represented line element,RLE1,,10
+F67,Slot-Shaped Boss Walls,"Profile 1.5|A|B|C
+All Around",T23,,10
+,,"Perpendicularity 0.25|H
+All Around",T24,,10
+,,Represented line element,RLE2,,10
+,,EACH LINE ELEMENT,STR6,,10
+F68,Symmetry Key,5 ±0.2,D16,,10
+,,Symmetry 0.5|A|J,T25,,10
+F69-F72,"Edge Curves at Bottom of Datum
+Feature J and  Symmetry Key",4X R0.15 MAX,LDN2,,10
+F73-F76,Pattern of 4 Counterbored Holes,4X 10 0.25,D17,"Holes on side of part in -X direction of
+A|B|C",10
+,,Position 0.8|A|B|C,T26,,10
+,,AT SURFACE F81,STR7,"Outside surface  on -X side of part
+pierced by counterbored holes",10
+,,Position 1.2|A|B|C,T27,,10
+,,AT BOTTOM OF COUNTERBORES,STR8,,10
+F77-F80,Bottom of Holes,10± 0.2,D18,"Moved to end of stack in this chart for
+feature numbering",10
+F81,"Outside Surface  on -X Side of Part
+Pierced by Counterbored Holes",Leader-Directed Note F81,LDN4,"Needed for semantic reference in
+counterbore spec",10
+F82-F84,Pattern of 3 Holes in Slot-Shaped Boss,3X 3.5 ±0.2,D19,,10
+,,Flag Note Symbol 4,FN5,,10
+,,Position 0|H|K|L,T28,,10
+,,Cylindricity 0.1,T29,,10
+F85,"Cross-Drilled Hole Below Slot-Shaped
+Boss",5.5 ±0.2,D20,Applies to entire hole,10
+,,5.5 ±0.08,D22,Applies to limited length,10
+,,INDICATED AREA,STR9,,10
+,,Position 0.8|H|K|L,T30,,10
+Feature ID,Feature Description,Specification,Element ID,Comments,10
+F86,Bottom of Holes,27.5 ±1,D21,"Moved to end of stack in this chart for
+feature numbering",10
+F87-F88,Top Surfaces of 2 Mounting Tabs,"Profile 1|A|B|C
+Profile 0.12|A",T31,,10
+,,2 COPLANAR SURFACES,STR10,,10
+F89-F90,Pattern of 2 M3 Threaded Holes,2X M3 x 0.5 - 6g,D23,,10
+,,Position 0.8 3.2|D|E|B,T32,,10
+F91-F92,Pattern of 2 M3 Threaded Holes,2X M3 x 0.5 - 6g,D24,,10
+,,Position 0.8 3.2|D|F|B,T33,,10
+F93-F94,Pattern of 2 M3 Threaded Holes,2X M3 x 0.5 - 6g,D25,,10
+,,Position 0.8 3.2|D|G|B,T34,,10
+F95-F98,"Pattern of 4 Cross-Drilled Manifold
+Holes",4X 7 ±0.25,D26,,10
+,,Position 0|A|B|C,T35,,10
+,,Cylindricity 0.1,T36,,10
+-,General Profile Tolerance,Profile Surface 1.5|A|B|C,T37,,10
+MCS1,"MCS for Views A, B, C, D, E",,CS1-1,Main MCS for model,10
+,MCS for DRF A,,CS1-2,Same location as CS1-1,10
+,MCS for DRF A|B,,CS1-3,Same location as CS1-1,10
+,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,10
+MCS2,MCS for DRF H,,CS2-1,,10
+,MCS for DRF H|K|L,,CS2-2,Same location as CS2-1,10
+MCS3,MCS for DRF A|J,,CS3,,10
+MCS4,MCS for DRF D,,CS4-1,,10
+,MCS for DRF D|B|C,,CS4-2,Same location as CS4-1,10
+,MCS for DRF D|F|B,,CS4-3,Same location as CS4-1,10
+,MCS for DRF D|E-F-G,,CS4-4,Same location as CS4-1,10
+MCS5,MCS for DRF D|E|B,,CS5,,10
+MCS6,MCS for DRF D|G|B,,CS6,,10
+-,General Notes,NOTES…,STR11,Flat to screen,10
+F1,Datum Feature A,Flatness 0.3,T1,,11
+,,Datum Feature Symbol A,DF1,,11
+F2,"Datum Feature B -
+I.D. of Inner Torus Major Diameter",32 ±0.3 AVG (I.D.),D1,Applies to inner circular diameter,11
+,,Circularity 1.2,T2,,11
+,,Datum Feature Symbol B,DF2,,11
+F3,O.D. of Outer Torus Major Diameter,63 ±0.5 AVG (O.D.),D2,Applies to outer circular diameter,11
+,,"
+(197.9)",D3,Arc length dimension - applies to circumference of outer circular diameter,11
+,,Circular Runout 1.2|A|B,T3,,11
+F4-F5,"Inner Torus and Outer Torus Minor
+Diameter",2X R1.5 ±0.04,D4,,11
+F6,Top of Web,Profile 0.3|A|B,T4,,11
+F7,Thickness of Web,1.93 ±0.08,D5,"Envelope principle does not apply to
+web thickness",11
+F8,Optional Tooling Radii,2X R0.1 MAX,D6,Optional radius for molding,11
+MCS1,"MCS for Views A, B",,CS1-1,Main MCS for model,11
+,MCS for DRF A|B,,CS1-2,Same location as CS1-1,11
+-,General Notes,NOTES…,STR1,Flat to screen,11
+-,Identifier for Section View B,,VSI1,,11
