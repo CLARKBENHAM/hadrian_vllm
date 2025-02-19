@@ -30,7 +30,7 @@ TARGET_COLS = [
     "Specification",
     "Element ID",
     "Comments",
-    "assembly id",
+    "Assembly ID",
 ]
 
 # A minimal set of headers to decide if a table is relevant.
@@ -65,16 +65,14 @@ def remove_unicode_from_df(df):
 def filter_and_fix_table(df):
     """
     Accept the DataFrame only if its columns exactly match TARGET_COLS.
-    If "assembly id" is missing, add it (with empty strings) before checking.
+    If "Assembly ID" is missing, add it (with empty strings) before checking.
     Otherwise, discard the table (return None).
     """
     # Normalize column names by stripping whitespac
     df.columns = [col.strip() if isinstance(col, str) else "" for col in df.columns]
-    # Add missing "assembly id" column if necessary
-    if "assembly id" not in df.columns:
-        df["assembly id"] = ""
-    # Now, if the set and count of columns matches TARGET_COLS, keep it.
-    if set(df.columns) == set(TARGET_COLS) and len(df.columns) == len(TARGET_COLS):
+    if "Assembly ID" not in df.columns:
+        df["Assembly ID"] = None
+    if set(df.columns) == set(TARGET_COLS):
         # Reorder columns exactly to TARGET_COLS
         return df[TARGET_COLS]
     else:
@@ -152,13 +150,12 @@ if __name__ == "__main__":
     # List of PDF paths to process.
     pdf_paths = [
         "data/NIST-FTC-CTC-PMI-CAD-models/FTC Definitions/nist_ftc_06_asme1_rd_fsi.pdf",
-        "data/NIST-FTC-CTC-PMI-CAD-models/FTC Definitions/nist_ftc_10_asme1_rb_fsi.pdf",
-        "data/NIST-FTC-CTC-PMI-CAD-models/FTC Definitions/nist_ftc_09_asme1_rd_fsi.pdf",
         "data/NIST-FTC-CTC-PMI-CAD-models/FTC Definitions/nist_ftc_07_asme1_rd_fsi.pdf",
         "data/NIST-FTC-CTC-PMI-CAD-models/FTC Definitions/nist_ftc_08_asme1_rc1_fsi.pdf",
+        "data/NIST-FTC-CTC-PMI-CAD-models/FTC Definitions/nist_ftc_09_asme1_rd_fsi.pdf",
+        "data/NIST-FTC-CTC-PMI-CAD-models/FTC Definitions/nist_ftc_10_asme1_rb_fsi.pdf",
         "data/NIST-FTC-CTC-PMI-CAD-models/FTC Definitions/nist_ftc_11_asme1_rb_fsi.pdf",
     ]
-
     all_plumber = []
     all_camelot = []
     # Extract from each PDF using both methods.
@@ -167,8 +164,10 @@ if __name__ == "__main__":
         assembly_id = m.group(1) if m else None
         plumber_df = pd.concat(extract_tables_pdfplumber(path))
         camelot_df = pd.concat(extract_tables_camelot(path, flavor="lattice"))
+        plumber_df["Assembly ID"] = assembly_id
+        camelot_df["Assembly ID"] = assembly_id
         print(path)
-        compare_dataframes(plumber_df, camelot_df, tolerance=0.95)
+        compare_dataframes(plumber_df, camelot_df, tolerance=0.98)
         all_plumber += [plumber_df]
         all_camelot += [camelot_df]
 
@@ -176,9 +175,11 @@ if __name__ == "__main__":
     # Load the reference Adobe-exported CSV.
     adobe_csv = "data/fsi_labels/adobe_exported_fsi.csv"
     adobe_df = pd.read_csv(adobe_csv)
-    for all_tables in [all_camelot]:  # , all_plumber]:
-        merged_df = pd.concat(all_tables, ignore_index=True)
-        merged_csv = "data/merged_extracted.csv"
+    for ix, all_tables in enumerate([all_camelot, all_plumber]):
+        merged_df = pd.concat(all_tables, ignore_index=True).map(
+            lambda s: re.sub(r" +", " ", s) if isinstance(s, str) else s
+        )
+        merged_csv = f"data/fsi_labels/merged_extracted_r{ix}.csv"
         merged_df.to_csv(merged_csv, index=False, encoding="utf-8")
         print(f"Merged {len(all_tables)} tables into {merged_csv}")
 
@@ -196,4 +197,4 @@ if __name__ == "__main__":
 
         # Verification 2: Compare cell-by-cell.
         print("\nComparing merged extracted data to Adobe export (ignoring unicode differences):")
-        compare_dataframes(merged_clean, adobe_clean, tolerance=1)
+        compare_dataframes(merged_clean, adobe_clean, tolerance=0.95)

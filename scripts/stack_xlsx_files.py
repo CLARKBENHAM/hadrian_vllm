@@ -5,6 +5,7 @@ import os
 import re
 import openpyxl
 import pandas as pd
+import re
 
 file_paths = [
     "data/fsi_labels/nist_ftc_06_asme1_rd_fsi.xlsx",
@@ -48,14 +49,14 @@ for path in file_paths:
                 if fill.fgColor.rgb not in ("00000000", "FFFFFFFF"):
                     any_colored = True
                     break
-        if any_colored:
+        if any_colored and relevant_cells[0].value != "Feature ID":
             row_data = {
                 "Feature ID": relevant_cells[0].value,
                 "Feature Description": relevant_cells[1].value,
                 "Specification": relevant_cells[2].value,
                 "Element ID": relevant_cells[3].value,
                 "Comments": relevant_cells[4].value,
-                "assembly id": assembly_id,
+                "Assembly ID": assembly_id,
             }
             all_rows.append(row_data)
 
@@ -67,7 +68,8 @@ df = pd.DataFrame(
         "Specification",
         "Element ID",
         "Comments",
-        "assembly id",
+        "Assembly ID",
     ],
-)
+).map(lambda s: re.sub(r" +", " ", s) if isinstance(s, str) else s)
 df.to_csv("data/fsi_labels/adobe_exported_all.csv", index=False)
+df.to_clipboard(index=False)
