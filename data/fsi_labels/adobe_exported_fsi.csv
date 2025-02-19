@@ -1,4 +1,4 @@
-Feature ID,Feature Description,Specification,Element ID,Comments,assembly id
+Feature ID,Feature Description,Specification,Element ID,Comments,Assembly ID
 F1,Datum Feature A,Flatness .01,T1,,06
 ,,Datum Feature Symbol A,DF1,,06
 F2,Datum Feature B,12.00 ±.01,D1,,06
