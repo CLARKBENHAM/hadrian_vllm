@@ -42,15 +42,15 @@ F16-F17,Spherical Diameter Surfaces,2X S⌀ 1.250 ±.008,D7,,6
 ,,Position S⌀.025|D|B|C,T11,,6
 F18-21,Counterbored Holes - Set 1,4X ⌀.415 ±.008,D8,,6
 F22-F25,,⌴⌀.625 ±.020,D9-1,,6
-,,Position ⌀.025Ⓜ️|A|B|C,T12,Applies to F18-F28,6
+,,Position ⌀.025Ⓜ|A|B|C,T12,Applies to F18-F28,6
 F26-F29,,↧.50 ±.02,D9-2,,6
 F30-F31,Counterbored Holes - Set 2,2X ⌀.562 ±.008,D10,,6
 ,,Position ⌀.015|C|A|B,T13,,6
 F32-F33,,2X ⌴ ⌀.812 ±.020,D11-1,,6
-,,Position ⌀.025Ⓜ️|C|A|B,T14,,6
+,,Position ⌀.025Ⓜ|C|A|B,T14,,6
 F34-F35,,↧.56 ±.02,D11-2,,6
 F36-F39,Counterbored Holes - Set 3,⌴⌀.40 ±.01,D12-1,,6
-,,Position ⌀.02Ⓜ️|F,T15,Applies individually to 4 holes,6
+,,Position ⌀.02Ⓜ|F,T15,Applies individually to 4 holes,6
 F40-F43,,↧.31 ±.02,D12-2,,6
 ,,4X INDIVIDUALLY,STR4,,6
 F44-F67,Fillets,24X R.125 ±.020,D13,,6
@@ -97,7 +97,6 @@ MCS8,MCS for DRF D|G,,CS8,,6
 MCS9,MCS for DRF D|H,,CS9,,6
 MCS10,MCS for DRF D|C|J,,CS10,,6
 MCS11,MCS for DRF D|C|K,,CS11,,6
--,General Notes,NOTES…,STR5,Flat to screen,6
 F1-F2,Datum Feature A,Profile .015,T1,,7
 ,,2 SURFACES F1.1 AND F1.2,STR1,,7
 ,,Datum Feature Symbol A,DF1,,7
@@ -177,8 +176,6 @@ MCS1,"MCS for Views A, B, C, D",,CS1-1,Main MCS for model,7
 ,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,7
 MCS2,MCS for DRF D|B|C,,CS2,,7
 MCS3,MCS for DRF E|B|C,,CS3,,7
--,General Notes,NOTES…,STR8,Flat to screen,7
--,Identifier for Detail View D,,VSI1,,7
 F1,Datum Feature A,Flatness .03Ⓕ,T1,Applies in free state,8
 ,,Flatness .015,T2,,8
 ,,Datum Feature Symbol A,DF1,,8
@@ -267,7 +264,6 @@ MCS3,MCS for DRF D|E-F,,CS3,,8
 MCS4,MCS for DRF D|G,,CS4,,8
 MCS5,MCS for DRF D|H-J,,CS5,,8
 MCS6,MCS for DRF D|K|L,,CS6,,8
--,General Notes,NOTES…,STR6,Flat to screen,8
 F1,Datum Feature A,Flatness .01,T1,,9
 ,,Datum Feature Symbol A,DF1,,9
 F2,Datum Feature B,⌀.234 ±.008,D1,,9
@@ -353,8 +349,6 @@ MCS2,MCS for DRF A|D|B,,CS2-1,,9
 MCS3,MCS for DRF A|F,,CS3,,9
 MCS4,MCS for DRF A|G|B,,CS4-1,,9
 ,MCS for DRF A|G|H,,CS4-2,Same location as CS4-1,9
--,General Notes,NOTES…,STR6,Flat to screen,9
--,Identifier for Detail View C,,VSI1,,9
 F1,Datum Feature A,Flatness 0.2,T1,,10
 ,,Datum Feature Symbol A,DF1,,10
 F2,Datum Feature B,⌀6 ±0.15,D1,,10
@@ -495,7 +489,6 @@ MCS4,MCS for DRF D,,CS4-1,,10
 ,MCS for DRF D|E-F-G,,CS4-4,Same location as CS4-1,10
 MCS5,MCS for DRF D|E|B,,CS5,,10
 MCS6,MCS for DRF D|G|B,,CS6,,10
--,General Notes,NOTES…,STR11,Flat to screen,10
 F1,Datum Feature A,Flatness 0.3Ⓕ,T1,,11
 ,,Datum Feature Symbol A,DF1,,11
 F2,"Datum Feature B -
@@ -514,5 +507,3 @@ web thickness",11
 F8,Optional Tooling Radii,2X R0.1 MAX,D6,Optional radius for molding,11
 MCS1,"MCS for Views A, B",,CS1-1,Main MCS for model,11
 ,MCS for DRF A|B,,CS1-2,Same location as CS1-1,11
--,General Notes,NOTES…,STR1,Flat to screen,11
--,Identifier for Section View B,,VSI1,,11
