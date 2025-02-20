@@ -245,49 +245,141 @@
         "": "0xE402"
     },
     "symbol_to_name": {
-        "⏤": "Straightness",
-        "⏥": "Flatness",
-        "○": "Circular Modifier",
-        "⌭": "Cylindricity",
-        "⌒": "Profile of a Line",
-        "⌓": "Profile of a Surface",
-        "⟂": "Perpendicularity",
-        "∠": "Angularity",
-        "∥": "Parallelism",
-        "⌯": "Symmetry",
-        "⌖": "Position",
-        "◎": "Concentricity",
-        "↗": "Circular Runout",
-        "⌰": "Total Runout",
-        "⌀": "Diameter",
-        "⌢": "Arc",
-        "Ⓕ": "Free State",
-        "Ⓛ": "Least Material Condition",
-        "Ⓜ": "Maximum Material Condition",
-        "Ⓟ": "Projected Tolerance Zone",
-        "Ⓢ": "Regardless of Feature Size",
-        "Ⓣ": "Tangent Plane",
-        "Ⓤ": "Unequal Bilateral",
-        "□": "Square",
-        "◯": "Roundness",
-        "": "Custom GD&T Symbol 1",
-        "": "Custom GD&T Symbol 2",
-        "±": "Plus Minus",
-        "…": ".*",
-        "↔": "Connecting To",
-        "↧": "Depth",
-        "⌲": "Conical Taper",
-        "⌳": "Slope",
-        "⌴": "Counterbore",
-        "⌵": "Countersink",
-        "→": "Directional Indicator",
-        "⊕": "Additive Tolerance",
-        "⊖": "Subtractive Tolerance",
-        "⌂": "Composite Tolerance",
-        "Ⓔ": "Envelope Requirement",
-        "Ⓡ": "Reference Feature",
-        "△": "Datum Target",
-        "◊": "Basic Dimension",
-        "": "Custom Modifier 1"
+        "⏤": [
+            "Straightness"
+        ],
+        "⏥": [
+            "Flatness"
+        ],
+        "○": [
+            "Circular Modifier"
+        ],
+        "⌭": [
+            "Cylindricity"
+        ],
+        "⌒": [
+            "Profile of a Line",
+            "Profile"
+        ],
+        "⌓": [
+            "Profile of a Surface",
+            "Profile Surface"
+        ],
+        "⟂": [
+            "Perpendicularity"
+        ],
+        "∠": [
+            "Angularity"
+        ],
+        "∥": [
+            "Parallelism"
+        ],
+        "⌯": [
+            "Symmetry"
+        ],
+        "⌖": [
+            "Position"
+        ],
+        "◎": [
+            "Concentricity"
+        ],
+        "↗": [
+            "Circular Runout"
+        ],
+        "⌰": [
+            "Total Runout"
+        ],
+        "⌀": [
+            "Diameter"
+        ],
+        "⌢": [
+            "Arc"
+        ],
+        "Ⓕ": [
+            "Free State"
+        ],
+        "Ⓛ": [
+            "Least Material Condition"
+        ],
+        "Ⓜ": [
+            "Maximum Material Condition"
+        ],
+        "Ⓟ": [
+            "Projected Tolerance Zone"
+        ],
+        "Ⓢ": [
+            "Regardless of Feature Size"
+        ],
+        "Ⓣ": [
+            "Tangent Plane"
+        ],
+        "Ⓤ": [
+            "Unequal Bilateral"
+        ],
+        "□": [
+            "Square"
+        ],
+        "◯": [
+            "Roundness"
+        ],
+        "": [
+            "Custom GD&T Symbol 1"
+        ],
+        "": [
+            "Custom GD&T Symbol 2"
+        ],
+        "±": [
+            "Plus or Minus"
+        ],
+        "…": [
+            ".*"
+        ],
+        "↔": [
+            "Connecting To"
+        ],
+        "↧": [
+            "Depth"
+        ],
+        "⌲": [
+            "Conical Taper"
+        ],
+        "⌳": [
+            "Slope"
+        ],
+        "⌴": [
+            "Counterbore"
+        ],
+        "⌵": [
+            "Countersink"
+        ],
+        "→": [
+            "Directional Indicator"
+        ],
+        "⊕": [
+            "Additive Tolerance"
+        ],
+        "⊖": [
+            "Subtractive Tolerance"
+        ],
+        "⌂": [
+            "Composite Tolerance"
+        ],
+        "Ⓔ": [
+            "Envelope Requirement"
+        ],
+        "Ⓡ": [
+            "Reference Feature"
+        ],
+        "△": [
+            "Datum Target",
+            "Datum Feature",
+            "Datum Feature Symbol"
+        ],
+        "◊": [
+            "Basic Dimension"
+        ],
+        "": [
+            "Custom Modifier 1"
+        ]
     }
 }

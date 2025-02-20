@@ -147,155 +147,79 @@ if __name__ == "__main__":
         "U+24C9",
         "U+24CA",
     ]
-    #     gd_t_symbols = {
-    #         "⏤": [
-    #             "Straightness"
-    #         ],  # A line indicating the allowable deviation of a line (or axis) from perfect straightness.
-    #         "⏥": [
-    #             "Flatness"
-    #         ],  # Tolerance zone between two parallel planes controlling a surface’s flatness.
-    #         "○": [
-    #             "Circularity",
-    #             "Roundness",
-    #         ],  # Ensures all points on a circular feature fall between two concentric circles.
-    #         "⌭": [
-    #             "Cylindricity"
-    #         ],  # Controls the combined variation in roundness and straightness for a cylindrical feature.
-    #         "⌒": [
-    #             "Profile of a Line",  # but NIST used to mean arclength?
-    #         ],  # Specifies the tolerance zone for a two-dimensional contour (cross‑section).
-    #         "⌓": ["Profile of a Surface"],  # Controls the overall three-dimensional shape of a surface.
-    #         "⟂": ["Perpendicularity"],  # Requires a feature be exactly 90° to a datum or datum plane.
-    #         "∠": ["Angularity"],  # Defines the allowable angular deviation relative to a datum.
-    #         "∥": ["Parallelism"],  # Ensures that a feature remains parallel to a datum or datum plane.
-    #         "⌖": [
-    #             "Position",
-    #             "True Position",
-    #         ],  # Specifies the true (nominal) location of a feature relative to its datums.
-    #         "◎": [
-    #             "Concentricity"
-    #         ],  # (ASME Y14.5‑1994) Controls the alignment of median points about a datum axis. (Note: later practice may prefer position tolerance.)
-    #         "⌯": [
-    #             "Symmetry"
-    #         ],  # Indicates that a feature is symmetrically distributed about a datum; defined in Y14.5‑1994.
-    #         "↗": [
-    #             "Circular Runout"
-    #         ],  # Controls the allowable runout (wobble) of a single surface when rotated about a datum axis.
-    #         "⌰": [
-    #             "Total Runout"
-    #         ],  # Controls the composite runout for all surfaces of a feature when rotated about a datum axis.
-    #         # Additional symbols (from extended sources):
-    #         "↔": [
-    #             "Line Profile"  # this is just wrong!!
-    #         ],  # Sometimes used to denote a profile tolerance applied to a line (found in some supplementary charts).
-    #         "↧": [
-    #             "Surface Profile"
-    #         ],  # An alternative callout for surface profile control in some resources.
-    #         ###### mannually added
-    #         "⌀": ["Diameter"],
-    #     }
-    #
-    #     modifiers_symbols = {
-    #         "Ⓜ": [
-    #             "Maximum Material Condition (MMC)"
-    #         ],  # Feature of size at its most restrictive (most material present).
-    #         "Ⓛ": [
-    #             "Least Material Condition (LMC)"
-    #         ],  # Feature of size at its least restrictive (least material present).
-    #         "Ⓟ": [
-    #             "Projected Tolerance Zone"
-    #         ],  # Indicates that the tolerance zone extends from the feature surface.
-    #         "Ⓢ": [
-    #             "Regardless of Feature Size (RFS)"
-    #         ],  # Specifies that the tolerance applies regardless of the actual size.
-    #         "Ⓣ": [
-    #             "Tangent Plane"
-    #         ],  # Indicates that a tangent plane contacts the high points of a feature.
-    #         "Ⓤ": [
-    #             "Unequal Bilateral",
-    #             "Unequally Disposed Profile",
-    #         ],  # Denotes an asymmetric tolerance zone.
-    #         "Ⓕ": ["Free State"],  # Indicates the condition of a feature free of applied forces.
-    #         # Other modifiers sometimes found in extended resources:
-    #         "→": [
-    #             "Direction of Projection"
-    #         ],  # (Less common but sometimes used in digital PMI presentations)
-    #     }
-
     # "Final" answers, with my editing
     gd_t_name_mapping = {
-        "⏤": "Straightness",
-        "⏥": "Flatness",
-        "○": "Circularity",
-        "⌭": "Cylindricity",
-        "⌒": "Profile of a Line",
-        "⌓": "Profile of a Surface",
-        "⟂": "Perpendicularity",
-        "∠": "Angularity",
-        "∥": "Parallelism",
-        "⌯": "Symmetry",
-        "⌖": "Position",
-        "◎": "Concentricity",
-        "↗": "Circular Runout",
-        "⌰": "Total Runout",
-        # "↔": "Bidirectional Tolerance",  # (guess: 80% sure)
-        # Duplicate of "↗" already defined as Circular Runout.
-        # "↧": "Axial Runout",  # (guess: vertical or axial runout)
-        # A duplicate "∠" (Angularity) and "∥" (Parallelism) follow.
-        "⌀": "Diameter",
-        # Next duplicates: "⌒" and "⌓" (profile of line and surface) and "⌖" (position)
-        "⌢": "Arc",  # for arc length # (guess: used to indicate an arc segment)
-        # Next duplicate "⌭" and "⌯" and "⌰" again.
-        # "⌲": "Projected Profile",  # (guess: for a projected or extended profile) # wrong and Wrong
-        # "⌳": "Datum Target",  # (guess: commonly a target point indicator)
-        # "⌴": "Profile of a Curve",  # (guess: variation of profile tolerance)
-        # "⌵": "Slope",  # (guess: used to denote a taper or slope)
-        # Then duplicates of "⏤" and "⏥" again.
-        "Ⓕ": "Free State",
-        "Ⓛ": "Least Material Condition",
-        "Ⓜ": "Maximum Material Condition",
-        "Ⓟ": "Projected Tolerance Zone",
-        "Ⓢ": "Regardless of Feature Size",
-        "Ⓣ": "Tangent Plane",
-        "Ⓤ": "Unequal Bilateral",  # (unequally disposed profile tolerance)
-        "□": "Square",
-        "◎": "Concentricity",  # duplicate
-        "◯": "Roundness",  # (guess: alternate circular symbol)
-        "⟂": "Perpendicularity",  # duplicate
-        "": "Custom GD&T Symbol 1",  # (nonstandard; proprietary glyph)
-        "": "Custom GD&T Symbol 2",  # (nonstandard; proprietary glyph)
+        "⏤": ["Straightness"],
+        "⏥": ["Flatness"],
+        "○": ["Circularity"],
+        "⌭": ["Cylindricity"],
+        "⌒": ["Profile of a Line", "Profile"],  # "Profile" in answer key
+        "⌓": ["Profile of a Surface", "Profile Surface"],
+        "⟂": ["Perpendicularity"],
+        "∠": ["Angularity"],
+        "∥": [
+            "Parallelism"
+        ],  # correct unicode but not what it looks like on diagram, maybe just a rendering thing?
+        # "//": ["Parallelism"], # TODO needed hack? asem8 T14 T21 T5 T16 T17
+        "⌯": ["Symmetry"],
+        "⌖": ["Position"],
+        "◎": ["Concentricity"],
+        "↗": ["Circular Runout"],
+        "⌰": ["Total Runout"],
+        "⌀": ["Diameter"],
+        "⌢": ["Arc"],  # for arc length
+        "Ⓕ": ["Free State"],
+        "Ⓛ": ["Least Material Condition"],
+        "Ⓜ": ["Maximum Material Condition"],
+        "Ⓟ": ["Projected Tolerance Zone"],
+        "Ⓢ": ["Regardless of Feature Size"],
+        "Ⓣ": ["Tangent Plane"],
+        "Ⓤ": ["Unequal Bilateral"],  # (unequally disposed profile tolerance)
+        "□": ["Square"],
+        "◎": ["Concentricity"],  # duplicate
+        "◯": ["Roundness"],  # (guess: alternate circular symbol)
+        "⟂": ["Perpendicularity"],  # duplicate
+        "": ["Custom GD&T Symbol 1"],  # (nonstandard; proprietary glyph)
+        "": ["Custom GD&T Symbol 2"],  # (nonstandard; proprietary glyph)
         # Not a symbol but used in answer key
-        "±": "Plus Minus",
-        "…": ".*",  # used for dot dot dot for rest of notes, don't bother testing on this
-        "↔": "Connecting To",  # ["Flatness Extent Indicator", "Flatness Boundary Indicator"] # not a GD&T symbol, but was part of text to indicate "Defines that flatness applies between line elements L1 and L2"
-        "↧": "Depth",  # ["Depth of Feature", "Surface Profile"] # not GD&T either
-        # what does NIST data call these things though?
-        "⌲": "Conical Taper",  # (U+2332)
-        "⌳": "Slope",  # FFlat Taper  # (U+2333)
-        "⌴": "Counterbore",  # (U+2334)
-        "⌵": "Countersink",
-        "□": "Square",  # (U+25A1)
+        "±": ["Plus or Minus"],
+        "…": [".*"],  # used for dot dot dot for rest of notes, don't bother testing on this
+        "↔": [
+            "Connecting To"
+        ],  # ["Flatness Extent Indicator", "Flatness Boundary Indicator"] # not a GD&T symbol, but was part of text to indicate "Defines that flatness applies between line elements L1 and L2"
+        "↧": ["Depth"],  # ["Depth of Feature", "Surface Profile"] # not GD&T either
+        # what does NIST data call these things though? Doesn't matter since only symbol used
+        "⌲": ["Conical Taper"],  # (U+2332)
+        "⌳": ["Slope"],  # FFlat Taper  # (U+2333)
+        "⌴": ["Counterbore"],  # (U+2334)
+        "⌵": ["Countersink"],
+        "□": ["Square"],  # (U+25A1)
     }
-
     modifiers_name_mapping = {
-        "→": "Directional Indicator",  # (guess: indicates a direction)
-        "⊕": "Additive Tolerance",  # (guess: plus–type modifier)
-        "⊖": "Subtractive Tolerance",  # (guess: minus–type modifier)
-        "⌂": "Composite Tolerance",  # (guess: used on open or composite features)
+        "→": ["Directional Indicator"],  # (guess: indicates a direction)
+        "⊕": ["Additive Tolerance"],  # (guess: plus–type modifier)
+        "⊖": ["Subtractive Tolerance"],  # (guess: minus–type modifier)
+        "⌂": ["Composite Tolerance"],  # (guess: used on open or composite features)
         # Second occurrence of "⌂" is identical.
-        "Ⓔ": "Envelope Requirement",
-        "Ⓡ": "Reference Feature",  # (guess: indicates a referenced feature)
-        "△": "Datum Target",  # (triangle often marks datum targets)
-        "◊": "Basic Dimension",  # (diamond is used for basic or theoretically exact dimensions)
-        "○": "Circular Modifier",  # (in this context, an alternate circular modifier)
-        "": "Custom Modifier 1",  # (nonstandard custom modifier)
-        "Ⓕ": "Free State",  # standard modifier
-        "Ⓛ": "Least Material Condition",
-        "Ⓜ": "Maximum Material Condition",
-        "Ⓟ": "Projected Tolerance Zone",
-        "Ⓢ": "Regardless of Feature Size",
-        "Ⓣ": "Tangent Plane",
-        "Ⓤ": "Unequal Bilateral",
+        "Ⓔ": ["Envelope Requirement"],
+        "Ⓡ": ["Reference Feature"],  # (guess: indicates a referenced feature)
+        "△": [
+            "Datum Target",
+            "Datum Feature",
+            "Datum Feature Symbol",
+        ],  # (triangle often marks datum targets)
+        "◊": ["Basic Dimension"],  # (diamond is used for basic or theoretically exact dimensions)
+        "○": [
+            "Circular Modifier"
+        ],  # or All Around? # (in this context, an alternate circular modifier),
+        "": ["Custom Modifier 1"],  # (nonstandard custom modifier)
+        "Ⓕ": ["Free State"],  # standard modifier
+        "Ⓛ": ["Least Material Condition"],
+        "Ⓜ": ["Maximum Material Condition"],
+        "Ⓟ": ["Projected Tolerance Zone"],
+        "Ⓢ": ["Regardless of Feature Size"],
+        "Ⓣ": ["Tangent Plane"],
+        "Ⓤ": ["Unequal Bilateral"],
     }
 
     def check_chars_exhaustive(known_symbols):
