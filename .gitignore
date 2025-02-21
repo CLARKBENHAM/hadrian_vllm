@@ -1,6 +1,8 @@
 # Misc local files
 scrap/*
 data/*
+!data/prompts/
+!data/fsi_labels/Hadrian\ Vllm\ test\ case\ -\ Final\ Merge.csv 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

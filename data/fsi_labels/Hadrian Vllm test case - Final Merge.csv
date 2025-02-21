@@ -24,14 +24,16 @@ F11-F12,Datum Target H1,Datum Target Symbol H1,DT2,,6
 ,,Represented line element,RLE2,"Circular line element for datum target
 H1 and controlled element",6
 ,,(⌀1.000),D4,Defines RLE2,6
-F12-F13,"Datum Target J1, J2",Datum Target Symbols J1-J2,"DT3, DT4",,6
+F12-F13,Datum Target J1,Datum Target Symbols J1,DT3,,6
+,Datum Target J2,Datum Target Symbols J2,DT4,,6
 ,,"Profile Surface .05|D|B|C
 Profile Surface .01|D",T9,Surfaces are grouped,6
 ,,2 SURFACES,STR2,Groups surfaces for T9,6
 ,,Represented line element,RLE3,,6
 ,,Represented line element,RLE4,,6
 ,,(1.106),D5,Applies to datum target lines,6
-F14-F15,"Datum Target K1, K2",Datum Target Symbols K1-K2,"DT5, DT6",,6
+F14-F15,Datum Target K1,Datum Target Symbols K1,DT5,,6
+,Datum Target K2,Datum Target Symbols K2,DT6,,6
 ,,"Profile Surface .05|D|B|C
 Profile Surface .01|D",T10,Surfaces are grouped,6
 ,,2 SURFACES,STR3,Groups surfaces for T10,6
@@ -385,11 +387,13 @@ F11,Datum Feature J,15 ±0.2,D6,,10
 ,,Datum Feature Symbol J,DF9,,10
 F12-F13,"Datum Target K1, K2","Supplemental geometry planes
 representing Vee K1-K2",SG1,Features 12 and 13 are not on model,10
-,,Datum Target Symbols K1-K2,"DT1, DT2",,10
+,,Datum Target Symbols K1,DT1,,10
+,,Datum Target Symbols K2,DT2,,10
 F14-F15,"Movable Datum Target L1, L2","Supplemental geometry planes
 representing Vee L1-L2",SG2,Features 14 and 15 are not on model,10
-,,"Movable Datum Target Symbols L1-
-L2","MDT1, MDT2","Movable datum targets from ASME
+,,Movable Datum Target Symbols L1,MDT1,"Movable datum targets from ASME
+Y14.41-2003",10
+,,Movable Datum Target Symbols L2,MDT2,"Movable datum targets from ASME
 Y14.41-2003",10
 F16-F17,Pattern of 2 Other Mtg Holes,2X ⌀6 ±0.15,D7,,10
 ,,Position ⌀0.65|A|B|C,T14,,10
