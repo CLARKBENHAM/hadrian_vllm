@@ -80,25 +80,6 @@ F80,Width feature of size @ J1-J2,.500 ±.008,D22,,6
 F81,Width feature of size @ K1-K2,.500 ±.008,D23,,6
 ,,Position .025|D|C|K,T22,,6
 -,General Profile Tolerance 1,Profile Surface .05|A|B|C,T23,,6
-MCS1,"MCS for Views 1, 2, 3",,CS1-1,Main MCS for model,6
-,MCS for DRF A,,CS1-2,Same location as CS1-1,6
-,MCS for DRF A|B,,CS1-3,Same location as CS1-1,6
-,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,6
-,MCS for DRF C|A|B,,CS1-5,Same location as CS1-1,6
-MCS2,MCS for DRF D|B|C,,CS2,,6
-MCS3,MCS for DRF E|A|B,,CS3,,6
-MCS4,MCS for DRF F1,,CS4,"First of 4 individual datum reference
-frames for F",6
-MCS5,MCS for DRF F2,,CS5,"Second of 4 individual datum
-reference frames for F",6
-MCS6,MCS for DRF F3,,CS6,"Third of 4 individual datum reference
-frames for F",6
-MCS7,MCS for DRF F4,,CS7,"Fourth of 4 individual datum reference
-frames for F",6
-MCS8,MCS for DRF D|G,,CS8,,6
-MCS9,MCS for DRF D|H,,CS9,,6
-MCS10,MCS for DRF D|C|J,,CS10,,6
-MCS11,MCS for DRF D|C|K,,CS11,,6
 F1-F2,Datum Feature A,Profile .015,T1,,7
 ,,2 SURFACES F1.1 AND F1.2,STR1,,7
 ,,Datum Feature Symbol A,DF1,,7
@@ -172,12 +153,6 @@ F56,"Bottom Outside Surface
 Profile .015|A",T18,,7
 ,,SIM REQT,STR7,,7
 -,General Profile Tolerance,Profile .06|A|B|C,T19,,7
-MCS1,"MCS for Views A, B, C, D",,CS1-1,Main MCS for model,7
-,MCS for DRF A,,CS1-2,Same location as CS1-1,7
-,MCS for DRF A|B,,CS1-3,Same location as CS1-1,7
-,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,7
-MCS2,MCS for DRF D|B|C,,CS2,,7
-MCS3,MCS for DRF E|B|C,,CS3,,7
 F1,Datum Feature A,Flatness .03Ⓕ,T1,Applies in free state,8
 ,,Flatness .015,T2,,8
 ,,Datum Feature Symbol A,DF1,,8
@@ -254,18 +229,6 @@ All Around",T26,,8
 F31,Cutout for Middle Switch on +X Side,"Profile .015|D|KⓂ|LⓂ
 All Around",T27,,8
 -,General Profile Tolerance,Profile Surface .06|A|B|C,T28,,8
-MCS1,"MCS for Views A, B",,CS1-1,Main MCS for model,8
-,MCS for DRF A,,CS1-2,Same location as CS1-1,8
-,MCS for DRF A|B,,CS1-3,Same location as CS1-1,8
-,MCS for DRF A|B|C - Free State,,CS1-4,Same location as CS1-1,8
-,MCS for DRF A|B|C - Restrained,,CS1-5,Same location as CS1-1,8
-MCS2,"MCS for Views C, D",,CS2-1,,8
-,MCS for DRF D,,CS2-2,Same location as CS2-1,8
-,MCS for DRF D|B|C,,CS2-3,Same location as CS2-1,8
-MCS3,MCS for DRF D|E-F,,CS3,,8
-MCS4,MCS for DRF D|G,,CS4,,8
-MCS5,MCS for DRF D|H-J,,CS5,,8
-MCS6,MCS for DRF D|K|L,,CS6,,8
 F1,Datum Feature A,Flatness .01,T1,,9
 ,,Datum Feature Symbol A,DF1,,9
 F2,Datum Feature B,⌀.234 ±.008,D1,,9
@@ -342,15 +305,6 @@ F42-F43,Hole Pattern 7 - SIM REQT RH,2X ⌀.156 ±.008,D21,,9
 ,,SEP REQT,STR5,,9
 F44-F67,Profile Tolerance 1,"Profile .05|A|B|C
 All Around",T29,Peripheral (sheared) surfaces,9
-MCS1,"MCS for Views A, B, C, D",,CS1-1,Main MCS for model,9
-,MCS for DRF A,,CS1-2,Same location as CS1-1,9
-,MCS for DRF A|B,,CS1-3,Same location as CS1-1,9
-,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,9
-MCS2,MCS for DRF A|D|B,,CS2-1,,9
-,MCS for DRF A|D|E,,CS2-2,Same location as CS2-1,9
-MCS3,MCS for DRF A|F,,CS3,,9
-MCS4,MCS for DRF A|G|B,,CS4-1,,9
-,MCS for DRF A|G|H,,CS4-2,Same location as CS4-1,9
 F1,Datum Feature A,Flatness 0.2,T1,,10
 ,,Datum Feature Symbol A,DF1,,10
 F2,Datum Feature B,⌀6 ±0.15,D1,,10
@@ -480,19 +434,6 @@ Holes",4X ⌀7 ±0.25,D26,,10
 ,,Position ⌀0Ⓜ|A|B|C,T35,,10
 ,,Cylindricity 0.1,T36,,10
 -,General Profile Tolerance,Profile Surface 1.5|A|B|C,T37,,10
-MCS1,"MCS for Views A, B, C, D, E",,CS1-1,Main MCS for model,10
-,MCS for DRF A,,CS1-2,Same location as CS1-1,10
-,MCS for DRF A|B,,CS1-3,Same location as CS1-1,10
-,MCS for DRF A|B|C,,CS1-4,Same location as CS1-1,10
-MCS2,MCS for DRF H,,CS2-1,,10
-,MCS for DRF H|K|L,,CS2-2,Same location as CS2-1,10
-MCS3,MCS for DRF A|J,,CS3,,10
-MCS4,MCS for DRF D,,CS4-1,,10
-,MCS for DRF D|B|C,,CS4-2,Same location as CS4-1,10
-,MCS for DRF D|F|B,,CS4-3,Same location as CS4-1,10
-,MCS for DRF D|E-F-G,,CS4-4,Same location as CS4-1,10
-MCS5,MCS for DRF D|E|B,,CS5,,10
-MCS6,MCS for DRF D|G|B,,CS6,,10
 F1,Datum Feature A,Flatness 0.3Ⓕ,T1,,11
 ,,Datum Feature Symbol A,DF1,,11
 F2,"Datum Feature B -
@@ -509,5 +450,3 @@ F6,Top of Web,Profile 0.3Ⓕ|A| B,T4,,11
 F7,Thickness of Web,1.93 ±0.08,D5,"Envelope principle does not apply to
 web thickness",11
 F8,Optional Tooling Radii,2X R0.1 MAX,D6,Optional radius for molding,11
-MCS1,"MCS for Views A, B",,CS1-1,Main MCS for model,11
-,MCS for DRF A|B,,CS1-2,Same location as CS1-1,11
