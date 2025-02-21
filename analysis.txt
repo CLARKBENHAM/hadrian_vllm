@@ -8,6 +8,7 @@ semantic PMI for machine, graphic PMI for humans
 # Data Sources
 NIST - 12 labeled assembly and part examples
   https://docs.google.com/spreadsheets/d/1tdtUZaJAdkri25PN4LroGV-EJTjW0Uh98TclfjHdJlk/edit?gid=462465708#gid=462465708 where it's all munged together, use "data/fsi_labels/Hadrian\ Vllm\ test\ case\ -\ Final\ Merge.csv" and fsi labeled parts
+		asem6 DT3 duplicated pg3
 More advanced AP242 case http://www.asd-ssg.org/step-ap242-benchmark.html
 Forum for checking cad integrations: https://www.mbx-if.org/home/cax/
 
@@ -55,4 +56,34 @@ ITAR compliant:
 
 
 
+
+### Data Sources - Adjusting definitions for transcription
+Solved
+# parallelism not matching symbol render
+
+
+#Using | to deliniate boxes isn't stanardized?
+# "All Around" added but no description on page? T23
+# "Datum Feature" # asem8 DF1, added to modifiers
+# LDN1, RLE1, CH1, how's that supposed to be transcribed? No text on diagram, just must infer
+# single position symbol
+# D2 using / for 1 value over another as fraction on page
+# Profile surface label to right of page, T28
+# CS1
+# the big circles, VSI
+
+
+### Inital Model Quality
+	Think I gotta finetune
+	split screenshots and send works w 4o if the elements are level with page (assem 6) and at least 10 at a time. Have to keep reminding to use symbols and rules
+		if off kilter to page (assem 7), 3 elem reminded twice, 7 elem needed o3-mini twice. But it also broke on a specific element asem7 t2.
+		Send full screenshot, and got total halucinates twice, even when said first was a total halucination.
+	So splitscreen q with few shot can get if use Best-of-N. Maybe also aggregate post-hoc with o3 mini?
+		https://chatgpt.com/c/67b7c08e-38cc-8004-a967-da5c70589124 4o not quite, o3-mini mostly
+		https://aistudio.google.com/prompts/1Pxgv5wu66P6C_7_LccWGPhsMXklx3vVA not as good w/o few shot
+	Full screenshot 1 element id fails utterly. Not a problem with image resizing.
+		o3-mini failing but O1 succedds on img with 8 total:
+		and gemini-pro-2.0 (mostly) O1 (mostly), succeed on 17 example also
+			https://chatgpt.com/c/67b7cef7-9740-8004-a3aa-24a39e4b8f10
+			https://aistudio.google.com/prompts/1AMb4FUSThR9LgS65zcoZFi41QHY-J2LY
 
