@@ -1,0 +1,250 @@
+I have a machine part render with GD&T data attached to each element ID. I want to extract this GD&T data for further use in an automated pipeline.
+
+1. Identify ALL Element IDs and their associated GD&T specifications
+2. Requirements:
+   - Focus ONLY on Element IDs:
+   - Use EITHER symbols or names (Acceptable: '⏥' or 'Flatness')
+   - Valid symbols/names:
+    gd_t_name_mapping = {
+        "⏤": ["Straightness"],
+        "⏥": ["Flatness"],
+        "○": ["Circularity"],
+        "⌭": ["Cylindricity"],
+        "⌒": ["Profile of a Line", "Profile"],
+        "⌓": ["Profile of a Surface", "Profile Surface"],
+        "⟂": ["Perpendicularity"],
+        "∠": ["Angularity"],
+        "∥": [
+            "Parallelism"
+        ],
+        "⌯": ["Symmetry"],
+        "⌖": ["Position"],
+        "◎": ["Concentricity"],
+        "↗": ["Circular Runout"],
+        "⌰": ["Total Runout"],
+        "⌀": ["Diameter"],
+        "⌢": ["Arc"],
+        "Ⓕ": ["Free State"],
+        "Ⓛ": ["Least Material Condition"],
+        "Ⓜ": ["Maximum Material Condition"],
+        "Ⓟ": ["Projected Tolerance Zone"],
+        "Ⓢ": ["Regardless of Feature Size"],
+        "Ⓣ": ["Tangent Plane"],
+        "Ⓤ": ["Unequal Bilateral"],
+        "□": ["Square"],
+        "◎": ["Concentricity"],
+        "◯": ["Roundness"],
+        "⟂": ["Perpendicularity"],
+        "": ["Custom GD&T Symbol 1"],
+        "": ["Custom GD&T Symbol 2"],
+
+        "±": ["Plus or Minus"],
+        "…": [".*"],
+        "↔": [
+            "Connecting To"
+        ],
+        "↧": ["Depth"],
+        "⌲": ["Conical Taper"],
+        "⌳": ["Slope"],
+        "⌴": ["Counterbore"],
+        "⌵": ["Countersink"],
+        "□": ["Square"],
+    }
+    modifiers_name_mapping = {
+        "→": ["Directional Indicator"],
+        "⊕": ["Additive Tolerance"],
+        "⊖": ["Subtractive Tolerance"],
+        "⌂": ["Composite Tolerance"],
+        "Ⓔ": ["Envelope Requirement"],
+        "Ⓡ": ["Reference Feature"],
+        "△": [
+            "Datum Target",
+            "Datum Feature",
+            "Datum Feature Symbol",
+        ],
+        "◊": ["Basic Dimension"],
+        "○": [
+            "Circular Modifier"
+        ],
+        "": ["Custom Modifier 1"],
+        "Ⓕ": ["Free State"],
+        "Ⓛ": ["Least Material Condition"],
+        "Ⓜ": ["Maximum Material Condition"],
+        "Ⓟ": ["Projected Tolerance Zone"],
+        "Ⓢ": ["Regardless of Feature Size"],
+        "Ⓣ": ["Tangent Plane"],
+        "Ⓤ": ["Unequal Bilateral"],
+    }
+		- Take extra time to place the correct symbol. This has proven to be the trickiest part
+    - Include tolerance values EXACTLY as shown (e.g., '±.01', '12.00')
+    - Return JSON format: {{"ElementID": "Full Specification String"}}
+
+ OUTPUT ONLY VALID JSON WITH NO COMMENTARY.
+
+
+ Feature Control Frames (Rectangles)
+ If a feature control frame (FCF) has multiple compartments (boxes), transcribe the first compartment (the primary GD&T symbol) in English (e.g., “Position,” “Flatness,” “Profile,” etc.).
+ Subsequent compartments (tolerance value, modifiers, datum references) should be separated by the pipe character |.
+ Example:
+ A rectangle around “⌖|⌀.095Ⓔ|X|Y” → "Position ⌀.095Ⓔ|X|Y"
+ A rectangle around “⏥ .03Ⓕ” → "Flatness .03Ⓕ"
+ All Around Symbol
+
+
+ A small circular arrow hooking outside the FCF indicates “All Around.”
+ If present, append \nAll Around to that element’s transcription.
+ Example:
+ A rectangle with “⌒|.04|D|E-F” plus a small circular arrow → "Profile .04|D|E-F\nAll Around"
+
+
+ Datum Feature Symbols
+ If you see a standalone square/rectangle with a letter (e.g., “A”) and connected by line to Datum Target symbol "△" , transcribe it as "Datum Feature A" (or B, C, etc.).
+ If your system uses an internal ID like “DF1,” map it: DF1 → "Datum Feature A".
+
+
+ Elements with No Direct Text
+ RLE: “Represented line element”
+ LDN: “Leader-Directed Note <name>” (e.g., Leader-Directed Note L1)
+ CH: “Crosshatch between <line1> and <line2>`
+ You will have to specify which lines or notes are involved (e.g., “Crosshatch between L1 and L2”).
+ Multiple Boxes with One Symbol
+
+
+ Sometimes a single GD&T symbol applies to two boxed and stacked compartments. If so, the symbol is on the first line, and the second line has the next compartments.
+ Example:
+ If you have “(profile symbol)” in the first box, and two stacked compartments .040|D|B|C over .005|D|B|C, transcribe:
+ "Profile .040|D|B|C
+ Profile .005|D|B|C"
+ If there’s an “all around” arrow, append \nAll Around at the end of both.
+ There may just be 2 seperate IDs on top of each other in which case this rule does not apply. Only when there's a single larger boxed symbol in front of 2 rectangles will they correspond to the same element ID.
+
+ Stacked Dimensions at End of Line
+ If the tolerance at the end of a a dimension has a top number over a bottom number taking up more height then the original row, transcribe it with a slash.
+ Example:
+ “5X ⌀.333” with “+.008” over “-.002” → "5X ⌀.333 +.008/-.002"
+ Note there will often be multiple seperate element IDs stack on top of each other. They should be kept seperate.
+
+
+ Default for Untoleranced Surfaces
+ If there’s a rectangle or note that states “APPLIES TO ALL UNTOLERANCED SURFACES,” transcribe only the FCF plus that phrase.
+ Example:
+ “⌓ .07|X|Y|Z” and “APPLIES TO ALL UNTOLERANCED SURFACES” → "Profile Surface .07|X|Y|Z"
+
+
+ No Need to Transcribe
+ Coordinate Systems labeled “CSX”
+ Plane or View Selection Indicators labeled “VSIX”
+ Notes for the whole diagram, generally on the left side of the first page
+
+
+Example Labeling for Assembly 6 file nist_ftc_06_asme1_rd_elem_ids.pdf
+{
+    'T1':'Flatness .01',
+'DF1':'Datum Feature Symbol A',
+'D1':'12.00 ±.01',
+'T2':'Perpendicularity .012|A',
+'DF2':'Datum Feature Symbol B',
+'T3':'Perpendicularity .012|A|B',
+'DF3':'Datum Feature Symbol C',
+'T4':'Profile Surface .02|A|B|C',
+'T5':'Flatness .01',
+'DF4':'Datum Feature Symbol D',
+'T6':'Profile Surface .02|A|B|C',
+'T7':'Flatness .01',
+'DF5':'Datum Feature Symbol E',
+'D2':'4X ⌀.281 ±.008',
+'T8':'Position ⌀.015|E|A|B',
+'DF6':'Datum Feature Symbol F',
+'STR1':'4X INDIVIDUALLY',
+'DT1':'Datum Target Symbol G1',
+'RLE1':'Represented line element',
+'D3':'(⌀1.000)',
+'DT2':'Datum Target Symbol H1',
+'RLE2':'Represented line element',
+'D4':'(⌀1.000)',
+'DT3, DT4':'Datum Target Symbols J1-J2',
+"'T9':'Profile Surface .05|D|B|C
+Profile Surface .01|D',"
+'STR2':'2 SURFACES',
+'RLE3':'Represented line element',
+'RLE4':'Represented line element',
+'D5':'(1.106)',
+'DT5, DT6':'Datum Target Symbols K1-K2',
+"'T10':'Profile Surface .05|D|B|C
+Profile Surface .01|D',"
+'STR3':'2 SURFACES',
+'RLE5':'Represented line element',
+'RLE6':'Represented line element',
+'D6':'-1.106',
+'D7':'2X S⌀ 1.250 ±.008',
+'T11':'Position S⌀.025|D|B|C',
+'D8':'4X ⌀.415 ±.008',
+'D9-1':'⌴⌀.625 ±.020',
+'T12':'Position ⌀.025Ⓜ|A|B|C',
+'D9-2':'↧.50 ±.02',
+'D10':'2X ⌀.562 ±.008',
+'T13':'Position ⌀.015|C|A|B',
+'D11-1':'2X ⌴ ⌀.812 ±.020',
+'T14':'Position ⌀.025Ⓜ|C|A|B',
+'D11-2':'↧.56 ±.02',
+'D12-1':'⌴⌀.40 ±.01',
+'T15':'Position ⌀.02Ⓜ|F',
+'D12-2':'↧.31 ±.02',
+'STR4':'4X INDIVIDUALLY',
+'D13':'24X R.125 ±.020',
+'D14':'(SR.500)',
+'D15':'2X CR.50 ±.02',
+'D16':'⌳1.00 : 2.00',
+'T16':'Profile Surface .04|A|B|C',
+'D17':'2X 1.00 : 3.00 ⌲',
+"'T17':'Profile Surface .05|D|B|C
+Profile Surface .01|D',"
+"'T17':'Profile Surface .05|D|B|C
+Profile Surface .01|D',"
+"'T18':'Profile Surface .05|D|B|C
+Profile Surface .01|D',"
+"'T18':'Profile Surface .05|D|B|C
+Profile Surface .01|D',"
+'D18':'⌀.250 ±.008',
+'T19':'Position ⌀.015|D|G',
+'D19':'↧.50 ±.05',
+'D20':'⌀.250 ±.008',
+'T20':'Position ⌀.015|D|H',
+'D21':'↧.50 ±.05',
+'D22':'.500 ±.008',
+'T21':'Position .025|D|C|J',
+'D23':'.500 ±.008',
+'T22':'Position .025|D|C|K',
+'T23':'Profile Surface .05|A|B|C',
+'CS1-1':'',
+'CS1-2':'',
+'CS1-3':'',
+'CS1-4':'',
+'CS1-5':'',
+'CS2':'',
+'CS3':'',
+'CS4':'',
+'CS5':'',
+'CS6':'',
+'CS7':'',
+'CS8':'',
+'CS9':'',
+'CS10':'',
+'CS11':'',
+}
+
+Use these guidelines consistently to convert each GD&T annotation into a standardized text form. Pay extra attention the exactly correct GD&T symbol is used.
+
+
+Labeling for Assembly 7 file nist_ftc_07_asme1_rd_elem_ids.pdf
+The first couple answers are
+{
+'T1':'Profile .015',
+'STR1':'2 SURFACES F1.1 AND F1.2',
+'DF1':'Datum Feature Symbol A',
+'LDN1':'Leader-Directed Note F1.1',
+'LDN2':'Leader-Directed Note F1.2',
+'D1':'⌀.250 +.003/-.000',
+}
+
+What is the GD&T data for symbol 'D2'?
