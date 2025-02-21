@@ -168,17 +168,7 @@ if __name__ == "__main__":
         "⌰": ["Total Runout"],
         "⌀": ["Diameter"],
         "⌢": ["Arc"],  # for arc length
-        "Ⓕ": ["Free State"],
-        "Ⓛ": ["Least Material Condition"],
-        "Ⓜ": ["Maximum Material Condition"],
-        "Ⓟ": ["Projected Tolerance Zone"],
-        "Ⓢ": ["Regardless of Feature Size"],
-        "Ⓣ": ["Tangent Plane"],
-        "Ⓤ": ["Unequal Bilateral"],  # (unequally disposed profile tolerance)
-        "□": ["Square"],
-        "◎": ["Concentricity"],  # duplicate
         "◯": ["Roundness"],  # (guess: alternate circular symbol)
-        "⟂": ["Perpendicularity"],  # duplicate
         "": ["Custom GD&T Symbol 1"],  # (nonstandard; proprietary glyph)
         "": ["Custom GD&T Symbol 2"],  # (nonstandard; proprietary glyph)
         # Not a symbol but used in answer key
@@ -210,8 +200,8 @@ if __name__ == "__main__":
         ],  # (triangle often marks datum targets)
         "◊": ["Basic Dimension"],  # (diamond is used for basic or theoretically exact dimensions)
         "○": [
-            "Circular Modifier"
-        ],  # or All Around? # (in this context, an alternate circular modifier),
+            "All Around"
+        ],  # Circulatiry as symbol, All Around if modifies a bar out. No dedicated all around unicode char? Depends on context? # (in this context, an alternate circular modifier),
         "": ["Custom Modifier 1"],  # (nonstandard custom modifier)
         "Ⓕ": ["Free State"],  # standard modifier
         "Ⓛ": ["Least Material Condition"],

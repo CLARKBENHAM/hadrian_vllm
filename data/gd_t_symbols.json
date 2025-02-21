@@ -252,7 +252,7 @@
             "Flatness"
         ],
         "○": [
-            "Circular Modifier"
+            "All Around"
         ],
         "⌭": [
             "Cylindricity"
@@ -295,30 +295,6 @@
         "⌢": [
             "Arc"
         ],
-        "Ⓕ": [
-            "Free State"
-        ],
-        "Ⓛ": [
-            "Least Material Condition"
-        ],
-        "Ⓜ": [
-            "Maximum Material Condition"
-        ],
-        "Ⓟ": [
-            "Projected Tolerance Zone"
-        ],
-        "Ⓢ": [
-            "Regardless of Feature Size"
-        ],
-        "Ⓣ": [
-            "Tangent Plane"
-        ],
-        "Ⓤ": [
-            "Unequal Bilateral"
-        ],
-        "□": [
-            "Square"
-        ],
         "◯": [
             "Roundness"
         ],
@@ -352,6 +328,9 @@
         "⌵": [
             "Countersink"
         ],
+        "□": [
+            "Square"
+        ],
         "→": [
             "Directional Indicator"
         ],
@@ -380,6 +359,27 @@
         ],
         "": [
             "Custom Modifier 1"
+        ],
+        "Ⓕ": [
+            "Free State"
+        ],
+        "Ⓛ": [
+            "Least Material Condition"
+        ],
+        "Ⓜ": [
+            "Maximum Material Condition"
+        ],
+        "Ⓟ": [
+            "Projected Tolerance Zone"
+        ],
+        "Ⓢ": [
+            "Regardless of Feature Size"
+        ],
+        "Ⓣ": [
+            "Tangent Plane"
+        ],
+        "Ⓤ": [
+            "Unequal Bilateral"
         ]
     }
 }
