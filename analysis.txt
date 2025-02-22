@@ -68,7 +68,7 @@ Solved
 # LDN1, RLE1, CH1, how's that supposed to be transcribed? No text on diagram, just must infer
 # single position symbol
 # D2 using / for 1 value over another as fraction on page
-# Profile surface label to right of page, T28
+# Profile surface label to right of page, T28:
 # CS1
 # the big circles, VSI
 
