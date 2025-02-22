@@ -1,6 +1,9 @@
 # %%
 from math import ceil
 from PIL import Image
+import difflib
+
+from typing import Union, List
 
 # Define model-specific parameters
 MODEL_PARAMS = {
@@ -24,6 +27,13 @@ MODEL_PARAMS = {
         "base_tokens": 75,
         "tokens_per_tile": 150,
         "price_per_1m_tokens_in": 1.10,  # $1.10 per 1M tokens
+    },
+    "gpt-4o": {
+        "max_dim": 1024,
+        "tile_size": 512,
+        "base_tokens": 75,
+        "tokens_per_tile": 150,
+        "price_per_1m_tokens_in": 2.5,
     },
     "gemini-2.0-flash": {
         "max_dim": 2304,
@@ -52,9 +62,19 @@ MODEL_PARAMS = {
 }
 
 
+def find_closest_model(model, model_list):
+    return difflib.get_close_matches(model, model_list, n=1, cutoff=0.2)
+
+
 def calculate_image_tokens_and_cost(image_path, model="o1"):
     if model not in MODEL_PARAMS:
-        raise ValueError(f"Unsupported model: {model}")
+        closest_models = find_closest_model(model, MODEL_PARAMS.keys())
+        if closest_models:
+            closest_model = closest_models[0]
+            print(f"Warning: Model '{model}' not found. Using closest match: '{closest_model}'")
+            model = closest_model
+        else:
+            raise ValueError(f"No similar model found for: {model}")
 
     params = MODEL_PARAMS[model]
 
@@ -82,8 +102,11 @@ def calculate_image_tokens_and_cost(image_path, model="o1"):
     return tokens, cost
 
 
-def validate_cost(image_path, model="o1", cutoff=3):
-    _, cost = calculate_image_tokens_and_cost(image_path, model=model)
+def validate_cost(image_path: Union[str, List[str]], model="o1", cutoff=3):
+    if isinstance(image_path, list):
+        cost = sum([calculate_image_tokens_and_cost(p, model=model)[1] for p in image_path])
+    else:
+        _, cost = calculate_image_tokens_and_cost(image_path, model=model)
     if cost > cutoff:
         while True:
             response = input(f"Est cost is {cost}. Continue? (yes/no): ").lower().strip()
