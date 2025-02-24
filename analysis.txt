@@ -75,6 +75,14 @@ Solved
 
 ### Inital Model Quality
 	Think I gotta finetune
+
+	Gemini is basically getting it aside from unicode specific chars, particularly what differs from spec and answer sheet
+		4o struggles with correct unicode
+	Does all right with enumerating all element within a confined screenshot of about 6, though keeps thinking ∠ is used when it isn't.
+		Would make about 3 GD&T symbol mistakes
+	O3 on full page screenshots:
+		Only got what was in a closeup. Then T13 didn't include the 2nd row, D15 had digits transposed, T14 was totally off. and the top half was totally skiped.
+
 	split screenshots and send works w 4o if the elements are level with page (assem 6) and at least 10 at a time. Have to keep reminding to use symbols and rules
 		if off kilter to page (assem 7), 3 elem reminded twice, 7 elem needed o3-mini twice. But it also broke on a specific element asem7 t2.
 		Send full screenshot, and got total halucinates twice, even when said first was a total halucination.
@@ -86,4 +94,19 @@ Solved
 		and gemini-pro-2.0 (mostly) O1 (mostly), succeed on 17 example also
 			https://chatgpt.com/c/67b7cef7-9740-8004-a3aa-24a39e4b8f10
 			https://aistudio.google.com/prompts/1AMb4FUSThR9LgS65zcoZFi41QHY-J2LY
+	Part of it might be full rules, versus just getting the symbols out. Though there is often a problem identifying which exact GD&T symbol.
+	Pass GD&T symbols with their names does slightly better than if its the raw symbols?
+
+#### Element IDs
+For Sending in single pages screenshots:
+O1's Hallucinated IDs: 10% vs Gemini at 22%.
+O1 failed to include 8.3% of element ids, Gemini missed 7.6%
+O1 had the wrong page 9.3%, and Gemini had the wrong page 2.3%.
+While I only checked where the models disagreed, the runs of numbers made sense, so Gemini likely better here.
+Gemini got Asembly 11 perect, when returning 20ish element ids it fails.
+
+If it can't even get element IDs from the full diagram, individual pages will be hard. Might have to use OCR directly to get text out and then combine for logic?
+
+Spliting single page screenshot into quarters to see improvement.
+
 
