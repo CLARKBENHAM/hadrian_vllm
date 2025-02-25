@@ -43,7 +43,7 @@ model_request_timestamps = {
 model_locks = {model_name: asyncio.Lock() for model_name in RATE_LIMITS}
 
 # Initial Startup Delay (Seconds), delay between sequential model calls
-inter_request_delay = 0  # 0.3 * 60 / max(RATE_LIMITS.values())
+# inter_request_delay =  0.3 * 60 / max(RATE_LIMITS.values())
 # I'll assume there's enough contention getting the single model_lock too not start too many all at once
 
 
@@ -62,18 +62,16 @@ async def lock_model(model):
     async with model_locks[model]:
         current_time = time.time()
         # If we've reached the limit of requests per minute
-        time_until_available = inter_request_delay
         if len(model_request_timestamps[model]) >= RATE_LIMITS[model]:
             # Calculate how long until a slot opens up (oldest request + 60 seconds)
             oldest_request = model_request_timestamps[model][0]
-            time_until_available = max((oldest_request + 60) - current_time, time_until_available)
-        await asyncio.sleep(time_until_available)
+            time_until_available = oldest_request + 60
+            await asyncio.sleep(time_until_available)
         # Add this request's timestamp
         model_request_timestamps[model].append(current_time)
 
 
-async def generate_gemini(prompt, base64_bytes):
-    model = "gemini-2.0-flash-001"
+async def generate_gemini(prompt, base64_bytes, model="gemini-2.0-flash-001"):
     client = genai.Client(
         vertexai=True,
         project="gen-lang-client-0392240747",
@@ -233,7 +231,7 @@ if __name__ == "__main__":
         filepath = os.path.join(image_dir, file_name)
         image_files.append((filepath, assembly, page_str))
     os.makedirs("data/eval_on/quarter_images/", exist_ok=True)
-    models = ["gemini-2.0-flash-001", "gpt-4o", "o1"][2:]
+    models = ["gemini-2.0-flash-001", "gpt-4o", "o1"]
     validate_cost(image_files, models)
     for filepath, assembly, page_str in image_files:
         try:
@@ -280,7 +278,6 @@ if __name__ == "__main__":
                 predicted_mapping[model][key] = set()
             predicted_mapping[model][key].add(page_str)
 
-    # %%
     hallucinations_g, missed_g, disagreements_g, common_count_g = compute_metrics(
         predicted_mapping["gemini-2.0-flash-001"], csv_labeling
     )
@@ -374,6 +371,7 @@ if __name__ == "__main__":
     # 4. Reset index to get back regular columns
     output_df_reordered = output_df_reordered.reset_index()
 
-    output_csv_path = os.path.join("data", "labeled_by_quarters.csv")
+    output_csv_path = os.path.join("data", "llm_results", "labeled_by_quarters.csv")
+    os.make_dirs(output_csv_path, exiss_ok=True)
     output_df_reordered.to_csv(output_csv_path, index=False)
     print(f"Output CSV written to {output_csv_path}")
