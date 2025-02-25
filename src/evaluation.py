@@ -3,6 +3,9 @@ import re
 import json
 import os
 import pandas as pd
+import logging
+
+from src.utils import string_to_unicode_hex
 
 
 def load_gdt_symbols():
@@ -26,7 +29,6 @@ def normalize_gdt(text, symbols_mapping):
         return ""
 
     symbol_to_name = symbols_mapping.get("symbol_to_name", {})
-    name_to_symbol = symbols_mapping.get("name_to_symbol", {})
 
     normalized = text
 
@@ -34,7 +36,6 @@ def normalize_gdt(text, symbols_mapping):
     for symbol, names in symbol_to_name.items():
         if symbol in normalized:
             # Replace symbol with a unique placeholder
-            placeholder = f"__SYMBOL_{hash(symbol)}_"
             normalized = normalized.replace(symbol, placeholder)
 
             # Also create versions with the name instead of symbol
@@ -64,17 +65,59 @@ def normalize_gdt(text, symbols_mapping):
     return [normalize_text(normalized)]
 
 
+def normalize_gdt(text, symbols_mapping):
+    """
+    Normalize GD&T text by converting both symbols and their corresponding names
+    to a placeholder. Longer matching strings are replaced first.
+
+    Also logs an info-level warning if the text contains any Unicode characters
+    that are not ASCII and are not present as keys in symbol_to_name.
+    """
+    if text is None:
+        return ""
+
+    symbol_to_name = symbols_mapping.get("symbol_to_name", {})
+
+    # Log if text contains non-ASCII characters that are not in the mapping keys.
+    # (Assumes keys are the allowed Unicode characters.)
+    non_ascii_chars = {c for c in text if ord(c) > 127 and c not in symbol_to_name}
+    if non_ascii_chars:
+        logging.info(f"Unrecognized unicode characters in text: {', '.join(non_ascii_chars)}")
+
+    # Build a list of alternatives: both the symbols (keys) and their name alternatives.
+    alternatives = []
+    alternative_map = {}
+    for symbol, names in symbol_to_name.items():
+        alternatives.append(symbol)
+        alternatives.extend(names)
+        placeholder = f"__SYMBOL_{string_to_unicode_hex(symbol)}_"
+        for n in names + [symbol]:
+            alternative_map[n] = placeholder
+
+    # Remove duplicates and sort by length descending to replace longer strings first.
+    alternatives = list(set(alternatives))
+    alternatives.sort(key=len, reverse=True)
+
+    # Create a regex pattern that matches any of the alternatives.
+    pattern = re.compile("|".join(map(re.escape, alternatives)))
+
+    # Replace all occurrences with the placeholder.
+    normalized = pattern.sub(placeholder, text)
+
+    return normalize_text(normalized)
+
+
 def evaluate_answer(prediction, ground_truth):
     """
     Evaluate whether a prediction matches the ground truth, accounting for
     symbol/word equivalence and whitespace variations.
 
     Args:
-                    prediction: The predicted answer (string or list of strings)
-                    ground_truth: The ground truth answer
+            prediction: The predicted answer (string or list of strings)
+            ground_truth: The ground truth answer
 
     Returns:
-                    Float in [0, 1] indicating correctness
+            Float in [0, 1] indicating correctness
     """
     if ground_truth is None or (isinstance(ground_truth, float) and pd.isna(ground_truth)):
         # No ground truth available
@@ -128,11 +171,11 @@ def calculate_metrics(df, result_column):
     Calculate metrics for a result column.
 
     Args:
-                    df: DataFrame with results
-                    result_column: Column containing the results
+        df: DataFrame with results
+        result_column: Column containing the results
 
     Returns:
-                    Dictionary with metrics (correct, incorrect, unanswered, accuracy)
+        Dictionary with metrics (correct, incorrect, unanswered, accuracy)
     """
     # Count correct, incorrect, and unanswered
     correct = 0

@@ -7,6 +7,10 @@ import subprocess
 from datetime import datetime
 
 
+def string_to_unicode_hex(input_string):
+    return "_".join([f"{ord(char):04x}" for char in input_string])
+
+
 def get_git_hash():
     """Get the current git commit hash"""
     try:
