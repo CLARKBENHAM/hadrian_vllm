@@ -70,11 +70,11 @@ def evaluate_answer(prediction, ground_truth):
     symbol/word equivalence and whitespace variations.
 
     Args:
-        prediction: The predicted answer (string or list of strings)
-        ground_truth: The ground truth answer
+                    prediction: The predicted answer (string or list of strings)
+                    ground_truth: The ground truth answer
 
     Returns:
-        Float in [0, 1] indicating correctness
+                    Float in [0, 1] indicating correctness
     """
     if ground_truth is None or (isinstance(ground_truth, float) and pd.isna(ground_truth)):
         # No ground truth available
@@ -128,11 +128,11 @@ def calculate_metrics(df, result_column):
     Calculate metrics for a result column.
 
     Args:
-        df: DataFrame with results
-        result_column: Column containing the results
+                    df: DataFrame with results
+                    result_column: Column containing the results
 
     Returns:
-        Dictionary with metrics (correct, incorrect, unanswered, accuracy)
+                    Dictionary with metrics (correct, incorrect, unanswered, accuracy)
     """
     # Count correct, incorrect, and unanswered
     correct = 0

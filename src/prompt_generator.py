@@ -20,11 +20,11 @@ def extract_element_ids_from_image(csv_path, image_path):
     Extract element IDs from an image using the CSV data.
 
     Args:
-        csv_path: Path to the CSV with GD&T data
-        image_path: Path to the image
+                    csv_path: Path to the CSV with GD&T data
+                    image_path: Path to the image
 
     Returns:
-        List of element IDs for this image
+                    List of element IDs for this image
     """
     # Extract assembly ID and page ID from the image filename
     basename = os.path.basename(image_path)
@@ -56,7 +56,7 @@ def select_few_shot_examples(csv_path, eval_dir, question_image, n_shot=3, eg_pe
     and eg_per_img random element IDs for each image.
 
     Returns:
-        List of tuples (image_path, element_ids_list)
+                    List of tuples (image_path, element_ids_list)
     """
     # Set random seed to 0 for reproducibility
     random.seed(0)
@@ -99,7 +99,7 @@ def get_example_answers(csv_path, img_path, element_ids=None):
     Get GD&T data for the given element IDs from the CSV.
 
     Returns:
-        Dictionary mapping element IDs to their GD&T data
+                    Dictionary mapping element IDs to their GD&T data
     """
     import pandas as pd
 
@@ -134,13 +134,13 @@ def generate_few_shot_prompt(prompt_template, examples, question_image, question
     Generate a few-shot prompt with examples and the target question.
 
     Args:
-        prompt_template: The prompt template string
-        examples: List of tuples (image_path, element_ids, element_to_spec)
-        question_image: Path to the image containing the target element ID
-        question_ids: List of element IDs to extract GD&T data for
+                    prompt_template: The prompt template string
+                    examples: List of tuples (image_path, element_ids, element_to_spec)
+                    question_image: Path to the image containing the target element ID
+                    question_ids: List of element IDs to extract GD&T data for
 
     Returns:
-        Generated prompt
+                    Generated prompt
     """
     # Generate few-shot examples text
     few_shot_text = "Examples\n"
@@ -171,13 +171,13 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
     Generate messages for a multi-turn conversation with examples and the target question.
 
     Args:
-        prompt_template: The system prompt is assumed to be prompt_template up till {{{Example}}}
-        examples: List of tuples (image_path, element_ids, element_to_spec)
-        question_image: Path to the image containing the target element ID
-        question_ids: List of element IDs to extract GD&T data for
+                    prompt_template: The system prompt is assumed to be prompt_template up till {{{Example}}}
+                    examples: List of tuples (image_path, element_ids, element_to_spec)
+                    question_image: Path to the image containing the target element ID
+                    question_ids: List of element IDs to extract GD&T data for
 
     Returns:
-        List of message objects
+                    List of message objects
     """
     ix = prompt_template.find("{{{Example}}}")
     if ix > 0:
@@ -224,17 +224,17 @@ def element_ids_per_img_few_shot(
     Generate a few-shot prompt with examples and the target question.
 
     Args:
-        text_prompt_path: Path to the text prompt template
-        csv_path: Path to the CSV with GD&T data
-        eval_dir: Directory containing the evaluation images
-        question_image: Path to the image containing the target element ID
-        question_ids: List of element IDs to extract GD&T data for
-        n_shot: Number of few-shot examples
-        eg_per_img: Number of examples per image
-        examples_as_multiturn: Whether to format examples as multiple turns
+                    text_prompt_path: Path to the text prompt template
+                    csv_path: Path to the CSV with GD&T data
+                    eval_dir: Directory containing the evaluation images
+                    question_image: Path to the image containing the target element ID
+                    question_ids: List of element IDs to extract GD&T data for
+                    n_shot: Number of few-shot examples
+                    eg_per_img: Number of examples per image
+                    examples_as_multiturn: Whether to format examples as multiple turns
 
     Returns:
-        Tuple of (generated_prompt or messages, ordered_image_paths, config)
+                    Tuple of (generated_prompt or messages, ordered_image_paths, config)
     """
     # Load the prompt template
     prompt_template = load_prompt_template(text_prompt_path)

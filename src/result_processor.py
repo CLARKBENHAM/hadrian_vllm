@@ -15,7 +15,7 @@ def extract_answer(response, element_id=None):
         element_id: The element ID we were asking about (optional)
 
     Returns:
-        The extracted answer or None if not found
+            The extracted answer or None if not found
     """
     # Try to find content between <answer> tags
     pattern = r"<answer>(.*?)<answer>"
@@ -66,7 +66,7 @@ def save_results(
         completion_dir: Directory to save completion files
 
     Returns:
-        Updated DataFrame with results
+            Updated DataFrame with results
     """
     # Create directories if they don't exist
     os.makedirs(config_dir, exist_ok=True)
