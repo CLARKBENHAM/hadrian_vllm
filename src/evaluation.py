@@ -113,11 +113,11 @@ def evaluate_answer(prediction, ground_truth):
     symbol/word equivalence and whitespace variations.
 
     Args:
-            prediction: The predicted answer (string or list of strings)
-            ground_truth: The ground truth answer
+        prediction: The predicted answer (string or list of strings)
+        ground_truth: The ground truth answer
 
     Returns:
-            Float in [0, 1] indicating correctness
+        Float in [0, 1] indicating correctness
     """
     if ground_truth is None or (isinstance(ground_truth, float) and pd.isna(ground_truth)):
         # No ground truth available
