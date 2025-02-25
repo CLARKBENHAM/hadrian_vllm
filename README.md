@@ -13,6 +13,11 @@ conda install -n base conda-libmamba-solver
 conda config --set solver libmamba
 
 
+To run vertex ai, needed for gemini-2.0
+```
+gcloud auth application-default login
+```
+
 
 # Order of Files
 ## Making basic test case from NIST Data

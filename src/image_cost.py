@@ -12,7 +12,7 @@ MODEL_PARAMS = {
         "tile_size": 512,
         "base_tokens": 75,
         "tokens_per_tile": 150,
-        "price_per_1m_tokens_in": 15.00,  # $15.00 per 1K tokens
+        "price_per_1m_tokens_in": 15.00,  # $15.00 per 1M tokens
     },
     "o3-mini": {
         "max_dim": 1024,
@@ -103,10 +103,11 @@ def calculate_image_tokens_and_cost(image_path, model="o1"):
 
 
 def validate_cost(image_path: Union[str, List[str]], model="o1", cutoff=3):
-    if isinstance(image_path, list):
-        cost = sum([calculate_image_tokens_and_cost(p, model=model)[1] for p in image_path])
-    else:
-        _, cost = calculate_image_tokens_and_cost(image_path, model=model)
+    if isinstance(model, str):
+        model = [model]
+    if isinstance(image_path, str):
+        image_path = [image_path]
+    cost = sum([calculate_image_tokens_and_cost(p, model=m)[1] for p in image_path for m in model])
     if cost > cutoff:
         while True:
             response = input(f"Est cost is {cost}. Continue? (yes/no): ").lower().strip()
