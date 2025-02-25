@@ -338,7 +338,7 @@ Profile 0.15|A",T11,,10,4
 F11,Datum Feature J,15 ±0.2,D6,,10,2
 ,,Position 1|A|B|C,T12,,10,2
 ,,Perpendicularity 0.1| A,T13,,10,2
-,,Datum Feature Symbol J,DF9,,10,3
+,,Datum Feature Symbol J,DF9,,10,2
 F12-F13,"Datum Target K1, K2","Supplemental geometry planes
 representing Vee K1-K2",SG1,Features 12 and 13 are not on model,10,4
 ,,Datum Target Symbols K1,DT1,,10,4
@@ -398,7 +398,7 @@ F68,Symmetry Key,5 ±0.2,D16,,10,2
 F69-F72,"Edge Curves at Bottom of Datum
 Feature J and Symmetry Key",4X R0.15 MAX,LDN2,,10,2
 F73-F76,Pattern of 4 Counterbored Holes,4X ⌴⌀10 ±0.25,D17,"Holes on side of part in -X direction of
-A|B|C",10,2
+A|B|C",10,3
 ,,Position ⌀0.8|A|B|C,T26,,10,3
 ,,AT SURFACE F81,STR7,"Outside surface on -X side of part
 pierced by counterbored holes",10,3
