@@ -108,5 +108,19 @@ Gemini got Asembly 11 perect, when returning 20ish element ids it fails.
 If it can't even get element IDs from the full diagram, individual pages will be hard. Might have to use OCR directly to get text out and then combine for logic?
 
 Spliting single page screenshot into quarters to see improvement.
+Gemini-2.0-Pro got first page element ids all correct by quarters.
+
+gemini-2.0-flash-001
+Gemini Hallucination rate: 20.45%
+Gemini Missed rate: 2.78%
+Gemini Disagreement rate: 0%, except for 2 where multiple pages were returned
+gpt-4o Hallucination rate: 18.31%
+gpt-4o Missed rate: 5.83%
+gpt-4o Disagreement rate: 0%,  except for 4 where multiple pages were returned
+o1 Hallucination rate: 21.20%
+o1 Missed rate: 5.00%
+o1 Disagreement rate: 0%,  except for 4 where multiple pages were returned
+
+
 
 
