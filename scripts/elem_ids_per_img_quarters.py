@@ -264,7 +264,7 @@ if __name__ == "__main__":
                 tasks[key].append(
                     asyncio.create_task(find_element_ids_on_page(quarter_filepath, model))
                 )
-    # aggregated_results = {}
+    aggregated_results = {}
     for key, task_list in tasks.items():
         results = await asyncio.gather(*task_list)
         union_set = set()
@@ -272,8 +272,7 @@ if __name__ == "__main__":
             union_set.update(res)
         aggregated_results[key] = union_set
 
-    # predicted_mapping = {"gemini-2.0-flash-001": {}, "gpt-4o": {}, 'o1':{}}
-    # %%
+    predicted_mapping = {"gemini-2.0-flash-001": {}, "gpt-4o": {}, "o1": {}}
     for (model, assembly, page_str), elem_ids in aggregated_results.items():
         for elem in elem_ids:
             key = (assembly, elem)
@@ -281,6 +280,7 @@ if __name__ == "__main__":
                 predicted_mapping[model][key] = set()
             predicted_mapping[model][key].add(page_str)
 
+    # %%
     hallucinations_g, missed_g, disagreements_g, common_count_g = compute_metrics(
         predicted_mapping["gemini-2.0-flash-001"], csv_labeling
     )
