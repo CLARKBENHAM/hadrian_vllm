@@ -17,7 +17,7 @@ import openai
 import asyncio
 import nest_asyncio
 
-from src.image_cost import validate_cost
+from hadrian_vllm.image_cost import validate_cost
 
 nest_asyncio.apply()
 

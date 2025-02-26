@@ -5,11 +5,11 @@ import asyncio
 import pandas as pd
 import json
 
-from src.prompt_generator import element_ids_per_img_few_shot
-from src.model_caller import call_model, get_openai_messages
-from src.result_processor import extract_answer, save_results
-from src.evaluation import calculate_metrics
-from src.utils import load_csv, save_df_with_results, get_git_hash, get_current_datetime
+from hadrian_vllm.prompt_generator import element_ids_per_img_few_shot
+from hadrian_vllm.model_caller import call_model, get_openai_messages
+from hadrian_vllm.result_processor import extract_answer, save_results
+from hadrian_vllm.evaluation import calculate_metrics
+from hadrian_vllm.utils import load_csv, save_df_with_results, get_git_hash, get_current_datetime
 
 
 async def process_element_id(

@@ -20,7 +20,7 @@ nest_asyncio.apply()
 from google import genai
 from google.genai import types
 
-from src.image_cost import validate_cost
+from hadrian_vllm.image_cost import validate_cost
 
 # Initialize genai with your API key - IMPORTANT!
 # genai.configure(

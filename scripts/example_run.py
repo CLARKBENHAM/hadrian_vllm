@@ -6,7 +6,7 @@ import sys
 print(sys.path)
 
 import asyncio
-from src.main import process_element_id
+from hadrian_vllm.main import process_element_id
 
 print(1 / 0)
 

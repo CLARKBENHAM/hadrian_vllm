@@ -6,7 +6,7 @@ import os
 import pandas as pd
 import logging
 
-from src.utils import string_to_unicode_hex
+from hadrian_vllm.utils import string_to_unicode_hex
 
 
 def load_gdt_symbols():

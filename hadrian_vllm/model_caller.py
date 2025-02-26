@@ -9,7 +9,7 @@ import json
 import openai
 from litellm import completion
 
-from src.cache import PersistentCache
+from hadrian_vllm.cache import PersistentCache
 
 # Rate limits for different models (per minute)
 RATE_LIMITS = {
