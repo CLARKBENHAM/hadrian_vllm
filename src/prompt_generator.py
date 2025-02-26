@@ -6,7 +6,7 @@ import json
 import hashlib
 from datetime import datetime
 
-from utils import extract_assembly_and_page_from_filename, get_git_hash, get_current_datetime
+from src.utils import extract_assembly_and_page_from_filename, get_git_hash, get_current_datetime
 
 
 def load_prompt_template(prompt_path):

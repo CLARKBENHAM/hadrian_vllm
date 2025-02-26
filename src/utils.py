@@ -7,8 +7,15 @@ import subprocess
 from datetime import datetime
 
 
+def basic_numeric_hash(input_string, prime=31, modulus=2**32):
+    hash_value = 0
+    for char in input_string:
+        hash_value = (hash_value * prime + ord(char)) % modulus
+    return hash_value
+
+
 def string_to_unicode_hex(input_string):
-    return "_".join([f"{ord(char):04x}" for char in input_string])
+    return basic_numeric_hash([ord(char) for char in input_string])
 
 
 def get_git_hash():

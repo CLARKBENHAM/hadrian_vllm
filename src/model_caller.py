@@ -290,13 +290,13 @@ async def call_model(prompt_or_messages, image_paths=None, model="gpt-4o", cache
     Call the model with the given prompt/messages and images.
 
     Args:
-                    prompt_or_messages: Either a text prompt or a list of messages
-                    image_paths: List of paths to images (only used if prompt_or_messages is a string)
-                    model: The model to use
-                    cache: Whether to use caching
+        prompt_or_messages: Either a text prompt or a list of messages
+        image_paths: List of paths to images (only used if prompt_or_messages is a string)
+        model: The model to use
+        cache: Whether to use caching
 
     Returns:
-                    The model's response
+        The model's response
     """
     # Determine if this is a multi-turn conversation
     is_multiturn = isinstance(prompt_or_messages, list)

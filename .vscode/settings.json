@@ -1,6 +1,4 @@
 {
 	"python.analysis.typeCheckingMode": "basic",
-  {
-    "python.analysis.extraPaths": ["${workspaceFolder}"]
-}
+  "python.analysis.extraPaths": ["${workspaceFolder}"]
 }

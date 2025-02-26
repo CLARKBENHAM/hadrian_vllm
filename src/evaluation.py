@@ -1,3 +1,4 @@
+# %%
 # evaluation.py
 import re
 import json
@@ -73,6 +74,10 @@ def normalize_gdt(text, symbols_mapping):
     Also logs an info-level warning if the text contains any Unicode characters
     that are not ASCII and are not present as keys in symbol_to_name.
     """
+
+    def string_to_unicode_hex(input_string):
+        return "".join([f"{ord(char):04x}" for char in input_string])
+
     if text is None:
         return ""
 
@@ -90,7 +95,7 @@ def normalize_gdt(text, symbols_mapping):
     for symbol, names in symbol_to_name.items():
         alternatives.append(symbol)
         alternatives.extend(names)
-        placeholder = f"__SYMBOL_{string_to_unicode_hex(symbol)}_"
+        placeholder = f"__{string_to_unicode_hex(symbol)}__"
         for n in names + [symbol]:
             alternative_map[n] = placeholder
 
@@ -101,8 +106,8 @@ def normalize_gdt(text, symbols_mapping):
     # Create a regex pattern that matches any of the alternatives.
     pattern = re.compile("|".join(map(re.escape, alternatives)))
 
-    # Replace all occurrences with the placeholder.
-    normalized = pattern.sub(placeholder, text)
+    # Replace all occurrences with their corresponding unique placeholder.
+    normalized = pattern.sub(lambda match: alternative_map[match.group(0)], text)
 
     return normalize_text(normalized)
 
@@ -160,9 +165,8 @@ def evaluate_single_answer(prediction, ground_truth, symbols_mapping):
             if pred_normalized[0] == g:
                 return 1.0
     else:
-        if pred_normalized[0] == gt_normalized[0]:
+        if pred_normalized == gt_normalized:
             return 1.0
-
     return 0.0
 
 

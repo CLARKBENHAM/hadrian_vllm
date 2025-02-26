@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+        "name": "Python: Current File (from repo root)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "cwd": "${workspaceFolder}",
+        //"console": "internalConsole",
+        "console": "internalConsole",
+        // "args": ["&&", "exit"], // so closes after finished
+        "env": {
+            //"PYTHONPATH": "${workspaceFolder}/src:${env:PYTHONPATH}"
+            "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"
+        }
+    }
+    ]
+}
