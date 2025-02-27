@@ -111,5 +111,8 @@ The rules for generating the labels are:
     Plane or View Selection Indicators labeled “VSIX”
     Notes for the whole diagram, generally on the left side of the first page
 
+{{{Example}}}
 
 Remember to take your time, go slow over the whole image till you find the element id, then transcribe the GD&T data, then apply the rules for the final return. Place the return within <answer> tags. Note that some text is slightly rotated, so mentally correct for that. Selecting the correct GD&T symbol is the hardest part, make sure it is exactly what's on the page.
+
+{{{Question}}}
