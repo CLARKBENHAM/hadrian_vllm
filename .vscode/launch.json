@@ -10,7 +10,7 @@
         "console": "internalConsole",
         // "args": ["&&", "exit"], // so closes after finished
         "env": {
-            //"PYTHONPATH": "${workspaceFolder}/src:${env:PYTHONPATH}"
+            //"PYTHONPATH": "${workspaceFolder}/hadrian_vllm:${env:PYTHONPATH}"
             "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"
         }
     }

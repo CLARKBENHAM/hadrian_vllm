@@ -1,4 +1,6 @@
 {
-	"python.analysis.typeCheckingMode": "basic",
-  "python.analysis.extraPaths": ["${workspaceFolder}"]
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.extraPaths": ["${workspaceFolder}","${workspaceFolder}/hadrian_vllm"],
+  "python.autoComplete.extraPaths": ["${workspaceFolder}"],
+  "python.linting.enabled": true
 }
