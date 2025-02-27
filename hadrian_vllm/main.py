@@ -41,6 +41,8 @@ async def process_element_id(
         The extracted answer and updated DataFrame
     """
     # Generate the prompt and get image paths
+    assert isinstance(element_id, str), element_id
+
     prompt_or_messages, image_paths, config = element_ids_per_img_few_shot(
         text_prompt_path,
         csv_path,

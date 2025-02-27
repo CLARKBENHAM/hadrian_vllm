@@ -1,3 +1,4 @@
+# %%
 # cache.py
 import os
 import json
@@ -40,9 +41,12 @@ class PersistentCache:
 
     def __setitem__(self, key, value):
         """Set an item in the cache and persist it to disk"""
-        with self.lock:
-            self._cache[key] = value
-            self._save_cache()
+        if value:
+            with self.lock:
+                self._cache[key] = value
+                self._save_cache()
+        else:
+            print("WARN: Not caching `{value}`")
 
     def __contains__(self, key):
         """Check if key exists in cache"""
@@ -59,3 +63,8 @@ class PersistentCache:
         with self.lock:
             self._cache = {}
             self._save_cache()
+
+
+if __name__ == "__main__":
+    c = PersistentCache()
+    print(c._cache)

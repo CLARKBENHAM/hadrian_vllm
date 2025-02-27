@@ -2,14 +2,15 @@
 import time
 import asyncio
 import base64
-import os
 from collections import deque
 import json
 
-import openai
+import litellm
 from litellm import completion
 
 from hadrian_vllm.cache import PersistentCache
+
+litellm.vertex_project = "gen-lang-client-0392240747"
 
 # Rate limits for different models (per minute)
 RATE_LIMITS = {
@@ -38,7 +39,7 @@ def get_base64_image(image_path):
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 
-async def lock_model(model):
+async def under_ratelimit(model):
     """Ensure we don't exceed rate limits for a model"""
     async with model_locks[model]:
         current_time = time.time()
@@ -221,7 +222,10 @@ def prepare_gemini_multiturn_request(messages, model):
             # Gemini doesn't support system messages directly; prepend to first user message
             continue
         elif message["role"] == "assistant":
-            formatted_messages.append({"role": "model", "content": message["content"]})
+            # formatted_messages.append({"role": "model", "content": message["content"]})
+            formatted_messages.append(
+                {"role": "assistant", "content": message["content"]}
+            )  # for litellm
         elif message["role"] == "user":
             # User messages may include images
             content = [{"type": "text", "text": message["content"]}]
@@ -309,7 +313,7 @@ async def call_model(prompt_or_messages, image_paths=None, model="gpt-4o", cache
         return response_cache[cache_key]
 
     # Ensure we respect rate limits
-    await lock_model(model)
+    await under_ratelimit(model)
 
     try:
         # Prepare the request based on the model type and conversation style
@@ -344,7 +348,8 @@ async def call_model(prompt_or_messages, image_paths=None, model="gpt-4o", cache
         return content
     except Exception as e:
         print(f"Error calling {model}: {e}")
-        return f"Error: {e}"
+        raise e  # GRIB
+        return ""
 
 
 def get_openai_messages(prompt_or_messages, image_paths=None):

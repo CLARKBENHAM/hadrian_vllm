@@ -5,6 +5,8 @@ import os
 from datetime import datetime
 import pandas as pd
 
+from hadrian_vllm.utils import extract_assembly_and_page_from_filename
+
 
 def extract_answer(response, element_id=None):
     """
@@ -18,7 +20,7 @@ def extract_answer(response, element_id=None):
             The extracted answer or None if not found
     """
     # Try to find content between <answer> tags
-    pattern = r"<answer>(.*?)<answer>"
+    pattern = r"<answer>(.*?)</*answer>"
     matches = re.findall(pattern, response, re.DOTALL)
 
     if matches:
@@ -84,7 +86,7 @@ def save_results(
     completion_data = {
         "config_hash": config_hash,
         "element_ids": question_ids if isinstance(question_ids, list) else [question_ids],
-        "question_images": [os.path.basename(img) for img in image_paths if os.path.exists(img)],
+        "question_images": image_paths,
         "full_response": full_response,
         "extracted_answer": (
             extracted_answers if isinstance(extracted_answers, list) else [extracted_answers]
@@ -96,17 +98,32 @@ def save_results(
         json.dump(completion_data, f, indent=2)
 
     # Add results to DataFrame
+    q_img = image_paths[-1]
+    assembly_id, page_id = extract_assembly_and_page_from_filename(q_img)
     if isinstance(question_ids, list):
-        for i, element_id in enumerate(question_ids):
-            answer = extracted_answers[i] if i < len(extracted_answers) else None
+        # make answer a dict
+        assert len(extracted_answers) == len(question_ids), f"{extracted_answers}, {question_ids}"
+        for answer, element_id in zip(extracted_answers, question_ids):
             # Find the row with this element ID
-            mask = df["Element ID"] == element_id
-            if mask.any():
-                df.loc[mask, result_col] = answer
+            mask = (
+                (df["Element ID"] == element_id)
+                & (df["Page ID"] == page_id)
+                & (df["Assembly ID"] == assembly_id)
+            )
+            assert (
+                mask.sum() == 1
+            ), f"Duplicate rows {element_id} {page_id} {assembly_id} {config_hash}"
+            df.loc[mask, result_col] = answer
     else:
         # Single element ID case
-        mask = df["Element ID"] == question_ids
-        if mask.any():
-            df.loc[mask, result_col] = extracted_answers
+        mask = (
+            (df["Element ID"] == question_ids)
+            & (df["Page ID"] == page_id)
+            & (df["Assembly ID"] == assembly_id)
+        )
+        assert (
+            mask.sum() == 1
+        ), f"Duplicate rows {question_ids} {page_id} {assembly_id} {config_hash}"
+        df.loc[mask, result_col] = extracted_answers
 
     return df

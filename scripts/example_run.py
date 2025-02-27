@@ -1,14 +1,8 @@
 import os
-
-print(os.getcwd())
 import sys
-
-print(sys.path)
-
 import asyncio
-from hadrian_vllm.main import process_element_id
 
-print(1 / 0)
+from hadrian_vllm.main import process_element_id, process_element_ids
 
 
 async def run_example():
@@ -18,7 +12,7 @@ async def run_example():
         eval_dir="data/eval_on/single_images/",
         question_image="data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg2.png",
         element_id="D12",
-        model_name="gpt-4o",
+        model_name="gemini-2.0-flash-001",  # Out of Credits for gpt-4o for now
         n_shot=2,
         eg_per_img=3,
         examples_as_multiturn=False,
@@ -28,12 +22,12 @@ async def run_example():
     print(df)
 
     # Try with multi-turn example format
-    answer_mt, df_mt = await process_element_id(
+    answer_mt, df_mt = await process_element_ids(
         text_prompt_path="data/prompts/prompt4.txt",
         csv_path="data/fsi_labels/Hadrian Vllm test case - Final Merge.csv",
         eval_dir="data/eval_on/single_images/",
         question_image="data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg2.png",
-        element_id=["T11", "D12", "D13", "T12", "D14", "T13", "D15", "T14"],
+        element_ids=["T11", "D12", "D13", "T12", "D14", "T13", "D15", "T14"],
         model_name="gemini-2.0-flash-001",
         n_shot=5,
         eg_per_img=3,

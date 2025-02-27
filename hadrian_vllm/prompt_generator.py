@@ -6,7 +6,11 @@ import json
 import hashlib
 from datetime import datetime
 
-from hadrian_vllm.utils import extract_assembly_and_page_from_filename, get_git_hash, get_current_datetime
+from hadrian_vllm.utils import (
+    extract_assembly_and_page_from_filename,
+    get_git_hash,
+    get_current_datetime,
+)
 
 
 def load_prompt_template(prompt_path):
@@ -110,7 +114,6 @@ def get_example_answers(csv_path, img_path, element_ids=None):
     if assembly_id is None or page_id is None:
         return {}
 
-    # Load the CSV
     df = pd.read_csv(csv_path)
 
     # Filter by assembly ID and page ID
@@ -131,7 +134,7 @@ def get_example_answers(csv_path, img_path, element_ids=None):
 
 def generate_few_shot_prompt(prompt_template, examples, question_image, question_ids):
     """
-    Generate a few-shot prompt with examples and the target question.
+    Generate a few-shot single string prompt with examples and the target question.
 
     Args:
         prompt_template: The prompt template string
@@ -163,6 +166,11 @@ def generate_few_shot_prompt(prompt_template, examples, question_image, question
     prompt = re.sub(r"\{\{\{Example\}\}\}", few_shot_text.strip(), prompt_template, flags=re.DOTALL)
     prompt = re.sub(r"\{\{\{Question\}\}\}", question_text.strip(), prompt, flags=re.DOTALL)
 
+    for _, es, _ in examples:
+        for e in es:
+            assert e in prompt, f"`{e}` not in prompt {prompt}"
+    for e in question_ids:
+        assert e in prompt, f"question `{e}` not in prompt {prompt}"
     return prompt
 
 
@@ -179,11 +187,9 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
     Returns:
         List of message objects
     """
-    ix = prompt_template.find("{{{Example}}}")
-    if ix > 0:
-        system_prompt = prompt_template[:ix]
-    else:
-        system_prompt = prompt_template
+    # remove single prompt replacement examples to get only system prompt
+    prompt_template = re.sub("\{\{\{Example\}\}\}\S*", "", prompt_template)
+    system_prompt = re.sub("\S*\{\{\{Question\}\}\}\S*", "", prompt_template)
     messages = [{"role": "system", "content": system_prompt}]
 
     # Add few-shot examples as separate turns
@@ -229,7 +235,7 @@ def element_ids_per_img_few_shot(
         eval_dir: Directory containing the evaluation images
         question_image: Path to the image containing the target element ID
         question_ids: List of element IDs to extract GD&T data for
-        n_shot: Number of few-shot examples
+        n_shot: Total Number of few-shot examples
         eg_per_img: Number of examples per image
         examples_as_multiturn: Whether to format examples as multiple turns
 
