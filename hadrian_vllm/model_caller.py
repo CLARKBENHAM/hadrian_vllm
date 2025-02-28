@@ -2,8 +2,11 @@
 import time
 import asyncio
 import base64
-from collections import deque
+from collections import deque, OrderedDict
 import json
+import random
+import logging
+from concurrent.futures import ThreadPoolExecutor
 
 import litellm
 from litellm import completion
@@ -11,6 +14,10 @@ from litellm import completion
 from hadrian_vllm.cache import PersistentCache
 
 litellm.vertex_project = "gen-lang-client-0392240747"
+litellm.drop_params = True  # o1 only allows temp=1, hack in case of others
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 # Rate limits for different models (per minute)
 RATE_LIMITS = {
@@ -33,10 +40,59 @@ model_locks = {model_name: asyncio.Lock() for model_name in RATE_LIMITS}
 response_cache = PersistentCache()
 
 
+class LimitedSizeDict(OrderedDict):
+    def __init__(self, size_limit):
+        self.size_limit = size_limit
+        super().__init__()
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        if len(self) > self.size_limit:
+            self.popitem(last=False)
+
+
+image_base64_cache = LimitedSizeDict(1000)
+
+
+def _load_and_encode(image_path):
+    """Synchronously load an image from disk and encode it in base64."""
+    with open(image_path, "rb") as f:
+        data = f.read()
+    encoded = base64.b64encode(data).decode("utf-8")
+    return encoded
+
+
+def preload_images(image_paths, max_workers=10):
+    """
+    Preload many images into the cache concurrently.
+
+    :param image_paths: List of image file paths to preload.
+    :param max_workers: Number of worker threads to use.
+    """
+    # Deduplicate image paths
+    unique_paths = [i for i in set(image_paths) if i not in image_base64_cache]
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all load tasks concurrently.
+        futures = {executor.submit(_load_and_encode, path): path for path in unique_paths}
+        for future in futures:
+            path = futures[future]
+            try:
+                encoded = future.result()
+                image_base64_cache[path] = encoded
+            except Exception as e:
+                print(f"Error loading {path}: {e}")
+
+
 def get_base64_image(image_path):
-    """Get the base64 encoded image"""
+    """Get the base64 encoded image with caching"""
+    if image_path in image_base64_cache:
+        return image_base64_cache[image_path]
+
     with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode("utf-8")
+        base64_data = base64.b64encode(image_file.read()).decode("utf-8")
+        image_base64_cache[image_path] = base64_data
+        return base64_data
 
 
 async def under_ratelimit(model):
@@ -52,7 +108,7 @@ async def under_ratelimit(model):
                 if time_until_available > 2:
                     print(
                         f"{model} Lock Sleeping for {time_until_available};"
-                        f"Q: {model_request_timestamps[model][:5]} "
+                        f"Q (first 10): {list(model_request_timestamps[model])[:10]} "
                     )
                 await asyncio.sleep(time_until_available)
             model_request_timestamps[model].pop()
@@ -87,7 +143,7 @@ def prepare_openai_request(prompt, image_paths, model):
     return {
         "model": model,
         "messages": messages,
-        "temperature": 0.2,
+        "temperature": 0.2 if model != "o1" else 1,
         "max_tokens": 4000,
     }
 
@@ -122,7 +178,7 @@ def prepare_openai_multiturn_request(messages, model):
     return {
         "model": model,
         "messages": formatted_messages,
-        "temperature": 0.2,
+        "temperature": 0.2 if model != "o1" else 1,
         "max_tokens": 4000,
     }
 
@@ -356,6 +412,101 @@ async def call_model(prompt_or_messages, image_paths=None, model="gpt-4o", cache
         print(f"Error calling {model}: {e}")
         raise e  # GRIB
         return ""
+
+
+async def call_model(
+    prompt_or_messages,
+    image_paths=None,
+    model="gpt-4o",
+    cache=True,
+    max_retries=3,
+    retry_base_delay=2,
+    return_error_message=True,
+):
+    """
+    Call the model with the given prompt/messages and images.
+
+    Args:
+        prompt_or_messages: Either a text prompt or a list of messages
+        image_paths: List of paths to images (only used if prompt_or_messages is a string)
+        model: The model to use
+        cache: Whether to use caching
+        max_retries: Maximum number of retry attempts
+        retry_base_delay: Base delay between retries (exponential backoff)
+        return_error_message: If True, return error message instead of raising exception
+
+    Returns:
+        The model's response or error message if return_error_message=True
+    """
+    # Determine if this is a multi-turn conversation
+    is_multiturn = isinstance(prompt_or_messages, list)
+
+    # Create a cache key
+    cache_key = get_cache_key(prompt_or_messages, image_paths if not is_multiturn else [], model)
+
+    # Check if we have a cached response
+    if cache and cache_key in response_cache:
+        cached_response = response_cache[cache_key]
+        # Make sure we're not caching errors
+        if cached_response and not cached_response.startswith("Error:"):
+            return cached_response
+
+    # Attempt with retries
+    for attempt in range(max_retries):
+        try:
+            # Ensure we respect rate limits
+            await under_ratelimit(model)
+
+            # Prepare the request based on the model type and conversation style
+            if is_multiturn:
+                if model.startswith("claude"):
+                    request = prepare_anthropic_multiturn_request(prompt_or_messages, model)
+                elif model.startswith("gemini"):
+                    request = prepare_gemini_multiturn_request(prompt_or_messages, model)
+                else:  # OpenAI models
+                    request = prepare_openai_multiturn_request(prompt_or_messages, model)
+            else:
+                if model.startswith("claude"):
+                    request = prepare_anthropic_request(prompt_or_messages, image_paths, model)
+                elif model.startswith("gemini"):
+                    request = prepare_gemini_request(prompt_or_messages, image_paths, model)
+                else:  # OpenAI models
+                    request = prepare_openai_request(prompt_or_messages, image_paths, model)
+
+            # Make the API call
+            response = await asyncio.to_thread(completion, **request)
+            content = response.choices[0].message.content
+
+            # Cache the response
+            if cache and content:
+                response_cache[cache_key] = content
+
+            return content
+
+        except Exception as e:
+            error_msg = f"Error calling {model} (attempt {attempt+1}/{max_retries}): {str(e)}"
+            logger.warning(error_msg)
+
+            if attempt < max_retries - 1:
+                # Calculate backoff delay with jitter to avoid thundering herd
+                delay = retry_base_delay * (2**attempt) + random.uniform(0, 1)
+                logger.info(f"Retrying in {delay:.2f} seconds...")
+                await asyncio.sleep(delay)
+            else:
+                # All attempts failed
+                error_response = (
+                    f"Error: Failed to get response from {model} after {max_retries} attempts. Last"
+                    f" error: {str(e)}"
+                )
+                logger.error(error_response)
+
+                if return_error_message:
+                    # Cache the error to avoid repeated failures
+                    if cache:
+                        response_cache[cache_key] = error_response
+                    return error_response
+                else:
+                    raise RuntimeError(error_response) from e
 
 
 def get_openai_messages(prompt_or_messages, image_paths=None):

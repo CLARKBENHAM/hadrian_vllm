@@ -17,6 +17,7 @@
                 "data/eval_on/single_images/",
                 "--model",
                 "gemini-2.0-flash-001",
+                //"o1",
                 "--n_shot_imgs",
                 "2",
                 "--eg_per_img",

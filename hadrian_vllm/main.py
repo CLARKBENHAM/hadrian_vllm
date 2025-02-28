@@ -5,9 +5,10 @@ import asyncio
 import pandas as pd
 import json
 from typing import Dict, List, Tuple, Any
+import logging
 
 from hadrian_vllm.prompt_generator import element_ids_per_img_few_shot
-from hadrian_vllm.model_caller import call_model, get_openai_messages
+from hadrian_vllm.model_caller import call_model, preload_images
 from hadrian_vllm.result_processor import extract_answer, save_results
 from hadrian_vllm.evaluation import calculate_metrics, evaluate_answer
 from hadrian_vllm.utils import (
@@ -19,6 +20,9 @@ from hadrian_vllm.utils import (
     extract_assembly_and_page_from_filename,
     is_debug_mode,
 )
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 async def process_element_id(
@@ -65,14 +69,26 @@ async def process_element_id(
         examples_as_multiturn,
     )
 
-    # Call the model
-    if examples_as_multiturn:
-        response = await call_model(prompt_or_messages, model=model_name, cache=cache)
-    else:
-        response = await call_model(prompt_or_messages, image_paths, model_name, cache=cache)
+    try:
+        # Call the model
+        if examples_as_multiturn:
+            response = await call_model(prompt_or_messages, model=model_name, cache=cache)
+        else:
+            response = await call_model(
+                prompt_or_messages, image_paths, model=model_name, cache=cache
+            )
 
-    # Extract the answer
-    answer = extract_answer(response, element_id)
+        # Check if response is an error message
+        if response and response.startswith("Error:"):
+            logger.warning(f"Model returned error: {response}")
+            answer = None
+        else:
+            # Extract the answer
+            answer = extract_answer(response, element_id)
+    except Exception as e:
+        logger.error(f"Exception during model call: {str(e)}")
+        response = f"Error: {str(e)}"
+        answer = None
 
     # Load the DataFrame
     df = load_csv(csv_path)
@@ -99,7 +115,10 @@ async def process_element_id(
             page_id=page_id,
         )
         real_answer = element_details["Specification"]
-        print(f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`, Model: `{answer}`")
+        print(
+            f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`, Model: `{answer}` from"
+            f" `{response}`"
+        )
 
     return answer, df
 
@@ -146,17 +165,29 @@ async def process_element_ids(
         examples_as_multiturn,
     )
 
-    # Call the model
-    if examples_as_multiturn:
-        response = await call_model(prompt_or_messages, model=model_name, cache=cache)
-    else:
-        response = await call_model(prompt_or_messages, image_paths, model_name, cache=cache)
+    try:
+        # Call the model
+        if examples_as_multiturn:
+            response = await call_model(prompt_or_messages, model=model_name, cache=cache)
+        else:
+            response = await call_model(
+                prompt_or_messages, image_paths, model=model_name, cache=cache
+            )
 
-    # Extract answers for each element ID
-    answers = []
-    for element_id in element_ids:
-        answer = extract_answer(response, element_id)
-        answers.append(answer)
+        # Check if response is an error message
+        if response and response.startswith("Error:"):
+            logger.warning(f"Model returned error: {response}")
+            answers = [None] * len(element_ids)
+        else:
+            answers = []
+            for element_id in element_ids:
+                answer = extract_answer(response, element_id)  # didn't test if could take list
+                answers.append(answer)
+
+    except Exception as e:
+        logger.error(f"Exception during model call: {str(e)}")
+        response = f"Error: {str(e)}"
+        answers = [None] * len(element_ids)
 
     # Load the DataFrame
     df = load_csv(csv_path)
@@ -185,6 +216,7 @@ async def process_element_ids(
             real_answer = element_details["Specification"]
             print(
                 f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`, Model: `{answer}`"
+                f" from `{response}`"
             )
 
     return answers, df
@@ -234,11 +266,12 @@ async def run_evaluation(
 
     # Create all tasks first
     all_tasks = []  # List to track (model_name, img_path, element_ids, task)
+    preload_images(question_images)
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
 
-        for img_path in question_images[:2]:
+        for img_path in question_images:
             all_element_ids = element_ids_by_image.get(img_path, [])
             if not all_element_ids:
                 continue

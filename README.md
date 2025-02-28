@@ -36,6 +36,10 @@ python -m gdt_extraction.main --prompt data/prompts/prompt4.txt --csv "data/fsi_
 python -m gdt_extraction.main --prompt data/prompts/prompt4.txt --csv "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv" --eval_dir data/eval_on/single_images/ --model gpt-4o --num_completions 1 --eval_all
 ```
 
+```
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv data/fsi_labels/HadrianVllmtestcase-FinalMerge.csv --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 //o1 --n_shot_imgs 2 --eg_per_img 4 --n_element_ids 1 --num_completions 1 --eval_all
+```
+
 The system efficiently extracts GD&T/PMI information from renders, with proper caching, error handling, and evaluation metrics.
 
 
