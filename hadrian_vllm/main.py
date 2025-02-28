@@ -19,7 +19,7 @@ async def process_element_id(
     question_image,
     element_id,
     model_name,
-    n_shot=3,
+    n_shot_imgs=3,
     eg_per_img=3,
     examples_as_multiturn=False,
 ):
@@ -33,8 +33,9 @@ async def process_element_id(
         question_image: Path to the question image
         element_id: Element ID to query
         model_name: Name of the model to use
-        n_shot: Number of few-shot examples
+        n_shot_imgs: Number of few-shot example images
         eg_per_img: Number of examples per image
+            total example ids: n_shot_imgs*eg_per_img*1
         examples_as_multiturn: Whether to format examples as multiple turns
 
     Returns:
@@ -49,7 +50,7 @@ async def process_element_id(
         eval_dir,
         question_image,
         [element_id],
-        n_shot,
+        n_shot_imgs,
         eg_per_img,
         examples_as_multiturn,
     )
@@ -82,7 +83,7 @@ async def process_element_ids(
     question_image,
     element_ids,
     model_name,
-    n_shot=3,
+    n_shot_imgs=3,
     eg_per_img=3,
     examples_as_multiturn=False,
 ):
@@ -96,8 +97,9 @@ async def process_element_ids(
         question_image: Path to the question image
         element_ids: List of element IDs to query
         model_name: Name of the model to use
-        n_shot: Number of few-shot examples
+        n_shot_imgs: Number of few-shot images
         eg_per_img: Number of examples per image
+            total example ids: n_shot_imgs*eg_per_img*len(element_ids)
         examples_as_multiturn: Whether to format examples as multiple turns
 
     Returns:
@@ -110,7 +112,7 @@ async def process_element_ids(
         eval_dir,
         question_image,
         element_ids,
-        n_shot,
+        n_shot_imgs,
         eg_per_img,
         examples_as_multiturn,
     )
@@ -146,7 +148,7 @@ async def run_evaluation(
     question_images,
     element_ids_by_image,
     model_names,
-    n_shot=3,
+    n_shot_imgs=3,
     eg_per_img=3,
     num_completions=1,
     examples_as_multiturn=False,
@@ -161,7 +163,7 @@ async def run_evaluation(
         question_images: List of question image paths
         element_ids_by_image: Dictionary mapping image paths to lists of element IDs
         model_names: List of model names to evaluate
-        n_shot: Number of few-shot examples
+        n_shot_imgs: Number of few-shot examples
         eg_per_img: Number of examples per image
         num_completions: Number of completions to generate for each query
         examples_as_multiturn: Whether to format examples as multiple turns
@@ -197,7 +199,7 @@ async def run_evaluation(
                 img_path,
                 element_ids,
                 model_name,
-                n_shot,
+                n_shot_imgs,
                 eg_per_img,
                 examples_as_multiturn,
             )
@@ -216,7 +218,7 @@ async def run_evaluation(
                             img_path,
                             element_id,
                             model_name,
-                            n_shot,
+                            n_shot_imgs,
                             eg_per_img,
                             examples_as_multiturn,
                         )
@@ -290,7 +292,7 @@ async def main():
     )
     parser.add_argument("--element_id", type=str, default="D12", help="Element ID to query")
     parser.add_argument("--model", type=str, default="gpt-4o", help="Model to use")
-    parser.add_argument("--n_shot", type=int, default=3, help="Number of few-shot examples")
+    parser.add_argument("--n_shot_imgs", type=int, default=3, help="Number of few-shot examples")
     parser.add_argument("--eg_per_img", type=int, default=3, help="Number of examples per image")
     parser.add_argument(
         "--num_completions",
@@ -315,7 +317,7 @@ async def main():
             args.image,
             args.element_id,
             args.model,
-            args.n_shot,
+            args.n_shot_imgs,
             args.eg_per_img,
             args.multiturn,
         )
@@ -360,7 +362,7 @@ async def main():
             list(element_ids_by_image.keys()),
             element_ids_by_image,
             model_names,
-            args.n_shot,
+            args.n_shot_imgs,
             args.eg_per_img,
             args.num_completions,
             args.multiturn,

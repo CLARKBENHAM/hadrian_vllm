@@ -31,8 +31,7 @@ def extract_element_ids_from_image(csv_path, image_path):
         List of element IDs for this image
     """
     # Extract assembly ID and page ID from the image filename
-    basename = os.path.basename(image_path)
-    assembly_id, page_id = extract_assembly_and_page_from_filename(basename)
+    assembly_id, page_id = extract_assembly_and_page_from_filename(image_path)
 
     if assembly_id is None or page_id is None:
         return []
@@ -54,10 +53,12 @@ def extract_element_ids_from_image(csv_path, image_path):
     return element_ids
 
 
-def select_few_shot_examples(csv_path, eval_dir, question_image, n_shot=3, eg_per_img=3):
+def select_few_shot_examples(
+    csv_path, eval_dir, question_image, question_ids_count=1, n_shot_imgs=3, eg_per_img=3
+):
     """
-    Select n_shot/eg_per_img random images from eval_dir (excluding the question_image)
-    and eg_per_img random element IDs for each image.
+    Select n_shot_imgs random images from eval_dir (excluding the question_image)
+    and eg_per_img lists of lentgth queston_ids_count element IDs for each image.
 
     Returns:
         List of tuples (image_path, element_ids_list)
@@ -73,27 +74,37 @@ def select_few_shot_examples(csv_path, eval_dir, question_image, n_shot=3, eg_pe
     available_images = [img for img in image_files if img != question_image_basename]
 
     # If we don't have enough images, use what we have
-    n_images = min(int(n_shot / eg_per_img) if eg_per_img > 0 else n_shot, len(available_images))
-    if n_images == 0 and available_images:
-        n_images = 1
-
-    if not available_images or n_images == 0:
+    n_images = min(n_shot_imgs, len(available_images))
+    if n_images == 0:
         return []
 
     # Select random images
     selected_images = random.sample(available_images, n_images)
     results = []
-
     for img in selected_images:
         img_path = os.path.join(eval_dir, img)
-        # Get element IDs for this image
-        element_ids = extract_element_ids_from_image(csv_path, img_path)
+        # Get all element IDs for this image
+        all_element_ids = extract_element_ids_from_image(csv_path, img_path)
 
-        # If we have element IDs, select random ones
-        if element_ids:
-            num_examples = min(eg_per_img, len(element_ids))
-            selected_ids = random.sample(element_ids, num_examples)
-            results.append((img_path, selected_ids))
+        # If we have enough element IDs, create eg_per_img examples with question_ids_count IDs each
+        if len(all_element_ids) >= question_ids_count:
+            for _ in range(eg_per_img):
+                # Try to select question_ids_count random element IDs
+                if len(all_element_ids) >= question_ids_count:
+                    selected_ids = random.sample(all_element_ids, question_ids_count)
+                    all_element_ids = [e for e in all_element_ids if e not in selected_ids]
+                    results.append((img_path, selected_ids))
+                else:
+                    # If not enough IDs, use what we have (with potential duplicates)
+                    all_element_ids = extract_element_ids_from_image(csv_path, img_path)
+                    selected_ids = random.choices(all_element_ids, k=question_ids_count)
+                    results.append((img_path, selected_ids))
+        else:
+            # If we don't have enough element IDs, use what we have (with potential duplicates)
+            for _ in range(eg_per_img):
+                selected_ids = random.choices(all_element_ids, k=question_ids_count)
+                if selected_ids:
+                    results.append((img_path, selected_ids))
 
     return results
 
@@ -108,8 +119,7 @@ def get_example_answers(csv_path, img_path, element_ids=None):
     import pandas as pd
 
     # Extract assembly ID and page ID from the image filename
-    basename = os.path.basename(img_path)
-    assembly_id, page_id = extract_assembly_and_page_from_filename(basename)
+    assembly_id, page_id = extract_assembly_and_page_from_filename(img_path)
 
     if assembly_id is None or page_id is None:
         return {}
@@ -132,13 +142,14 @@ def get_example_answers(csv_path, img_path, element_ids=None):
     return element_to_spec
 
 
+# handles multiple correctly?
 def generate_few_shot_prompt(prompt_template, examples, question_image, question_ids):
     """
     Generate a few-shot single string prompt with examples and the target question.
 
     Args:
         prompt_template: The prompt template string
-        examples: List of tuples (image_path, element_ids, element_to_spec)
+        examples: List of tuples (image_path, element_ids_list, element_to_spec)
         question_image: Path to the image containing the target element ID
         question_ids: List of element IDs to extract GD&T data for
 
@@ -147,13 +158,17 @@ def generate_few_shot_prompt(prompt_template, examples, question_image, question
     """
     # Generate few-shot examples text
     few_shot_text = "Examples\n"
-    for i, (_, element_ids, element_to_spec) in enumerate(examples):
-        img_num = i + 1
+    img2i = {}
+    for _, (path, element_ids, element_to_spec) in enumerate(examples):
+        if path not in img2i:
+            img2i[path] = len(img2i) + 1
+        img_num = img2i[path]
 
         for element_id in element_ids:
             if element_id in element_to_spec:
                 spec = element_to_spec[element_id]
-                few_shot_text += f"Img{img_num}:\n{element_id}: <answer>{spec}<answer>\n\n"
+                few_shot_text += f"Img{img_num}:\n{element_id}: <answer>{spec}<answer>\n"
+        few_shot_text += "\n"  # Add all element IDs for this image as a group
 
     # Add the question
     question_text = "Question:\n"
@@ -198,20 +213,28 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
 
         for element_id in element_ids:
             if element_id in element_to_spec:
-                # Add user message with the example question
-                user_message = f"Img{img_num}:\n{element_id}:"
+                # Add user message with all element IDs
+                user_message = f"Img{img_num}:\n"
+                for element_id in element_ids:
+                    user_message += f"{element_id}:\n"
+
                 messages.append({"role": "user", "content": user_message, "image_path": img_path})
 
-                # Add assistant message with the example answer
-                spec = element_to_spec[element_id]
-                assistant_message = f"<answer>{spec}<answer>"
+                # Add assistant message with all answers
+                assistant_message = ""
+                for element_id in element_ids:
+                    if element_id in element_to_spec:
+                        spec = element_to_spec[element_id]
+                        assistant_message += f"{element_id}: <answer>{spec}<answer>\n"
+
                 messages.append({"role": "assistant", "content": assistant_message})
 
     # Add the actual question
     img_num = len(examples) + 1
+    user_message = f"Img{img_num}:\n"
     for element_id in question_ids:
-        user_message = f"Img{img_num}:\n{element_id}:"
-        messages.append({"role": "user", "content": user_message, "image_path": question_image})
+        user_message += f"{element_id}:\n"
+    messages.append({"role": "user", "content": user_message, "image_path": question_image})
 
     return messages
 
@@ -222,7 +245,7 @@ def element_ids_per_img_few_shot(
     eval_dir,
     question_image,
     question_ids,
-    n_shot=3,
+    n_shot_imgs=3,
     eg_per_img=3,
     examples_as_multiturn=False,
 ):
@@ -235,8 +258,9 @@ def element_ids_per_img_few_shot(
         eval_dir: Directory containing the evaluation images
         question_image: Path to the image containing the target element ID
         question_ids: List of element IDs to extract GD&T data for
-        n_shot: Total Number of few-shot examples
+        n_shot_imgs: Number of few-shot images
         eg_per_img: Number of examples per image
+            total example ids: n_shot_imgs*eg_per_img*len(element_ids)
         examples_as_multiturn: Whether to format examples as multiple turns
 
     Returns:
@@ -247,7 +271,7 @@ def element_ids_per_img_few_shot(
 
     # Select few-shot examples
     example_tuples = select_few_shot_examples(
-        csv_path, eval_dir, question_image, n_shot, eg_per_img
+        csv_path, eval_dir, question_image, len(question_ids), n_shot_imgs, eg_per_img
     )
 
     # Get GD&T data for these examples
@@ -260,20 +284,20 @@ def element_ids_per_img_few_shot(
         examples.append((img_path, element_ids, element_to_spec))
 
     # Add the question image
-    if question_image and question_image not in image_paths:
-        image_paths.append(question_image)
+    assert question_image not in image_paths
+    image_paths.append(question_image)
 
     # Create the configuration object
     config = {
         "prompt_path": text_prompt_path,
-        "n_few_shot": n_shot,
+        "n_few_shot": n_shot_imgs,
         "eg_per_img": eg_per_img,
         "few_shot_examples": examples,
         "examples_as_multiturn": examples_as_multiturn,
         "datetime": get_current_datetime(),
         "git_hash": get_git_hash(),
         "question_ids": question_ids if isinstance(question_ids, list) else [question_ids],
-        "question_image": os.path.basename(question_image) if question_image else None,
+        "question_image": question_image,
     }
 
     if examples_as_multiturn:
@@ -306,4 +330,10 @@ def element_ids_per_img_few_shot(
         config_hash = hashlib.md5(config_str.encode()).hexdigest()[:8]
         config["hash"] = config_hash
         config["result_column"] = f"Specification {config_hash}"
-        return prompt, image_paths, config
+        # only send 1 image if multiple examples use same image, preseving order
+        # while in multiturn each turn gets its own image as seperate message
+        u_paths = []
+        for i in image_paths:
+            if i not in u_paths:
+                u_paths += [i]
+        return prompt, u_paths, config

@@ -116,6 +116,7 @@ The rules for generating the labels are:
 Remember to take your time, go slow over the whole image till you find the element id, then transcribe the GD&T data, then apply the rules for the final return.
 Place the return within <answer> tags. Note that some text is slightly rotated, so mentally correct for that.
 Also some text will be presented head-on and some text is slanted. Make sure to return only the data for the exact row if it is slanted.
-Selecting the correct GD&T symbol is the hardest part, make sure it is exactly what's on the page.
+Do not hallucinate.
+Selecting the correct GD&T symbol is the hardest part, make sure it is exactly what's on the page for exactly that element id.
 
 {{{Question}}}

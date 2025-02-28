@@ -38,10 +38,18 @@ def load_csv(csv_path):
 
 def extract_assembly_and_page_from_filename(filename):
     """Extract assembly ID and page number from filename."""
+    filename = os.path.basename(filename)  # ensure just name not path
+
     assembly_match = re.search(r"nist_ftc_(\d+)", filename)
     page_match = re.search(r"_pg(\d+)", filename)
 
     if not assembly_match or not page_match:
+        # {assembly}_{page}_q{quarter}
+        pattern = r"^(\d+)_(\d+)_q(\d+)\.png$"
+        match = re.match(pattern, filename)
+        if match:
+            assembly_id, page_id, quarter = map(int, match.groups())
+            return assembly_id, page_id
         return None, None
 
     assembly_id = int(assembly_match.group(1))

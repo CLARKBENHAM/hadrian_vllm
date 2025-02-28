@@ -1,45 +1,173 @@
-# result_processor.py
+# %%
+# # result_processor.py
 import re
 import json
 import os
 from datetime import datetime
-import pandas as pd
+
+import logging
 
 from hadrian_vllm.utils import extract_assembly_and_page_from_filename
 
+# Set up logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
-def extract_answer(response, element_id=None):
+
+def parse_code_block(response):
+    """Extract content from code blocks in the response"""
+    # Try to find content inside a code block
+    code_block_pattern = r"```(?:json|text)?\s*([\s\S]*?)```"
+    code_matches = re.findall(code_block_pattern, response)
+
+    if code_matches:
+        return code_matches[0].strip()
+    return None
+
+
+def extract_json_dict(text):
+    """Try to parse text as JSON and return a dictionary"""
+    try:
+        # Try parsing directly
+        data = json.loads(text)
+        if isinstance(data, dict):
+            return data
+    except json.JSONDecodeError:
+        # Try finding JSON object in the text
+        json_pattern = r"\{[\s\S]*\}"
+        json_match = re.search(json_pattern, text)
+        if json_match:
+            try:
+                data = json.loads(json_match.group(0))
+                if isinstance(data, dict):
+                    return data
+            except json.JSONDecodeError:
+                pass
+    return None
+
+
+def extract_element_id_lines(text):
+    """Extract lines that match the pattern 'ElementID: Value'"""
+    element_pattern = r"([A-Za-z0-9\-]+):\s*(.*?)(?=\n[A-Za-z0-9\-]+:|$)"
+    matches = re.findall(element_pattern, text)
+    return {elem.strip(): value.strip() for elem, value in matches}
+
+
+def extract_answers_from_text(response, element_ids):
     """
-    Extract the answer from the model's response.
+    Extract answers for specific element IDs from text response.
+
+    Args:
+        response: The text response from the model
+        element_ids: List of element IDs to extract answers for
+
+    Returns:
+        List of answers in the same order as element_ids
+    """
+    # Try to find content inside a code block first
+    code_content = parse_code_block(response)
+    if code_content:
+        # Try parsing as JSON
+        json_dict = extract_json_dict(code_content)
+        if json_dict:
+            # If we have a JSON dictionary, try to get answers for each element ID
+            return [json_dict.get(elem_id, None) for elem_id in element_ids]
+
+        # If not JSON, try to extract element ID lines from the code block
+        element_dict = extract_element_id_lines(code_content)
+        if element_dict:
+            return [element_dict.get(elem_id, None) for elem_id in element_ids]
+
+    # Try to extract element ID lines from the entire response
+    element_dict = extract_element_id_lines(response)
+    if element_dict:
+        return [element_dict.get(elem_id, None) for elem_id in element_ids]
+
+    # If all else fails, try to find answers in <answer> tags
+    answers = []
+    for elem_id in element_ids:
+        # Try to find a section with this element ID followed by an <answer> tag
+        pattern = rf"{re.escape(elem_id)}[^\n]*?<answer>(.*?)<answer>"
+        match = re.search(pattern, response, re.DOTALL)
+        if match:
+            answers.append(match.group(1).strip())
+        else:
+            answers.append(None)
+
+    return answers
+
+
+def extract_answer(response, element_ids=None):
+    """
+    Extract the answer(s) from the model's response.
 
     Args:
         response: The full response from the model
-        element_id: The element ID we were asking about (optional)
+        element_ids: Single element ID or list of element IDs to extract answers for
 
     Returns:
-            The extracted answer or None if not found
+        The extracted answer(s): single answer if element_ids is a string,
+        or list of answers in the same order as element_ids if it's a list
     """
-    # Try to find content between <answer> tags
-    pattern = r"<answer>(.*?)</*answer>"
-    matches = re.findall(pattern, response, re.DOTALL)
+    # Handle the case where element_ids is a single string
+    if isinstance(element_ids, str):
+        # For a single element ID, use the <answer> tag pattern first
+        pattern = r"<answer>(.*?)</*answer>"
+        matches = re.findall(pattern, response, re.DOTALL)
 
-    if matches:
-        if element_id and len(matches) > 1:
-            # If multiple answers and we have an element ID, try to find the right one
-            for i, match in enumerate(matches):
+        if matches:
+            # Look for a match specifically for this element ID
+            for match in matches:
                 # Look at nearby context to find the element ID
                 start_pos = response.find(f"<answer>{match}<answer>")
                 context_start = max(0, start_pos - 100)
                 context = response[context_start:start_pos]
-                if element_id in context:
+                if element_ids in context:
                     return match.strip()
+
             # If no specific match found, return the first one
             return matches[0].strip()
-        else:
-            # Return the first match
+
+        # If no <answer> tags found, try other methods
+        answers = extract_answers_from_text(response, [element_ids])
+        if answers and answers[0]:
+            return answers[0]
+
+        # If all else fails, return None
+        return None
+
+    # Handle the case where element_ids is a list
+    elif isinstance(element_ids, list):
+        # Try to extract answers for all element IDs
+        answers = extract_answers_from_text(response, element_ids)
+
+        # Count how many answers we found
+        found_answers = sum(1 for a in answers if a is not None)
+
+        # If we didn't find all answers, log a warning
+        if found_answers < len(element_ids):
+            logger.warning(
+                f"Found only {found_answers} out of {len(element_ids)} answers in the response."
+            )
+
+        return answers
+
+    # Handle the case where element_ids is None
+    else:
+        # Just try to find any <answer> tags
+        pattern = r"<answer>(.*?)</*answer>"
+        matches = re.findall(pattern, response, re.DOTALL)
+
+        if matches:
             return matches[0].strip()
 
-    return None
+        # If no <answer> tags, try to extract from code blocks or formatted text
+        code_content = parse_code_block(response)
+        if code_content:
+            return code_content
+
+        # If all else fails, return the entire response
+        return response
 
 
 def save_results(
@@ -82,6 +210,34 @@ def save_results(
     with open(os.path.join(config_dir, f"{config_hash}.json"), "w") as f:
         json.dump(config, f, indent=2)
 
+    # Ensure question_ids is a list and extracted_answers matches
+    if not isinstance(question_ids, list):
+        question_ids = [question_ids]
+        if not isinstance(extracted_answers, list):
+            extracted_answers = [extracted_answers]
+    elif not isinstance(extracted_answers, list):
+        logger.warn(
+            "Question IDs as list but single answer str, duplicate it"
+            f" {question_ids} {extract_answer} {config_hash}"
+        )
+        extracted_answers = [extracted_answers] * len(question_ids)
+
+    # Make sure extracted_answers and question_ids have the same length
+    if len(extracted_answers) < len(question_ids):
+        logger.warning(
+            f"Fewer answers ({len(extracted_answers)}) than questions ({len(question_ids)})."
+            f" Padding with None. {config_hash}"
+        )
+        extracted_answers = extracted_answers + [None] * (
+            len(question_ids) - len(extracted_answers)
+        )
+    elif len(extracted_answers) > len(question_ids):
+        logger.warning(
+            f"More answers ({len(extracted_answers)}) than questions ({len(question_ids)})."
+            f" Truncating. {config_hash}"
+        )
+        extracted_answers = extracted_answers[: len(question_ids)]
+
     # Save completion
     completion_data = {
         "config_hash": config_hash,
@@ -112,18 +268,6 @@ def save_results(
             )
             assert (
                 mask.sum() == 1
-            ), f"Duplicate rows {element_id} {page_id} {assembly_id} {config_hash}"
+            ), f"n rows {mask.sum()}!=1 for {element_id} {page_id} {assembly_id} {config_hash}"
             df.loc[mask, result_col] = answer
-    else:
-        # Single element ID case
-        mask = (
-            (df["Element ID"] == question_ids)
-            & (df["Page ID"] == page_id)
-            & (df["Assembly ID"] == assembly_id)
-        )
-        assert (
-            mask.sum() == 1
-        ), f"Duplicate rows {question_ids} {page_id} {assembly_id} {config_hash}"
-        df.loc[mask, result_col] = extracted_answers
-
     return df
