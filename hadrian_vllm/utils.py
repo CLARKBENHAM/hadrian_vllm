@@ -58,7 +58,7 @@ def extract_assembly_and_page_from_filename(filename):
     return assembly_id, page_id
 
 
-def save_df_with_results(df, result_column, output_path="data/results.csv"):
+def save_df_with_results(df, result_column, output_path="data/results/results.csv"):
     """Save DataFrame with results to CSV."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_csv(output_path, index=False)

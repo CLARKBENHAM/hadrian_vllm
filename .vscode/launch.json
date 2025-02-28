@@ -1,6 +1,35 @@
 {
     "configurations": [
         {
+            "name": "Python: main.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/hadrian_vllm/main.py",
+            // "console": "integratedTerminal",
+            "console": "internalConsole",
+            "justMyCode": false,
+            "args": [
+                "--prompt",
+                "data/prompts/prompt4.txt",
+                "--csv",
+                "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv",
+                "--eval_dir",
+                "data/eval_on/single_images/",
+                "--model",
+                "gemini-2.0-flash-001",
+                "--n_shot_imgs",
+                "2",
+                "--eg_per_img",
+                "4",
+                "--n_element_ids",
+                "1",
+                "--num_completions",
+                "1",
+                "--eval_all"
+                //Add any other args here if needed
+            ]
+        },
+        {
         "name": "Python: Current File (from repo root)",
         "type": "debugpy",
         "request": "launch",

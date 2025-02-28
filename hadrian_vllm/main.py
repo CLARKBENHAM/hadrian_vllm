@@ -8,8 +8,15 @@ import json
 from hadrian_vllm.prompt_generator import element_ids_per_img_few_shot
 from hadrian_vllm.model_caller import call_model, get_openai_messages
 from hadrian_vllm.result_processor import extract_answer, save_results
-from hadrian_vllm.evaluation import calculate_metrics
-from hadrian_vllm.utils import load_csv, save_df_with_results, get_git_hash, get_current_datetime
+from hadrian_vllm.evaluation import calculate_metrics, evaluate_answer
+from hadrian_vllm.utils import (
+    load_csv,
+    save_df_with_results,
+    get_git_hash,
+    get_current_datetime,
+    get_element_details,
+    extract_assembly_and_page_from_filename,
+)
 
 
 async def process_element_id(
@@ -22,6 +29,7 @@ async def process_element_id(
     n_shot_imgs=3,
     eg_per_img=3,
     examples_as_multiturn=False,
+    cache=True,
 ):
     """
     Process a single element ID query.
@@ -37,7 +45,7 @@ async def process_element_id(
         eg_per_img: Number of examples per image
             total example ids: n_shot_imgs*eg_per_img*1
         examples_as_multiturn: Whether to format examples as multiple turns
-
+        cache should it be used
     Returns:
         The extracted answer and updated DataFrame
     """
@@ -57,9 +65,9 @@ async def process_element_id(
 
     # Call the model
     if examples_as_multiturn:
-        response = await call_model(prompt_or_messages, model=model_name)
+        response = await call_model(prompt_or_messages, model=model_name, cache=cache)
     else:
-        response = await call_model(prompt_or_messages, image_paths, model_name)
+        response = await call_model(prompt_or_messages, image_paths, model_name, cache=cache)
 
     # Extract the answer
     answer = extract_answer(response, element_id)
@@ -86,6 +94,7 @@ async def process_element_ids(
     n_shot_imgs=3,
     eg_per_img=3,
     examples_as_multiturn=False,
+    cache=True,
 ):
     """
     Process multiple element IDs in a batch.
@@ -101,7 +110,7 @@ async def process_element_ids(
         eg_per_img: Number of examples per image
             total example ids: n_shot_imgs*eg_per_img*len(element_ids)
         examples_as_multiturn: Whether to format examples as multiple turns
-
+        cache: should the cache be used or call regenerated
     Returns:
         List of extracted answers and updated DataFrame
     """
@@ -119,9 +128,9 @@ async def process_element_ids(
 
     # Call the model
     if examples_as_multiturn:
-        response = await call_model(prompt_or_messages, model=model_name)
+        response = await call_model(prompt_or_messages, model=model_name, cache=cache)
     else:
-        response = await call_model(prompt_or_messages, image_paths, model_name)
+        response = await call_model(prompt_or_messages, image_paths, model_name, cache=cache)
 
     # Extract answers for each element ID
     answers = []
@@ -150,6 +159,7 @@ async def run_evaluation(
     model_names,
     n_shot_imgs=3,
     eg_per_img=3,
+    n_element_ids=1,
     num_completions=1,
     examples_as_multiturn=False,
 ):
@@ -165,6 +175,7 @@ async def run_evaluation(
         model_names: List of model names to evaluate
         n_shot_imgs: Number of few-shot examples
         eg_per_img: Number of examples per image
+        n_element_ids: Max number of element ids to send per request
         num_completions: Number of completions to generate for each query
         examples_as_multiturn: Whether to format examples as multiple turns
 
@@ -176,71 +187,101 @@ async def run_evaluation(
 
     # Results by model
     results_by_model = {}
+    tasks = []  # List to hold asyncio tasks
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
 
         # Create a copy of the DataFrame for this model's results
         model_df = df.copy()
-
-        for img_path in question_images:
-            element_ids = element_ids_by_image.get(img_path, [])
-            if not element_ids:
+        latest_result_column = None
+        for img_path in question_images[:2]:
+            all_element_ids = element_ids_by_image.get(img_path, [])
+            if not all_element_ids:
                 continue
 
             print(f"Processing image: {os.path.basename(img_path)}")
-            print(f"Element IDs: {element_ids}")
+            print(f"Element IDs: {all_element_ids}")
 
-            # Process all element IDs for this image
-            answers, model_df = await process_element_ids(
-                text_prompt_path,
-                csv_path,
-                eval_dir,
-                img_path,
-                element_ids,
-                model_name,
-                n_shot_imgs,
-                eg_per_img,
-                examples_as_multiturn,
-            )
+            for start in range(0, len(all_element_ids), n_element_ids):
+                element_ids = all_element_ids[start : start + n_element_ids]
+                print(f"Batch Element IDs: {element_ids}")
+                # Process all element IDs for this image
+                preds, _model_df = await process_element_ids(
+                    text_prompt_path,
+                    csv_path,
+                    eval_dir,
+                    img_path,
+                    element_ids,
+                    model_name,
+                    n_shot_imgs,
+                    eg_per_img,
+                    examples_as_multiturn,
+                )
+                answer_col = _model_df.columns[-1]
+                if latest_result_column is None:
+                    latest_result_column = answer_col
+                    model_df[answer_col] = model_df[answer_col]
+                assert (
+                    latest_result_column == answer_col
+                ), f"Same run_eval had different col {latest_result_column} {answer_col}"
 
-            # If we need multiple completions, get them and use the best one
-            if num_completions > 1:
-                for i, element_id in enumerate(element_ids):
-                    all_answers = [answers[i]]
-
-                    # Get additional completions
-                    for j in range(1, num_completions):
-                        answer, _ = await process_element_id(
-                            text_prompt_path,
+                assembly_id, page_id = extract_assembly_and_page_from_filename(img_path)
+                for answer, element_id in zip(preds, element_ids):
+                    # store real
+                    row = (
+                        (model_df["Assembly ID"] == assembly_id)
+                        & (model_df["Page ID"] == page_id)
+                        & (model_df["Element ID"] == element_id)
+                    )
+                    model_df[row, latest_result_column] = preds
+                    if True:
+                        element_details = get_element_details(
                             csv_path,
-                            eval_dir,
-                            img_path,
                             element_id,
-                            model_name,
-                            n_shot_imgs,
-                            eg_per_img,
-                            examples_as_multiturn,
+                            assembly_id=assembly_id,
+                            page_id=page_id,
                         )
-                        all_answers.append(answer)
+                        real_answer = element_details["Specification"]
+                        print(
+                            f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`,"
+                            f" Model: `{answer}`"
+                        )
 
-                    # Update the DataFrame with all answers as a list
-                    # Find the row with this element ID
-                    mask = model_df["Element ID"] == element_id
-                    if mask.any():
-                        # Get the current result column (should be the last one added)
-                        result_cols = [
-                            col for col in model_df.columns if col.startswith("Specification ")
-                        ]
-                        if result_cols:
-                            model_df.loc[mask, result_cols[-1]] = str(
-                                all_answers
-                            )  # Convert to string for DataFrame storage
+                # If we need multiple completions, get them and use the best one
+                if num_completions > 1:
+                    assert False, "Doesn't combine in smart way, or use saving code"
+                    for i, element_id in enumerate(element_ids):
+                        all_answers = [preds[i]]
 
-        # Save this model's results
-        result_columns = [col for col in model_df.columns if col.startswith("Specification ")]
-        if result_columns:
-            latest_result_column = result_columns[-1]
+                        # Get additional completions
+                        for j in range(1, num_completions):
+                            answer, _ = await process_element_id(
+                                text_prompt_path,
+                                csv_path,
+                                eval_dir,
+                                img_path,
+                                element_id,
+                                model_name,
+                                n_shot_imgs,
+                                eg_per_img,
+                                examples_as_multiturn,
+                                cache=False,
+                            )
+                            all_answers.append(answer)
+
+                        # Update the DataFrame with all answers as a list
+                        # Find the row with this element ID
+                        mask = model_df["Element ID"] == element_id
+                        if mask.any():
+                            # Get the current result column (should be the last one added)
+                            result_cols = [
+                                col for col in model_df.columns if col.startswith("Specification ")
+                            ]
+                            if result_cols:
+                                model_df.loc[mask, result_cols[-1]] = str(
+                                    all_answers
+                                )  # Convert to string for DataFrame storage
 
             try:
                 # Calculate metrics
@@ -248,7 +289,7 @@ async def run_evaluation(
                 results_by_model[model_name] = metrics
 
                 # Save the DataFrame
-                output_path = f"data/results_{model_name.replace('-', '_')}.csv"
+                output_path = f"data/results/{latest_result_column.replace(' ', '_')}.csv"
                 save_df_with_results(model_df, latest_result_column, output_path)
 
                 # Print metrics
@@ -269,7 +310,7 @@ async def main():
     parser.add_argument(
         "--prompt",
         type=str,
-        default="data/prompts/3_single_elem_asem6_few_shot.txt",
+        default="data/prompts/prompt4.txt",
         help="Path to the prompt template",
     )
     parser.add_argument(
@@ -287,13 +328,21 @@ async def main():
     parser.add_argument(
         "--image",
         type=str,
-        default="data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png",
+        default=None,  # "data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png",
         help="Path to the question image",
     )
-    parser.add_argument("--element_id", type=str, default="D12", help="Element ID to query")
-    parser.add_argument("--model", type=str, default="gpt-4o", help="Model to use")
+    parser.add_argument("--element_id", type=str, default=None, help="Element ID to query")
+    parser.add_argument("--model", type=str, default="gemini-2.0-flash-001", help="Model to use")
     parser.add_argument("--n_shot_imgs", type=int, default=3, help="Number of few-shot examples")
     parser.add_argument("--eg_per_img", type=int, default=3, help="Number of examples per image")
+    parser.add_argument(
+        "--n_element_ids",
+        type=int,
+        default=1,
+        help=(
+            "Maximum number of element ids to send at once to process_element_ids for a given image"
+        ),
+    )
     parser.add_argument(
         "--num_completions",
         type=int,
@@ -309,7 +358,7 @@ async def main():
     args = parser.parse_args()
 
     # Process a single element ID
-    if not args.eval_all and args.element_id:
+    if not args.eval_all and args.element_id and args.image:
         answer, df = await process_element_id(
             args.prompt,
             args.csv,
@@ -364,6 +413,7 @@ async def main():
             model_names,
             args.n_shot_imgs,
             args.eg_per_img,
+            args.n_element_ids,
             args.num_completions,
             args.multiturn,
         )
@@ -379,7 +429,9 @@ async def main():
                 print(f"Unanswered: {metrics['percent_unanswered']:.2f}%")
 
     else:
-        print("Please specify an element_id or use --eval_all to evaluate all elements")
+        print(
+            "Please specify an element_id(s) and image or use --eval_all to evaluate all elements"
+        )
 
 
 if __name__ == "__main__":

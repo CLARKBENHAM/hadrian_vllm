@@ -20,7 +20,8 @@ async def run_example():
     )
 
     print(f"Answer for D12 Quarter : {answer}")
-    print(df)
+    print(df.columns)
+    print(df.query('`Element ID` == "D12"'))
 
     answer, df = await process_element_id(
         text_prompt_path="data/prompts/prompt4.txt",
@@ -35,25 +36,26 @@ async def run_example():
     )
 
     print(f"Answer for D12: {answer}")
-    print(df)
+    print(df.columns)
+    print(df.query('`Element ID` == "D12"'))
 
     # Try with multi-turn example format
+    element_ids = ["T11", "D12", "D13", "T12", "D14", "T13", "D15", "T14"]
     answer_mt, df_mt = await process_element_ids(
         text_prompt_path="data/prompts/prompt4.txt",
         csv_path="data/fsi_labels/Hadrian Vllm test case - Final Merge.csv",
         eval_dir="data/eval_on/single_images/",
         question_image="data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg2.png",
-        element_ids=["T11", "D12", "D13", "T12", "D14", "T13", "D15", "T14"],
+        element_ids=element_ids,
         model_name="gemini-2.0-flash-001",
         n_shot_imgs=5,
         eg_per_img=3,
         examples_as_multiturn=True,
     )
 
-    print(
-        f"""Answer for ["T11", "D12", "D13", "T12", "D14", "T13", "D15", "T14"] (multi-turn): {answer_mt}"""
-    )
-    print(df_mt)
+    print(f"""Answer for {element_ids} (multi-turn): {answer_mt}""")
+    print(df_mt.columns)
+    print(df_mt.query(f"`Element ID` in @element_ids"))
 
 
 if __name__ == "__main__":
@@ -86,7 +88,7 @@ async def run_single_example():
         question_image="data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png",
         element_id="D12",
         model_name="gpt-4o",
-        n_shot=3,
+        n_shot_imgs=3,
         eg_per_img=3,
         examples_as_multiturn=False,
     )
@@ -239,7 +241,7 @@ async def run_full_evaluation(model_name="gpt-4o", multiturn=False, num_images=2
             print(f"Accuracy: {metrics['accuracy']:.4f}")
 
 
-async def main():
+async def main2():
     parser = argparse.ArgumentParser(description="Run examples of GD&T extraction")
     parser.add_argument(
         "--example",
@@ -268,5 +270,5 @@ async def main():
         print("Unknown example type. Please choose one of: single, multi, multiturn, full")
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+# if __name__ == "__main__":
+#    asyncio.run(main())

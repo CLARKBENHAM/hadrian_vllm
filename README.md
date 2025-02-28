@@ -23,17 +23,17 @@ To use this system, you can:
 
 1. For a single query:
 ```bash
-python -m gdt_extraction.main --prompt data/prompts/3_single_elem_asem6_few_shot.txt --csv "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv" --eval_dir data/eval_on/single_images/ --image data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png --element_id D12 --model gpt-4o
+python -m gdt_extraction.main --prompt data/prompts/prompt4.txt --csv "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv" --eval_dir data/eval_on/single_images/ --image data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png --element_id D12 --model gpt-4o
 ```
 
 2. To use multi-turn examples:
 ```bash
-python -m gdt_extraction.main --prompt data/prompts/3_single_elem_asem6_few_shot.txt --csv "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv" --eval_dir data/eval_on/single_images/ --image data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png --element_id D12 --model gpt-4o --multiturn
+python -m gdt_extraction.main --prompt data/prompts/prompt4.txt --csv "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv" --eval_dir data/eval_on/single_images/ --image data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png --element_id D12 --model gpt-4o --multiturn
 ```
 
 3. For batch evaluation:
 ```bash
-python -m gdt_extraction.main --prompt data/prompts/3_single_elem_asem6_few_shot.txt --csv "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv" --eval_dir data/eval_on/single_images/ --model gpt-4o --num_completions 3 --eval_all
+python -m gdt_extraction.main --prompt data/prompts/prompt4.txt --csv "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv" --eval_dir data/eval_on/single_images/ --model gpt-4o --num_completions 1 --eval_all
 ```
 
 The system efficiently extracts GD&T/PMI information from renders, with proper caching, error handling, and evaluation metrics.

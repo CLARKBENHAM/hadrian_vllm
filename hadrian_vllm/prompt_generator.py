@@ -288,16 +288,24 @@ def element_ids_per_img_few_shot(
     image_paths.append(question_image)
 
     # Create the configuration object
-    config = {
+    shared_config = {  # what all element_ids for this evaluation suite will use
         "prompt_path": text_prompt_path,
         "n_few_shot": n_shot_imgs,
         "eg_per_img": eg_per_img,
-        "few_shot_examples": examples,
-        "examples_as_multiturn": examples_as_multiturn,
-        "datetime": get_current_datetime(),
         "git_hash": get_git_hash(),
+        "examples_as_multiturn": examples_as_multiturn,
+    }
+
+    config_str = json.dumps(shared_config, sort_keys=True)
+    shared_hash = hashlib.md5(config_str.encode()).hexdigest()[:8]
+    config = {
+        **shared_config,
+        # specific to this call
+        "datetime": get_current_datetime(),
+        "few_shot_examples": examples,
         "question_ids": question_ids if isinstance(question_ids, list) else [question_ids],
         "question_image": question_image,
+        "result_column": f"Specification {shared_hash}",
     }
 
     if examples_as_multiturn:
@@ -315,7 +323,6 @@ def element_ids_per_img_few_shot(
         config_str = json.dumps(config, sort_keys=True)
         config_hash = hashlib.md5(config_str.encode()).hexdigest()[:8]
         config["hash"] = config_hash
-        config["result_column"] = f"Specification {config_hash}"
         return messages, image_paths, config
     else:
         # Generate a standard prompt
@@ -329,7 +336,6 @@ def element_ids_per_img_few_shot(
         config_str = json.dumps(config, sort_keys=True)
         config_hash = hashlib.md5(config_str.encode()).hexdigest()[:8]
         config["hash"] = config_hash
-        config["result_column"] = f"Specification {config_hash}"
         # only send 1 image if multiple examples use same image, preseving order
         # while in multiturn each turn gets its own image as seperate message
         u_paths = []
