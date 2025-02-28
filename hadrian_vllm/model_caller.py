@@ -49,7 +49,13 @@ async def under_ratelimit(model):
             oldest_request = model_request_timestamps[model][0]
             time_until_available = oldest_request + 60 - current_time
             if time_until_available > 0:
+                if time_until_available > 2:
+                    print(
+                        f"{model} Lock Sleeping for {time_until_available};"
+                        f"Q: {model_request_timestamps[model][:5]} "
+                    )
                 await asyncio.sleep(time_until_available)
+            model_request_timestamps[model].pop()
         # Add this request's timestamp
         model_request_timestamps[model].append(current_time)
 

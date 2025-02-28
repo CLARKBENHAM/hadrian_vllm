@@ -6,6 +6,8 @@ import json
 import subprocess
 from datetime import datetime
 
+import sys
+
 
 def basic_numeric_hash(input_string, prime=31, modulus=2**32):
     hash_value = 0
@@ -29,6 +31,10 @@ def get_git_hash():
 def get_current_datetime():
     """Get the current date and time in a readable format"""
     return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+
+def is_debug_mode():
+    return sys.gettrace() is not None
 
 
 def load_csv(csv_path):

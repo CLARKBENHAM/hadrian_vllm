@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import pandas as pd
 import json
+from typing import Dict, List, Tuple, Any
 
 from hadrian_vllm.prompt_generator import element_ids_per_img_few_shot
 from hadrian_vllm.model_caller import call_model, get_openai_messages
@@ -16,6 +17,7 @@ from hadrian_vllm.utils import (
     get_current_datetime,
     get_element_details,
     extract_assembly_and_page_from_filename,
+    is_debug_mode,
 )
 
 
@@ -80,6 +82,24 @@ async def process_element_id(
 
     # Save the results
     df = save_results(df, prompt_or_messages, image_paths, element_id, response, answer, config)
+
+    if is_debug_mode():
+        img_path = image_paths[-1]
+        assembly_id, page_id = extract_assembly_and_page_from_filename(img_path)
+
+        print(
+            f"\nResults for model {model_name}, image {os.path.basename(img_path)}, elements"
+            f" {element_id}:"
+        )
+
+        element_details = get_element_details(
+            csv_path,
+            element_id,
+            assembly_id=assembly_id,
+            page_id=page_id,
+        )
+        real_answer = element_details["Specification"]
+        print(f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`, Model: `{answer}`")
 
     return answer, df
 
@@ -147,6 +167,26 @@ async def process_element_ids(
     # Save the results
     df = save_results(df, prompt_or_messages, image_paths, element_ids, response, answers, config)
 
+    if is_debug_mode():
+        img_path = image_paths[-1]
+        assembly_id, page_id = extract_assembly_and_page_from_filename(img_path)
+
+        print(
+            f"\nResults for model {model_name}, image {os.path.basename(img_path)}, elements"
+            f" {element_ids}:"
+        )
+        for element_id, anser in zip(element_ids, answers):
+            element_details = get_element_details(
+                csv_path,
+                element_id,
+                assembly_id=assembly_id,
+                page_id=page_id,
+            )
+            real_answer = element_details["Specification"]
+            print(
+                f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`, Model: `{answer}`"
+            )
+
     return answers, df
 
 
@@ -182,19 +222,22 @@ async def run_evaluation(
     Returns:
         Dictionary of metrics by model
     """
+    if num_completions > 1:
+        assert False, "Doesn't combine in smart way, or use saving code"
     # Load the DataFrame
     df = load_csv(csv_path)
 
     # Results by model
     results_by_model = {}
-    tasks = []  # List to hold asyncio tasks
+    model_dfs = {model_name: df.copy() for model_name in model_names}
+    latest_result_columns = {model_name: None for model_name in model_names}
+
+    # Create all tasks first
+    all_tasks = []  # List to track (model_name, img_path, element_ids, task)
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
 
-        # Create a copy of the DataFrame for this model's results
-        model_df = df.copy()
-        latest_result_column = None
         for img_path in question_images[:2]:
             all_element_ids = element_ids_by_image.get(img_path, [])
             if not all_element_ids:
@@ -206,101 +249,93 @@ async def run_evaluation(
             for start in range(0, len(all_element_ids), n_element_ids):
                 element_ids = all_element_ids[start : start + n_element_ids]
                 print(f"Batch Element IDs: {element_ids}")
-                # Process all element IDs for this image
-                preds, _model_df = await process_element_ids(
-                    text_prompt_path,
-                    csv_path,
-                    eval_dir,
-                    img_path,
-                    element_ids,
-                    model_name,
-                    n_shot_imgs,
-                    eg_per_img,
-                    examples_as_multiturn,
-                )
-                answer_col = _model_df.columns[-1]
-                if latest_result_column is None:
-                    latest_result_column = answer_col
-                    model_df[answer_col] = model_df[answer_col]
-                assert (
-                    latest_result_column == answer_col
-                ), f"Same run_eval had different col {latest_result_column} {answer_col}"
 
-                assembly_id, page_id = extract_assembly_and_page_from_filename(img_path)
-                for answer, element_id in zip(preds, element_ids):
-                    # store real
-                    row = (
-                        (model_df["Assembly ID"] == assembly_id)
-                        & (model_df["Page ID"] == page_id)
-                        & (model_df["Element ID"] == element_id)
+                # Create task but don't await it yet
+                for i in range(num_completions):
+                    task = process_element_ids(
+                        text_prompt_path,
+                        csv_path,
+                        eval_dir,
+                        img_path,
+                        element_ids,
+                        model_name,
+                        n_shot_imgs,
+                        eg_per_img,
+                        examples_as_multiturn,
+                        cache=num_completions == 1,
                     )
-                    model_df[row, latest_result_column] = preds
-                    if True:
-                        element_details = get_element_details(
-                            csv_path,
-                            element_id,
-                            assembly_id=assembly_id,
-                            page_id=page_id,
-                        )
-                        real_answer = element_details["Specification"]
-                        print(
-                            f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`,"
-                            f" Model: `{answer}`"
-                        )
 
-                # If we need multiple completions, get them and use the best one
-                if num_completions > 1:
-                    assert False, "Doesn't combine in smart way, or use saving code"
-                    for i, element_id in enumerate(element_ids):
-                        all_answers = [preds[i]]
+                    # Store task with its metadata
+                    all_tasks.append((model_name, img_path, element_ids, i, task))
 
-                        # Get additional completions
-                        for j in range(1, num_completions):
-                            answer, _ = await process_element_id(
-                                text_prompt_path,
-                                csv_path,
-                                eval_dir,
-                                img_path,
-                                element_id,
-                                model_name,
-                                n_shot_imgs,
-                                eg_per_img,
-                                examples_as_multiturn,
-                                cache=False,
-                            )
-                            all_answers.append(answer)
+    # Run all tasks concurrently
+    all_results = await asyncio.gather(*(task for _, _, _, _, task in all_tasks))
 
-                        # Update the DataFrame with all answers as a list
-                        # Find the row with this element ID
-                        mask = model_df["Element ID"] == element_id
-                        if mask.any():
-                            # Get the current result column (should be the last one added)
-                            result_cols = [
-                                col for col in model_df.columns if col.startswith("Specification ")
-                            ]
-                            if result_cols:
-                                model_df.loc[mask, result_cols[-1]] = str(
-                                    all_answers
-                                )  # Convert to string for DataFrame storage
+    # Process results
+    for (model_name, img_path, element_ids, _, _), (preds, _model_df) in zip(
+        all_tasks, all_results
+    ):
+        answer_col = _model_df.columns[-1]
+        if latest_result_columns[model_name] is None:
+            latest_result_columns[model_name] = answer_col
+            model_dfs[model_name][answer_col] = None
+        assert (
+            latest_result_columns[model_name] == answer_col
+        ), f"Same run_eval had different col {latest_result_columns[model_name]} {answer_col}"
 
-            try:
-                # Calculate metrics
-                metrics = calculate_metrics(model_df, latest_result_column)
-                results_by_model[model_name] = metrics
+        assembly_id, page_id = extract_assembly_and_page_from_filename(img_path)
 
-                # Save the DataFrame
-                output_path = f"data/results/{latest_result_column.replace(' ', '_')}.csv"
-                save_df_with_results(model_df, latest_result_column, output_path)
+        print(
+            f"\nResults for model {model_name}, image {os.path.basename(img_path)}, elements"
+            f" {element_ids}:"
+        )
+        for answer, element_id in zip(preds, element_ids):
+            # store real
+            row = (
+                (model_dfs[model_name]["Assembly ID"] == assembly_id)
+                & (model_dfs[model_name]["Page ID"] == page_id)
+                & (model_dfs[model_name]["Element ID"] == element_id)
+            )
+            model_dfs[model_name].loc[row, latest_result_columns[model_name]] = answer
+            # save multiple completions here?
 
-                # Print metrics
-                print(f"\nResults for {model_name}:")
-                print(f"Correct: {metrics['correct']} ({metrics['percent_correct']:.2f}%)")
-                print(f"Incorrect: {metrics['incorrect']} ({metrics['percent_incorrect']:.2f}%)")
-                print(f"Unanswered: {metrics['unanswered']} ({metrics['percent_unanswered']:.2f}%)")
-                print(f"Accuracy: {metrics['accuracy']:.4f}")
-            except Exception as e:
-                print(f"Error calculating metrics for {model_name}: {e}")
-                results_by_model[model_name] = {"error": str(e)}
+            element_details = get_element_details(
+                csv_path,
+                element_id,
+                assembly_id=assembly_id,
+                page_id=page_id,
+            )
+            real_answer = element_details["Specification"]
+            print(
+                f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`, Model: `{answer}`"
+            )
+
+        # If we need multiple completions, get them and use the best one
+        if num_completions > 1:
+            assert False, "Doesn't combine in smart way, or use saving code"
+
+    # Calculate metrics and save results for each model
+    for model_name in model_names:
+        try:
+            # Calculate metrics
+            model_df = model_dfs[model_name]
+            latest_result_column = latest_result_columns[model_name]
+            metrics = calculate_metrics(model_df, latest_result_column)
+            results_by_model[model_name] = metrics
+
+            # Save the DataFrame
+            output_path = f"data/results/{latest_result_column.replace(' ', '_')}.csv"
+            save_df_with_results(model_df, latest_result_column, output_path)
+
+            # Print metrics
+            print(f"\nResults for {model_name}:")
+            print(f"Correct: {metrics['correct']} ({metrics['percent_correct']:.2f}%)")
+            print(f"Incorrect: {metrics['incorrect']} ({metrics['percent_incorrect']:.2f}%)")
+            print(f"Unanswered: {metrics['unanswered']} ({metrics['percent_unanswered']:.2f}%)")
+            print(f"Accuracy: {metrics['accuracy']:.4f}")
+        except Exception as e:
+            print(f"Error calculating metrics for {model_name}: {e}")
+            results_by_model[model_name] = {"error": str(e)}
 
     return results_by_model
 
