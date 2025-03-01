@@ -1766,4 +1766,10 @@ Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.
 Results saved to data/results/Specification_ea7e09af.csv
 
 
+# 5 img with 10 element labeled by eval easy
+# before had 16 right 31 wrong
+python  -m pdb hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/_single_images_test/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 10 --n_element_ids 1 --num_completions 1 --eval_all --multiturn --eval-easy
+# Now 17 30
+
+
 
