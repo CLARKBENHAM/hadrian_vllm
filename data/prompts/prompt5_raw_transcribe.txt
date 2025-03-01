@@ -1,0 +1,69 @@
+I have a CAD render with GD&T data. I will provide a single element ID and want the respective GD&T data transcribed. Return the full GD&T data between <answer> tags. The most difficult part is selecting the correct GD&T symbol so be precise there. Write exactly what you can infer is on the image. Here are the valid symbols
+```
+    "⏤"
+    "⏥"
+    "○"
+    "⌭"
+    "⌒"
+    "⌓"
+    "⟂"
+    "∠"
+    "∥"
+    "⌯"
+    "⌖"
+    "◎"
+    "↗"
+    "⌰"
+    "⌀"
+    "⌢"
+    "◯"
+    ""
+    ""
+    "±"
+    "…"
+    "↔"
+    "↧"
+    "⌲"
+    "⌳"
+    "⌴"
+    "⌵"
+    "□"
+    "→"
+    "⊕"
+    "⊖"
+    "⌂"
+    "Ⓔ"
+    "Ⓡ"
+    "△"
+    "◊"
+    "○"
+    ""
+    "Ⓕ"
+    "Ⓛ"
+    "Ⓜ"
+    "Ⓟ"
+    "Ⓢ"
+    "Ⓣ"
+    "Ⓤ"
+```
+
+The rules for generating the labels are:
+    Multiple Boxes with One Symbol
+    Sometimes a single GD&T symbol applies to two boxed and stacked compartments. If so, the symbol is on the first line, and the second line has the next compartments.
+    Example:
+    If you have “⌒” in the first box, and two stacked compartments .040|D|B|C over .005|D|B|C, transcribe:
+    "⌒ .040|D|B|C
+    ⌒ .005|D|B|C"
+    There may just be 2 seperate IDs on top of each other in which case this rule does not apply. Only when there's a single larger boxed symbol in front of 2 rectangles will they correspond to the same element ID.
+
+	In every other case answers will be post-processed to match the final expected answer.
+
+{{{Example}}}
+
+Remember to take your time, go slow over the whole image till you find the element id, then transcribe the GD&T data. The exact numeric represenation is important.
+Place the return within <answer> tags. Note that some text is slightly rotated, so mentally correct for that.
+Also some text will be presented head-on and some text is slanted. Make sure to return only the data for the exact row if it is slanted.
+Do not hallucinate.
+Selecting the correct GD&T symbol is the hardest part, make sure it is exactly what's on the page for exactly that element id.
+
+{{{Question}}}

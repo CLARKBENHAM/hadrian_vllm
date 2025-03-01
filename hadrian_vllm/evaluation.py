@@ -24,50 +24,6 @@ def normalize_text(text):
 
 def normalize_gdt(text, symbols_mapping):
     """
-    Normalize GD&T text by handling symbol/word equivalence.
-    """
-    if text is None:
-        return ""
-
-    symbol_to_name = symbols_mapping.get("symbol_to_name", {})
-
-    normalized = text
-
-    # Replace symbols with placeholders
-    for symbol, names in symbol_to_name.items():
-        if symbol in normalized:
-            # Replace symbol with a unique placeholder
-            normalized = normalized.replace(symbol, placeholder)
-
-            # Also create versions with the name instead of symbol
-            alternatives = [normalized.replace(placeholder, name) for name in names]
-            normalized = normalized.replace(placeholder, symbol)  # restore original
-            alternatives.append(normalized)
-
-            return [normalize_text(alt) for alt in alternatives]
-
-    # Replace names with placeholders
-    for name, symbol in name_to_symbol.items():
-        if name.lower() in normalized.lower():
-            # Create case-insensitive pattern
-            pattern = re.compile(re.escape(name), re.IGNORECASE)
-
-            # Replace name with a unique placeholder
-            placeholder = f"__NAME_{hash(name)}_"
-            normalized = pattern.sub(placeholder, normalized)
-
-            # Create versions with the symbol instead of name
-            alt_with_symbol = normalized.replace(placeholder, symbol)
-            normalized = normalized.replace(placeholder, name)  # restore original
-
-            return [normalize_text(normalized), normalize_text(alt_with_symbol)]
-
-    # If no replacements were made, return the normalized text
-    return [normalize_text(normalized)]
-
-
-def normalize_gdt(text, symbols_mapping):
-    """
     Normalize GD&T text by converting both symbols and their corresponding names
     to a placeholder. Longer matching strings are replaced first.
 
@@ -149,6 +105,9 @@ def evaluate_single_answer(prediction, ground_truth, symbols_mapping):
     # Get normalized versions of the prediction and ground truth
     pred_normalized = normalize_gdt(prediction, symbols_mapping)
     gt_normalized = normalize_gdt(ground_truth, symbols_mapping)
+    # print("normed")
+    # print(pred_normalized)
+    # print(gt_normalized)
 
     # Check if any normalized version of the prediction matches any normalized version of the ground truth
     if isinstance(pred_normalized, list) and isinstance(gt_normalized, list):
@@ -168,6 +127,95 @@ def evaluate_single_answer(prediction, ground_truth, symbols_mapping):
         if pred_normalized == gt_normalized:
             return 1.0
     return 0.0
+
+
+def evaluate_single_answer_easy(prediction, ground_truth, symbols_mapping):
+    """Removing as many rules as possible
+    Evaluate a single prediction against the ground truth
+    """
+    if prediction is None:
+        return 0.0
+
+    # Get normalized versions of the prediction and ground truth
+    # print(
+    #     "pred",
+    #     prediction,
+    #     undo_formatting_rules(prediction),
+    #     normalize_gdt(undo_formatting_rules(prediction), symbols_mapping),
+    #     sep="\n",
+    # )
+    # print(
+    #     "gt",
+    #     ground_truth,
+    #     undo_formatting_rules(ground_truth),
+    #     normalize_gdt(undo_formatting_rules(ground_truth), symbols_mapping),
+    #     sep="\n",
+    # )
+
+    pred_normalized = normalize_gdt(undo_formatting_rules(prediction), symbols_mapping)
+    gt_normalized = normalize_gdt(undo_formatting_rules(ground_truth), symbols_mapping)
+    assert isinstance(pred_normalized, str) and isinstance(gt_normalized, str)
+    if pred_normalized == gt_normalized:
+        return 1.0
+    return 0.0
+
+
+def undo_formatting_rules(text):
+    """
+    Egregious: GRIB
+    Undo the formatting rules from prompt4.txt while preserving Unicode characters
+
+        note: Can't make lower case, since GD&T transform rules which are used later asume proper capitalization
+    """
+    if not text:
+        return text
+
+    # Get only the first line (avoiding regex for newline split)
+    # this is actually cheating since I should explain rule properly?
+    text = text.strip().split("\n")[0]
+
+    # 1. Remove pipe characters (from Feature Control Frames rule)
+    text = text.replace("|", "")
+
+    # 2. Remove "All Around" text
+    text = re.sub(r"all\s*around", "", text, flags=re.IGNORECASE)
+
+    # 3. Handle datum feature format
+    text = re.sub(r"datum\s*feature\s*([a-z])", r"df\1", text, flags=re.IGNORECASE)
+
+    # 4. Simplify special text elements
+    # just smushed to 0 for all this stuff if even identifies basics
+    # GRIB
+    # text = text.replace("representedlineelement", "rle")
+    # text = re.sub(r"leaderdirectednote([a-z0-9]+)", r"ldn\1", text)
+    # text = re.sub(r"crosshatchbetween([a-z0-9]+)and([a-z0-9]+)", r"ch\1\2", text)
+    text = re.sub(r"represented\s*line\s*element", "rle", text, flags=re.IGNORECASE)
+    text = re.sub(r"leader\s*directed\s*note\s*\w*", "ldn", text, flags=re.IGNORECASE)
+    text = re.sub(r"crosshatch.*", "ch", text, flags=re.IGNORECASE)
+
+    # 5. Remove untoleranced surfaces text
+    # text = text.replace("appliestoalluntolerancedsurfaces", "")
+    # grib
+    text = re.sub(r"applies\s*to\s*all\s*untoleranced\s*surfaces", "aus", text, flags=re.IGNORECASE)
+
+    # 6. Handle profile symbol conversion
+    # GD&T expects Profile
+    text = re.sub(r"profile\s*surface", "Profile", text, flags=re.IGNORECASE)
+    text = re.sub(r"profile\s*of\s*a\s*line", "Profile", text, flags=re.IGNORECASE)
+    text = re.sub(r"profile\s*of\s*a\s*surface", "Profile", text, flags=re.IGNORECASE)
+
+    # 7. Handle numeric formatting and punctuation
+    # Convert 0.XX to .XX (safer way to handle leading zeros)
+    text = re.sub(r"(\D)0\.(\d+)", r"\1.\2", text)
+
+    # 8. Remove dashes and separators - without regex that might corrupt Unicode
+    for char in ["-", "/"]:
+        text = text.replace(char, "")
+
+    # 9. Remove all whitespace at the end
+    text = re.sub(r"\s+", "", text)
+
+    return text
 
 
 def calculate_metrics(df, result_column):
@@ -228,3 +276,159 @@ def calculate_metrics(df, result_column):
         "percent_incorrect": percent_incorrect,
         "percent_unanswered": percent_unanswered,
     }
+
+
+if __name__ == "__main__":
+
+    symbols_mapping = load_gdt_symbols()
+    with open("data/results_printout.txt", "r") as f:
+
+
+    with open("data/results_printout.txt", "r") as f:
+        content = f.read()  # Read the entire file as a single string
+
+        # Find all result pairs in the content
+        results = re.findall(r"Real: `(.*?)`.*?Model: `(.*?)`", content, re.DOTALL)
+        ct = 0
+        for real, model in results:
+            #     pass
+            # if True:
+            #     line = (
+            #         "0.0 Real: `Profile 1.2|A|B|C`, Model: `Profile of a Surface 1.2|A|B|C\nAll Around`"
+            #     )
+            #     real_match = re.search(r"Real: `(.*?)`", line, re.DOTALL)
+            #     model_match = re.search(r"Model: `(.*?)`", line, re.DOTALL)
+            #     if real_match and model_match:
+            #         real = real_match.group(1)
+            #         model = model_match.group(1)
+            #     print(real, model)
+            #     print(list(zip(real, model)))
+            #     print(evaluate_single_answer(model, real, symbols_mapping=symbols_mapping))
+            #     print(evaluate_single_answer_easy(model, real, symbols_mapping=symbols_mapping))
+
+            if not evaluate_single_answer(model, real, symbols_mapping=symbols_mapping):
+                if evaluate_single_answer_easy(model, real, symbols_mapping=symbols_mapping):
+                    ct += 1
+                    print(f"Found a case fixed by easy evaluation:")
+                    print(f"Original: Real: {real}, Model: {model}")
+
+                    real_norm = normalize_gdt(real, symbols_mapping)
+                    model_norm = normalize_gdt(model, symbols_mapping)
+
+                    # Handle both string and list returns from normalize_gdt
+                    if isinstance(real_norm, list):
+                        real_undone = [undo_formatting_rules(r) for r in real_norm]
+                    else:
+                        real_undone = undo_formatting_rules(real_norm)
+
+                    if isinstance(model_norm, list):
+                        model_undone = [undo_formatting_rules(m) for m in model_norm]
+                    else:
+                        model_undone = undo_formatting_rules(model_norm)
+
+                    print(f"After rules undone: {real_undone} vs {model_undone}")
+                    print("-" * 50)
+    print(ct)
+
+#%%
+# same as above but prints out header.
+if __name__ == "__main__":
+    symbols_mapping = load_gdt_symbols()
+    with open("data/results_printout.txt", "r") as f:
+        content = f.read()  # Read the entire file as a single string
+        lines = content.split('\n')
+
+        # Find all section headers (line with "python" and preceding line)
+        sections = []
+        current_section_start = 0
+        for i, line in enumerate(lines):
+            if line.startswith("python"):
+                header_line = lines[i-1] if i > 0 else ""
+
+                # Find the first line with "result" after the header
+                first_result_line = None
+                for j in range(i+1, len(lines)):
+                    if "result" in lines[j].lower():
+                        first_result_line = j
+                        break
+
+                # If no result line found, set to the end of this section
+                if first_result_line is None:
+                    first_result_line = i+1
+
+                # Create section data
+                section = {
+                    "start_line": i-1 if i > 0 else i,
+                    "header": f"{header_line}\n{line}" if header_line else line,
+                    "first_result_line": first_result_line,
+                    "printed": False
+                }
+                sections.append(section)
+
+                # Set end line for previous section
+                if len(sections) > 1:
+                    sections[-2]["end_line"] = i-1 if i > 0 else i
+
+        # Set end line for last section
+        if sections:
+            sections[-1]["end_line"] = len(lines)
+
+        # Find all result pairs in the content
+        results = re.findall(r"Real: `(.*?)`.*?Model: `(.*?)`", content, re.DOTALL)
+        ct = 0
+
+        # Process each result pair
+        for idx, (real, model) in enumerate(results):
+            if not evaluate_single_answer(model, real, symbols_mapping=symbols_mapping):
+                if evaluate_single_answer_easy(model, real, symbols_mapping=symbols_mapping):
+                    ct += 1
+
+                    # Find which section this result belongs to
+                    result_line = None
+                    for i, line in enumerate(lines):
+                        if f"Real: `{real}`" in line and f"Model: `{model}`" in line:
+                            result_line = i
+                            break
+
+                    # Find and print the section header and intro if not already printed
+                    if result_line is not None:
+                        for section in sections:
+                            if section["start_line"] <= result_line < section["end_line"] and not section["printed"]:
+                                print("\n" + "=" * 80)
+                                print(f"SECTION HEADER:")
+                                print(section['header'])
+
+                                # Print everything between header and first result line
+                                print("\nSECTION INTRODUCTION:")
+                                header_end = section["start_line"] + (2 if section["start_line"] > 0 else 1)  # Account for header being 1-2 lines
+                                for i in range(header_end, section["first_result_line"]):
+                                    print(lines[i])
+
+                                print("=" * 80 + "\n")
+                                section["printed"] = True
+                                break
+
+                    print(f"Found a case fixed by easy evaluation:")
+                    print(f"Original: Real: {real}, Model: {model}")
+
+                    real_norm = normalize_gdt(real, symbols_mapping)
+                    model_norm = normalize_gdt(model, symbols_mapping)
+
+                    # Handle both string and list returns from normalize_gdt
+                    if isinstance(real_norm, list):
+                        real_undone = [undo_formatting_rules(r) for r in real_norm]
+                    else:
+                        real_undone = undo_formatting_rules(real_norm)
+
+                    if isinstance(model_norm, list):
+                        model_undone = [undo_formatting_rules(m) for m in model_norm]
+                    else:
+                        model_undone = undo_formatting_rules(model_norm)
+
+                    print(f"After rules undone: {real_undone} vs {model_undone}")
+                    print("-" * 50)
+
+        if ct == 0:
+            print("No changes detected with the easy evaluation function.")
+        else:
+            print(f"Total cases fixed by easy evaluation: {ct}")
