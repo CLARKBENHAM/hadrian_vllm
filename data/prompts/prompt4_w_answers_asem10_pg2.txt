@@ -1,0 +1,165 @@
+I have a CAD render with GD&T data. I will provide a single element ID and want the respective GD&T data transcribed. Return the full GD&T data between <answer> tags. The most difficult part is selecting the correct GD&T symbol so be precise there. Here are the valid symbols
+```
+    gd_t_name_mapping = {
+        "⏤": ["Straightness"],
+        "⏥": ["Flatness"],
+        "○": ["Circularity"],
+        "⌭": ["Cylindricity"],
+        "⌒": ["Profile of a Line", "Profile"],
+        "⌓": ["Profile of a Surface", "Profile Surface"],
+        "⟂": ["Perpendicularity"],
+        "∠": ["Angularity"],
+        "∥": ["Parallelism"], # though the symbol may look different
+        "⌯": ["Symmetry"],
+        "⌖": ["Position"],
+        "◎": ["Concentricity"],
+        "↗": ["Circular Runout"],
+        "⌰": ["Total Runout"],
+        "⌀": ["Diameter"],
+        "⌢": ["Arc"],
+        "◯": ["Roundness"],
+        "": ["Custom GD&T Symbol 1"],
+        "": ["Custom GD&T Symbol 2"],
+        "±": ["Plus or Minus"],
+        "…": [".*"],
+        "↔": ["Connecting To"],
+        "↧": ["Depth"],
+        "⌲": ["Conical Taper"],
+        "⌳": ["Slope"],
+        "⌴": ["Counterbore"],
+        "⌵": ["Countersink"],
+        "□": ["Square"],
+    }
+    modifiers_name_mapping = {
+        "→": ["Directional Indicator"],
+        "⊕": ["Additive Tolerance"],
+        "⊖": ["Subtractive Tolerance"],
+        "⌂": ["Composite Tolerance"],
+        "Ⓔ": ["Envelope Requirement"],
+        "Ⓡ": ["Reference Feature"],
+        "△": [
+            "Datum Target",
+            "Datum Feature",
+            "Datum Feature Symbol",
+        ],
+        "◊": ["Basic Dimension"],
+        "○": ["All Around"],
+        "": ["Custom Modifier 1"],
+        "Ⓕ": ["Free State"],
+        "Ⓛ": ["Least Material Condition"],
+        "Ⓜ": ["Maximum Material Condition"],
+        "Ⓟ": ["Projected Tolerance Zone"],
+        "Ⓢ": ["Regardless of Feature Size"],
+        "Ⓣ": ["Tangent Plane"],
+        "Ⓤ": ["Unequal Bilateral"],
+    }
+```
+
+The rules for generating the labels are:
+    Feature Control Frames (Rectangles)
+    If a feature control frame (FCF) has multiple compartments (boxes), transcribe the first compartment (the primary GD&T symbol) in English (e.g., “Position,” “Flatness,” “Profile,” etc.).
+    Subsequent compartments (tolerance value, modifiers, datum references) should be separated by the pipe character |.
+    Example:
+    A rectangle around “⌖|⌀.095Ⓔ|X|Y” → "Position ⌀.095Ⓔ|X|Y"
+    A rectangle around “⏥ .03Ⓕ” → "Flatness .03Ⓕ"
+
+
+    All Around Symbol
+    A small circular arrow hooking outside the FCF indicates “All Around.”
+    If present, append \nAll Around to that element’s transcription.
+    Example:
+    A rectangle with “⌒|.04|D|E-F” plus a small circular arrow → "Profile .04|D|E-F\nAll Around"
+
+
+    Datum Feature Symbols
+    If you see a standalone square/rectangle with a letter (e.g., “A”) and connected by line to Datum Target symbol "△" , transcribe it as "Datum Feature A" (or B, C, etc.).
+    If your system uses an internal ID like “DF1,” map it: DF1 → "Datum Feature A".
+
+
+    Elements with No Direct Text
+       RLE: “Represented line element”
+       LDN: “Leader-Directed Note <name>” (e.g., Leader-Directed Note L1)
+       CH: “Crosshatch between <line1> and <line2>
+    You will have to specify which lines or notes are involved (e.g., “Crosshatch between L1 and L2”).
+
+
+    Multiple Boxes with One Symbol
+    Sometimes a single GD&T symbol applies to two boxed and stacked compartments. If so, the symbol is on the first line, and the second line has the next compartments.
+    Example:
+    If you have “(profile symbol)” in the first box, and two stacked compartments .040|D|B|C over .005|D|B|C, transcribe:
+    "Profile .040|D|B|C
+    Profile .005|D|B|C"
+    If there’s an “all around” arrow, append \nAll Around at the end of both.
+    There may just be 2 seperate IDs on top of each other in which case this rule does not apply. Only when there's a single larger boxed symbol in front of 2 rectangles will they correspond to the same element ID.
+
+
+    Stacked Dimensions at End of Line
+    If the tolerance at the end of a a dimension has a top number over a bottom number taking up more height then the original row, transcribe it with a slash.
+    Example:
+    “5X ⌀.333” with “+.008” over “-.002” → "5X ⌀.333 +.008/-.002"
+    Note there will often be multiple seperate element IDs stack on top of each other. They should be kept seperate.
+
+
+    Default for Untoleranced Surfaces
+    If there’s a rectangle or note that states “APPLIES TO ALL UNTOLERANCED SURFACES,” transcribe only the FCF plus that phrase.
+    Example:
+    “⌓ .07|X|Y|Z” and “APPLIES TO ALL UNTOLERANCED SURFACES” → "Profile Surface .07|X|Y|Z"
+
+
+    No Need to Transcribe
+    Coordinate Systems labeled “CSX”
+    Plane or View Selection Indicators labeled “VSIX”
+    Notes for the whole diagram, generally on the left side of the first page
+
+{{{Example}}}
+
+Remember to take your time, go slow over the whole image till you find the element id, then transcribe the GD&T data, then apply the rules for the final return.
+Place the return within <answer> tags. Note that some text is slightly rotated, so mentally correct for that.
+Also some text will be presented head-on and some text is slanted. Make sure to return only the data for the exact row if it is slanted.
+Do not hallucinate.
+Selecting the correct GD&T symbol is the hardest part, make sure it is exactly what's on the page for exactly that element id.
+
+Here are the permuted known answers on the image, but it's jumbled. Pick the one you think is closest to for the element id below.
+```
+[
+    'EACH LINE ELEMENT',
+    '4X R0.2 MAX',
+    '↧10± 0.2',
+    'Represented line element',
+    'Position ⌀1Ⓜ|A|B|C',
+    'INDICATED AREA',
+    '⌀5.5 ±0.2',
+    'Position ⌀0.8|A|B|C',
+    'Profile 1.75|A|B|C',
+    'Represented line element',
+    'Symmetry 0.5|A|J',
+    'AT SURFACE F65',
+    'Leader-Directed Note F65',
+    'Position 1|A|B|C',
+    '4X R0.15 MAX',
+    'AT BOTTOM OF COUNTERBORES',
+    '3 COPLANAR SURFACES',
+    'Datum Feature Symbol J',
+    'Perpendicularity 0.25| H
+    All Around',
+    'Datum Feature Symbol D',
+    '5 ±0.2',
+    'Perpendicularity 0.1| A',
+    'Position ⌀.08|D|EⓂ-FⓂ-GⓂ',
+    'Profile 1.2|A|B|C
+    Profile 0.2|A',
+    '15 ±0.2',
+    '↧2 ±0.15',
+    'Straightness 0.2 / 15',
+    '⌀5.5 ±0.08',
+    'Profile 1.5|A|B|C
+    All Around',
+    '↧35 ±1',
+    '4X ⌴⌀10 ±0.25',
+    '4X ⌴⌀10 ±0.25',
+    'Position ⌀1.2|A|B|C',
+]
+```
+Your answer must come from the above list.
+
+{{{Question}}}
