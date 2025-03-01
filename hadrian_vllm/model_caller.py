@@ -51,7 +51,8 @@ class LimitedSizeDict(OrderedDict):
             self.popitem(last=False)
 
 
-image_base64_cache = LimitedSizeDict(1000)
+IMG_CACHE_SIZE = 1000
+image_base64_cache = LimitedSizeDict(IMG_CACHE_SIZE)
 
 
 def _load_and_encode(image_path):
@@ -70,7 +71,8 @@ def preload_images(image_paths, max_workers=10):
     :param max_workers: Number of worker threads to use.
     """
     # Deduplicate image paths
-    unique_paths = [i for i in set(image_paths) if i not in image_base64_cache]
+
+    unique_paths = [i for i in set(image_paths[:IMG_CACHE_SIZE]) if i not in image_base64_cache]
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit all load tasks concurrently.

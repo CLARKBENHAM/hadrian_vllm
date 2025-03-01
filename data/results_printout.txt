@@ -328,7 +328,8 @@ Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.
 2025-02-28 01:06:39,746 - INFO - Unrecognized unicode characters in text: ∟
 
 
-# Increase number of 1 shot examples
+# 8 1 shot examples 1 element per image
+# sending more images does better than more elements per image
 python  -m pdb hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/_single_images_test/ --model gemini-2.0-flash-001 --n_shot_imgs 8 --eg_per_img 1 --n_element_ids 1 --num_completions 1 --eval_all --multiturn
 Results for gemini-2.0-flash-001:
 Correct: 14 (3.87%)
@@ -881,3 +882,332 @@ Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.
 Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN2']:
 0.0 Real: `4X R0.15 MAX`, Model: `Leader-Directed Note LDN2`
 Results saved to data/results/Specification_a779c68c.csv
+
+
+# 5 img with 1 element labeled
+# increasing number of examples per image and number
+python  -m pdb hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/_single_images_test/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 1 --n_element_ids 1 --num_completions 1 --eval_all --multiturn
+
+Results for gemini-2.0-flash-001:
+Correct: 8 (2.21%)
+Incorrect: 38 (10.50%)
+Unanswered: 316 (87.29%)
+Accuracy: 0.0221
+
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T1']:
+0.0 Real: `Flatness 0.2`, Model: `Flatness 0.2|A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF1']:
+1.0 Real: `Datum Feature Symbol A`, Model: `Datum Feature A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D1']:
+0.0 Real: `⌀6 ±0.15`, Model: `Position 0.25|A|B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T2']:
+0.0 Real: `Perpendicularity ⌀0.25| A`, Model: `Position ⌀0.25|A|B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF2']:
+1.0 Real: `Datum Feature Symbol B`, Model: `Datum Feature B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D2']:
+0.0 Real: `⌀6 ±0.15`, Model: `Position 0.5|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T3']:
+0.0 Real: `Position ⌀0.5|A| B`, Model: `Position ⌀0.5|A|B|C
+C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF3']:
+1.0 Real: `Datum Feature Symbol C`, Model: `Datum Feature C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D7']:
+0.0 Real: `2X ⌀6 ±0.15`, Model: `Position ⌀0.65|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T14']:
+1.0 Real: `Position ⌀0.65|A|B|C`, Model: `Position ⌀0.65|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D8']:
+0.0 Real: `8X ⌀2.5 ±0.15`, Model: `Position ⌀0.75|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['FN4']:
+0.0 Real: `Flag Note Symbol 4`, Model: `Position 1.2|A|B|C\nALL SURFACES\nINSIDE POCKET`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T15']:
+1.0 Real: `Position ⌀0.75|A|B|C`, Model: `Position ⌀0.75|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T16']:
+0.0 Real: `Profile 1.2|A|B|C`, Model: `Profile Surface 1.2|A|B|C\nAll Around`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['STR2']:
+0.0 Real: `ALL SURFACES INSIDE POCKET`, Model: `Profile Surface 1.2|A|B|C\nAll Around`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T37']:
+0.0 Real: `Profile Surface 1.5|A|B|C`, Model: `Profile Surface 1.5|A|B|C APPLIES TO ALL UNTOLERANCED SURFACES`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T4']:
+0.0 Real: `Profile 1.2|A|B|C
+Profile 0.2|A`, Model: `Parallelism 1.2|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR1']:
+0.0 Real: `3 COPLANAR SURFACES`, Model: `Profile 1.2|A|B|C\nAll Around`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['DF4']:
+0.0 Real: `Datum Feature Symbol D`, Model: `Position ⌀0.8|D|EⓂ|FⓂ|GⓂ`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D6']:
+0.0 Real: `15 ±0.2`, Model: `Position 1|A|B|C\nPosition 0.1|A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T12']:
+0.0 Real: `Position 1|A|B|C`, Model: `Position 1|A|B|C\nPosition 0.1|A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T13']:
+0.0 Real: `Perpendicularity 0.1| A`, Model: `Position 0.1|A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['DF9']:
+0.0 Real: `Datum Feature Symbol J`, Model: `Position 1|A|B|C
+Position 0.1|A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D9']:
+0.0 Real: `4X ⌴⌀10 ±0.25`, Model: `4X ⌀10 ±0.25\nPosition 1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T17']:
+0.0 Real: `Position ⌀1Ⓜ|A|B|C`, Model: `Position 1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D10']:
+0.0 Real: `↧2 ±0.15`, Model: `Position 1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN1']:
+0.0 Real: `4X R0.2 MAX`, Model: `Leader-Directed Note LDN1`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D11']:
+0.0 Real: `⌀5.5 ±0.2`, Model: `Position 1.2|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D13']:
+0.0 Real: `⌀5.5 ±0.08`, Model: `Position 1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR3']:
+0.0 Real: `INDICATED AREA`, Model: `Position ⌀0.8|D|EⓂ|FⓂ|GⓂ`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T18']:
+0.0 Real: `Position ⌀.08|D|EⓂ-FⓂ-GⓂ`, Model: `Position ⌀0.8|D|EⓂ|FⓂ|GⓂ`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D12']:
+0.0 Real: `↧35 ±1`, Model: `Position 1|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D14']:
+0.0 Real: `4X ⌴⌀10 ±0.25`, Model: `4X ⌀10 ±0.25`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T19']:
+1.0 Real: `Position ⌀0.8|A|B|C`, Model: `Position ⌀0.8|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR4']:
+0.0 Real: `AT SURFACE F65`, Model: `Position ⌀0.8|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T20']:
+0.0 Real: `Position ⌀1.2|A|B|C`, Model: `Position ⌀0.8|A|B|C\nAll Around`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR5']:
+0.0 Real: `AT BOTTOM OF COUNTERBORES`, Model: `Position 1.2|A|B|C\nAT BOTTOM OF COUNTERBORES`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D15']:
+0.0 Real: `↧10± 0.2`, Model: `4X ⌀10 ±0.25`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN3']:
+0.0 Real: `Leader-Directed Note F65`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T21']:
+0.0 Real: `Profile 1.75|A|B|C`, Model: `Flatness 1.75|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T22']:
+0.0 Real: `Straightness 0.2 / 15`, Model: `Profile 1.2|A|B|C\nProfile 0.2|A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['RLE1']:
+0.0 Real: `Represented line element`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T23']:
+0.0 Real: `Profile 1.5|A|B|C
+All Around`, Model: `Parallelism 1.5|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T24']:
+0.0 Real: `Perpendicularity 0.25| H
+All Around`, Model: `Parallelism 0.25|H\nAll Around`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['RLE2']:
+1.0 Real: `Represented line element`, Model: `Represented line element`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR6']:
+0.0 Real: `EACH LINE ELEMENT`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D16']:
+0.0 Real: `5 ±0.2`, Model: `Parallelism 0.5|A|J`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T25']:
+0.0 Real: `Symmetry 0.5|A|J`, Model: `Parallelism 0.5|A|J`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN2']:
+1.0 Real: `4X R0.15 MAX`, Model: `4X R0.15 MAX`
+Results saved to data/results/Specification_c3fb2a98.csv
+
+
+# 5 img with 10 element labeled
+# increasing number of examples per image and number
+# as good as using every element id on example images
+python  -m pdb hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/_single_images_test/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 10 --n_element_ids 1 --num_completions 1 --eval_all --multiturn
+
+Results for gemini-2.0-flash-001:
+Correct: 16 (4.42%)
+Incorrect: 31 (8.56%)
+Unanswered: 315 (87.02%)
+Accuracy: 0.0442
+
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T1']:
+0.0 Real: `Flatness 0.2`, Model: `Flatness 0.2|A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF1']:
+1.0 Real: `Datum Feature Symbol A`, Model: `Datum Feature A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D1']:
+1.0 Real: `⌀6 ±0.15`, Model: `⌀6 ±0.15`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T2']:
+0.0 Real: `Perpendicularity ⌀0.25| A`, Model: `Position ⌀0.25|B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF2']:
+1.0 Real: `Datum Feature Symbol B`, Model: `Datum Feature Symbol B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D2']:
+0.0 Real: `⌀6 ±0.15`, Model: `Position ⌀0.5|A|B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T3']:
+1.0 Real: `Position ⌀0.5|A| B`, Model: `Position ⌀0.5|A|B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF3']:
+1.0 Real: `Datum Feature Symbol C`, Model: `Datum Feature Symbol C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D7']:
+0.0 Real: `2X ⌀6 ±0.15`, Model: `Position ⌀0.65|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T14']:
+1.0 Real: `Position ⌀0.65|A|B|C`, Model: `Position ⌀0.65|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D8']:
+1.0 Real: `8X ⌀2.5 ±0.15`, Model: `8X ⌀2.5 ±0.15`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['FN4']:
+0.0 Real: `Flag Note Symbol 4`, Model: `Datum Feature Symbol B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T15']:
+1.0 Real: `Position ⌀0.75|A|B|C`, Model: `Position ⌀0.75|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T16']:
+0.0 Real: `Profile 1.2|A|B|C`, Model: `Profile 1.2|A|B|C\nAll Surfaces Inside Pocket`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['STR2']:
+0.0 Real: `ALL SURFACES INSIDE POCKET`, Model: `Profile 1.2|A|B|C\nAll Surfaces Inside Pocket`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T37']:
+0.0 Real: `Profile Surface 1.5|A|B|C`, Model: `Profile of a Surface 1.5|A|B|C APPLIES TO ALL UNTOLERANCED SURFACES`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T4']:
+0.0 Real: `Profile 1.2|A|B|C
+Profile 0.2|A`, Model: `Profile 1.2|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR1']:
+1.0 Real: `3 COPLANAR SURFACES`, Model: `3 COPLANAR SURFACES`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['DF4']:
+0.0 Real: `Datum Feature Symbol D`, Model: `Position ⌀0.8|D|EⓂ|FⓂ|GⓂ`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D6']:
+1.0 Real: `15 ±0.2`, Model: `15 ±0.2`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T12']:
+0.0 Real: `Position 1|A|B|C`, Model: `Position 0.1|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T13']:
+0.0 Real: `Perpendicularity 0.1| A`, Model: `Position 0.1|A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['DF9']:
+1.0 Real: `Datum Feature Symbol J`, Model: `Datum Feature Symbol J`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D9']:
+0.0 Real: `4X ⌴⌀10 ±0.25`, Model: `4X L ⌀10 ±0.25`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T17']:
+0.0 Real: `Position ⌀1Ⓜ|A|B|C`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D10']:
+0.0 Real: `↧2 ±0.15`, Model: `Position ⌀0.1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN1']:
+1.0 Real: `4X R0.2 MAX`, Model: `4X R0.2 MAX`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D11']:
+1.0 Real: `⌀5.5 ±0.2`, Model: `⌀5.5 ±0.2`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D13']:
+0.0 Real: `⌀5.5 ±0.08`, Model: `Flag Note Symbol 3`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR3']:
+0.0 Real: `INDICATED AREA`, Model: `Flag Note Symbol 3`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T18']:
+0.0 Real: `Position ⌀.08|D|EⓂ-FⓂ-GⓂ`, Model: `Position ⌀0.08|D|EⓂ|FⓂ|GⓂ`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D12']:
+0.0 Real: `↧35 ±1`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D14']:
+0.0 Real: `4X ⌴⌀10 ±0.25`, Model: `4X ⌀10 ±0.25`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T19']:
+1.0 Real: `Position ⌀0.8|A|B|C`, Model: `Position ⌀0.8|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR4']:
+0.0 Real: `AT SURFACE F65`, Model: `Position ⌀0.8|A|B|C\nAT SURFACE F65`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T20']:
+0.0 Real: `Position ⌀1.2|A|B|C`, Model: `Position ⌀0.8|A|B|C\nAt Surface F65`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR5']:
+0.0 Real: `AT BOTTOM OF COUNTERBORES`, Model: `Position ⌀1.2|A|B|C\nAT BOTTOM OF COUNTERBORES`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D15']:
+0.0 Real: `↧10± 0.2`, Model: `⌀10 ±0.25`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN3']:
+0.0 Real: `Leader-Directed Note F65`, Model: `Leader-Directed Note LDN3`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T21']:
+0.0 Real: `Profile 1.75|A|B|C`, Model: `Straightness 1.75|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T22']:
+0.0 Real: `Straightness 0.2 / 15`, Model: `Parallelism 0.2|A|B|C\n3 COPLANAR SURFACES`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['RLE1']:
+1.0 Real: `Represented line element`, Model: `Represented line element`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T23']:
+0.0 Real: `Profile 1.5|A|B|C
+All Around`, Model: `Flatness 1.5|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T24']:
+0.0 Real: `Perpendicularity 0.25| H
+All Around`, Model: `Flatness 0.25|H\nEACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['RLE2']:
+1.0 Real: `Represented line element`, Model: `Represented line element`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR6']:
+0.0 Real: `EACH LINE ELEMENT`, Model: `Straightness 0.25|H\nEACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D16']:
+0.0 Real: `5 ±0.2`, Model: `6 ±0.2`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T25']:
+0.0 Real: `Symmetry 0.5|A|J`, Model: `Flatness 0.5|A|J`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN2']:
+0.0 Real: `4X R0.15 MAX`, Model: `Leader-Directed Note LDN2`
+Results saved to data/results/Specification_8b67c394.csv

@@ -266,7 +266,7 @@ async def run_evaluation(
 
     # Create all tasks first
     all_tasks = []  # List to track (model_name, img_path, element_ids, task)
-    preload_images(question_images)
+    preload_images(question_images + [f for f in os.listdir(eval_dir) if f.endswith(".png")])
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
@@ -297,6 +297,7 @@ async def run_evaluation(
                         examples_as_multiturn,
                         cache=num_completions == 1,
                     )
+                    await asyncio.sleep(0)  # so so many tasks not all started right away
 
                     # Store task with its metadata
                     all_tasks.append((model_name, img_path, element_ids, i, task))
