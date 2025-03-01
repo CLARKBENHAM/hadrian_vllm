@@ -1,0 +1,119 @@
+I have a CAD render with GD&T data. I will provide a single element ID and want the respective GD&T data transcribed.
+
+Your FIRST task is to CAREFULLY identify the GD&T symbol within the element ID.  Do NOT proceed until you have matched the symbol EXACTLY to the list below.
+
+Here are the GD&T symbols and their meanings.  It is VERY important to match these symbols exactly:
+  *  "⏤" : "Straightness" (used for straight line tolerances)
+  *  "⏥": "Flatness" (used for flat surface tolerances)
+  *  "○": "Circularity" (or "Roundness")
+  *  "⌭": "Cylindricity"
+  *  "⌒": "Profile of a Line" (or "Profile")
+  *  "⌓": "Profile of a Surface" (or "Profile Surface")
+  *  "⟂": "Perpendicularity"
+  *  "∠": "Angularity"
+  *  "∥": "Parallelism"
+  *  "⌯": "Symmetry"
+  *  "⌖": "Position"
+  *  "◎": "Concentricity"
+  *  "↗": "Circular Runout"
+  *  "⌰": "Total Runout"
+  *  "⌀": "Diameter"
+  *  "⌢": "Arc"
+  *  "": "Custom GD&T Symbol 1"
+  *  "": "Custom GD&T Symbol 2"
+  *  "±": "Plus or Minus"
+  *  "…": ".*"
+  *  "↔": "Connecting To"
+  *  "↧": "Depth"
+  *  "⌲": "Conical Taper"
+  *  "⌳": "Slope"
+  *  "⌴": "Counterbore"
+  *  "⌵": "Countersink"
+  *  "□": "Square"
+
+Here are the modifier symbols:
+  *  "→": "Directional Indicator"
+  *  "⊕": "Additive Tolerance"
+  *  "⊖": "Subtractive Tolerance"
+  *  "⌂": "Composite Tolerance"
+  *  "Ⓔ": "Envelope Requirement"
+  *  "Ⓡ": "Reference Feature"
+    *  "△": "Datum Target", "Datum Feature", "Datum Feature Symbol"
+  *  "◊": "Basic Dimension"
+  *  "○": "All Around"
+  *  "": "Custom Modifier 1"
+  *  "Ⓕ": "Free State"
+  *  "Ⓛ": "Least Material Condition"
+  *  "Ⓜ": "Maximum Material Condition"
+  *  "Ⓟ": "Projected Tolerance Zone"
+  *  "Ⓢ": "Regardless of Feature Size"
+  *  "Ⓣ": "Tangent Plane"
+  *  "Ⓤ": "Unequal Bilateral"
+
+Datum Feature Symbol Mapping:
+  *  DF1: Datum Feature A
+  *  DF2: Datum Feature B
+  *  DF3: Datum Feature C
+  *  DF4: Datum Feature D
+  *  DF9: Datum Feature J
+
+If the element ID starts with "DF", handle this FIRST using the Datum Feature Symbol Mapping.
+
+The rules for generating the labels are:
+
+    Feature Control Frames (Rectangles):
+    If a feature control frame (FCF) has multiple compartments (boxes), transcribe the first compartment (the primary GD&T symbol) in English (e.g., “Position,” “Flatness,” “Profile,” etc.).
+    Subsequent compartments (tolerance value, modifiers, datum references) should be separated by the pipe character |.
+    Example:
+    A rectangle around “⌖|⌀.095Ⓔ|X|Y” → "Position ⌀.095Ⓔ|X|Y"
+    A rectangle around “⏥ .03Ⓕ” → "Flatness .03Ⓕ"
+
+    All Around Symbol:
+    If a small circular arrow hooks outside the Feature Control Frame (FCF), this means "All Around".  Append "\nAll Around" to the transcription.  For example:
+    If you see a rectangle with "⌒|.04|D|E-F" AND a small circular arrow connected to the rectangle, return:
+    <answer>Profile .04|D|E-F\nAll Around</answer>
+
+    Elements with No Direct Text
+       RLE: “Represented line element”
+       LDN: “Leader-Directed Note <name>” (e.g., Leader-Directed Note L1)
+       CH: “Crosshatch between <line1> and <line2>
+    You will have to specify which lines or notes are involved (e.g., “Crosshatch between L1 and L2”).
+
+    Multiple Boxes with One Symbol
+    Sometimes a single GD&T symbol applies to two boxed and stacked compartments. If so, the symbol is on the first line, and the second line has the next compartments. The symbol will often have an extended bounding box encompassing both stacked compartments.
+    Example:
+    If you have “(profile symbol)” in the first box, and two stacked compartments .040|D|B|C over .005|D|B|C, transcribe:
+    <answer>Profile .040|D|B|C
+    Profile .005|D|B|C</answer>
+    If there’s an “all around” arrow, append \nAll Around at the end of both.
+    There may just be 2 seperate IDs on top of each other. This rule does not apply, so do not combine data from seperate element IDs. Only when there's a single larger boxed symbol in front of 2 rectangles will they correspond to the same element ID.
+
+    Stacked Dimensions at End of Line:
+    If a dimension has a tolerance with a top number directly above a bottom number, transcribe it using a slash (/).  For example, if "5X ⌀.333" has "+.008" stacked directly on top of "-.002", return:
+    <answer>5X ⌀.333 +.008/-.002</answer>
+
+    IMPORTANT: Only combine stacked numbers if they are part of the SAME dimension and are vertically aligned, taking up MORE height than the rest of the text in the row. If there are SEPARATE element IDs on top of each other, treat them as distinct.
+
+    Default for Untoleranced Surfaces:
+    If there’s a rectangle or note that states “APPLIES TO ALL UNTOLERANCED SURFACES,” transcribe only the FCF plus that phrase.
+    Example:
+    “⌓ .07|X|Y|Z” and “APPLIES TO ALL UNTOLERANCED SURFACES” → "Profile Surface .07|X|Y|Z"
+
+    No Need to Transcribe
+    Coordinate Systems labeled “CSX”
+    Plane or View Selection Indicators labeled “VSIX”
+    Notes for the whole diagram, generally on the left side of the first page
+
+Focus ONLY on the element ID provided.  Ignore all other elements in the image, even if they are nearby.
+Do not hallucinate. Only transcribe the data that is VISIBLE and DIRECTLY associated with the provided element ID. Do not invent any values or symbols.
+Note that some text is slightly rotated, so mentally correct for that.
+Also some text will be presented head-on and some text is slanted. Make sure to return only the data for the exact row if it is slanted.
+
+{{{Example}}}
+If the element ID is for a Position tolerance, and you find "⌖|⌀.095Ⓔ|X|Y", you would return:
+<answer>Position ⌀.095Ⓔ|X|Y</answer>
+
+Return the transcribed data ONLY between <answer> and </answer> tags. Do NOT include any other text.  Do NOT return a dictionary.
+Again, the final output MUST be ONLY the GD&T data within <answer> tags.
+
+{{{Question}}}

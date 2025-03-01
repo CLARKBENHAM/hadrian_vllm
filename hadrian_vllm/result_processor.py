@@ -7,7 +7,7 @@ from datetime import datetime
 
 import logging
 
-from hadrian_vllm.utils import extract_assembly_and_page_from_filename
+from hadrian_vllm.utils import extract_assembly_and_page_from_filename, is_debug_mode
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -70,7 +70,7 @@ def extract_answers_from_text(response, element_ids):
         # Try parsing as JSON
         json_dict = extract_json_dict(code_content)
         if json_dict:
-            # If we have a JSON dictionary, try to get answers for each element ID
+            # {element_id: value} If we have a JSON dictionary, try to get answers for each element ID
             return [json_dict.get(elem_id, None) for elem_id in element_ids]
 
         # If not JSON, try to extract element ID lines from the code block
@@ -97,6 +97,7 @@ def extract_answers_from_text(response, element_ids):
     return answers
 
 
+# TODO this is screwy and could be cleaned up
 def extract_answer(response, element_ids=None):
     """
     Extract the answer(s) from the model's response.
@@ -241,12 +242,10 @@ def save_results(
     # Save completion
     completion_data = {
         "config_hash": config_hash,
-        "element_ids": question_ids if isinstance(question_ids, list) else [question_ids],
+        "element_ids": question_ids,
         "question_images": image_paths,
         "full_response": full_response,
-        "extracted_answer": (
-            extracted_answers if isinstance(extracted_answers, list) else [extracted_answers]
-        ),
+        "extracted_answer": extracted_answers,
         "timestamp": datetime.now().isoformat(),
     }
 
@@ -261,13 +260,25 @@ def save_results(
         assert len(extracted_answers) == len(question_ids), f"{extracted_answers}, {question_ids}"
         for answer, element_id in zip(extracted_answers, question_ids):
             # Find the row with this element ID
+            if is_debug_mode():
+                assert answer is not None, element_id
             mask = (
                 (df["Element ID"] == element_id)
                 & (df["Page ID"] == page_id)
                 & (df["Assembly ID"] == assembly_id)
             )
-            assert (
-                mask.sum() == 1
-            ), f"n rows {mask.sum()}!=1 for {element_id} {page_id} {assembly_id} {config_hash}"
+            if mask.sum() != 1 and not (element_id in ("T17", "T18") and assembly_id == 6):
+                print(
+                    f"WARN n rows {mask.sum()}!=1 for"
+                    f" {element_id} {page_id} {assembly_id} {config_hash}"
+                )
             df.loc[mask, result_col] = answer
     return df
+
+
+if __name__ == "__main__":
+    print(
+        extract_answer(
+            '```json\n{\n"element_id": "DF1",\n"gdt_data": "Datum Feature Symbol A"\n}\n```', "DF1"
+        )
+    )

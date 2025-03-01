@@ -266,7 +266,10 @@ async def run_evaluation(
 
     # Create all tasks first
     all_tasks = []  # List to track (model_name, img_path, element_ids, task)
-    preload_images(question_images + [f for f in os.listdir(eval_dir) if f.endswith(".png")])
+    preload_images(
+        question_images
+        + [os.path.join(eval_dir, f) for f in os.listdir(eval_dir) if f.endswith(".png")]
+    )
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
@@ -462,7 +465,7 @@ async def main():
             image_path = None
             for file_name in os.listdir(args.eval_dir):
                 if (
-                    f"nist_ftc_{assembly_id}" in file_name
+                    f"nist_ftc_{assembly_id:02d}" in file_name
                     and f"_pg{page_id}" in file_name
                     and file_name.endswith(".png")
                 ):

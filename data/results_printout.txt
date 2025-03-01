@@ -1,4 +1,7 @@
 # Running on just `eval_on/__single_images_test_test/` files
+# Note: except for the first, when we use a special eval dir all few shot examples come from that dir
+# So we're only really testing sending in all the element ids from the other file.
+# Not testing with sending many unique images.
 
 # gemini-2.0-flash-001: Terrible 10%, results/Specification_135bbdc3.csv and results/Specification_7f95b216.csv
 python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/_single_images_test/ --model gemini-2.0-flash-001--n_shot_imgs 2 --eg_per_img 4 --n_element_ids 1 --num_completions 1 --eval_all
@@ -1772,4 +1775,221 @@ python  -m pdb hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'dat
 # Now 17 30
 
 
+#### Prompt has element_ids already included,
+# since only 1 image in eval dir, no point in including few shot examples
+python  -m pdb hadrian_vllm/main.py --prompt data/prompts/prompt4_w_answers_asem10_pg1.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/_10_pg1 --model gemini-2.0-flash-001 --n_shot_imgs 0 --eg_per_img 0 --n_element_ids 1 --num_completions 1 --eval_all --multiturn
+4 right 7 wrong
+# edited prompt between run:  df.query('`Assembly ID`==10 and `Page ID`==2')['Specification'].values
+python hadrian_vllm/main.py --prompt data/prompts/prompt4_w_answers_asem10_pg2.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/_10_pg2 --model gemini-2.0-flash-001 --n_shot_imgs 0 --eg_per_img 0 --n_element_ids 1 --num_completions 1 --eval_all --multiturn
+# 6 right 20 wrong
 
+# Why 12 Nones across both?
+
+# pg 1
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T1']:
+0.0 Real: `Flatness 0.2`, Model: `Position ⌀0.65|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF1']:
+0.0 Real: `Datum Feature Symbol A`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D1']:
+0.0 Real: `⌀6 ±0.15`, Model: `Profile Surface 1.5|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T2']:
+0.0 Real: `Perpendicularity ⌀0.25| A`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF2']:
+1.0 Real: `Datum Feature Symbol B`, Model: `Datum Feature Symbol B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D2']:
+0.0 Real: `⌀6 ±0.15`, Model: `Position ⌀0.5|A| B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T3']:
+0.0 Real: `Position ⌀0.5|A| B`, Model: `Position ⌀0.65|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['DF3']:
+0.0 Real: `Datum Feature Symbol C`, Model: `Position ⌀0.5|A| B`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D7']:
+0.0 Real: `2X ⌀6 ±0.15`, Model: `Position ⌀0.65|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T14']:
+0.0 Real: `Position ⌀0.65|A|B|C`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['D8']:
+0.0 Real: `8X ⌀2.5 ±0.15`, Model: `Position ⌀0.75|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['FN4']:
+1.0 Real: `Flag Note Symbol 4`, Model: `Flag Note Symbol 4`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T15']:
+1.0 Real: `Position ⌀0.75|A|B|C`, Model: `Position ⌀0.75|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T16']:
+0.0 Real: `Profile 1.2|A|B|C`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['STR2']:
+0.0 Real: `ALL SURFACES INSIDE POCKET`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg1.png, elements ['T37']:
+1.0 Real: `Profile Surface 1.5|A|B|C`, Model: `Profile Surface 1.5|A|B|C`
+Results saved to data/results/Specification_2d8d1184.csv
+
+# pg 2
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T4']:
+0.0 Real: `Profile 1.2|A|B|C
+Profile 0.2|A`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR1']:
+0.0 Real: `3 COPLANAR SURFACES`, Model: `Position ⌀1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['DF4']:
+0.0 Real: `Datum Feature Symbol D`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D6']:
+0.0 Real: `15 ±0.2`, Model: `Position 1|A|B|C
+Perpendicularity 0.1| A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T12']:
+0.0 Real: `Position 1|A|B|C`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T13']:
+0.0 Real: `Perpendicularity 0.1| A`, Model: `Position ⌀1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['DF9']:
+0.0 Real: `Datum Feature Symbol J`, Model: `Position 1|A|B|C
+Perpendicularity 0.1| A`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D9']:
+0.0 Real: `4X ⌴⌀10 ±0.25`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T17']:
+1.0 Real: `Position ⌀1Ⓜ|A|B|C`, Model: `Position ⌀1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D10']:
+0.0 Real: `↧2 ±0.15`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN1']:
+0.0 Real: `4X R0.2 MAX`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D11']:
+0.0 Real: `⌀5.5 ±0.2`, Model: `Position ⌀.08|D|EⓂ-FⓂ-GⓂ`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D13']:
+0.0 Real: `⌀5.5 ±0.08`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR3']:
+0.0 Real: `INDICATED AREA`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T18']:
+0.0 Real: `Position ⌀.08|D|EⓂ-FⓂ-GⓂ`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D12']:
+0.0 Real: `↧35 ±1`, Model: `Position ⌀1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D14']:
+1.0 Real: `4X ⌴⌀10 ±0.25`, Model: `4X ⌴⌀10 ±0.25`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T19']:
+1.0 Real: `Position ⌀0.8|A|B|C`, Model: `Position ⌀0.8|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR4']:
+0.0 Real: `AT SURFACE F65`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T20']:
+0.0 Real: `Position ⌀1.2|A|B|C`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR5']:
+0.0 Real: `AT BOTTOM OF COUNTERBORES`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D15']:
+0.0 Real: `↧10± 0.2`, Model: `Position ⌀1Ⓜ|A|B|C`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN3']:
+0.0 Real: `Leader-Directed Note F65`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T21']:
+0.0 Real: `Profile 1.75|A|B|C`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T22']:
+0.0 Real: `Straightness 0.2 / 15`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['RLE1']:
+1.0 Real: `Represented line element`, Model: `Represented line element`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T23']:
+1.0 Real: `Profile 1.5|A|B|C
+All Around`, Model: `Profile 1.5|A|B|C
+    All Around`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T24']:
+0.0 Real: `Perpendicularity 0.25| H
+All Around`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['RLE2']:
+0.0 Real: `Represented line element`, Model: `EACH LINE ELEMENT`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['STR6']:
+0.0 Real: `EACH LINE ELEMENT`, Model: `None`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['D16']:
+0.0 Real: `5 ±0.2`, Model: `Symmetry 0.5|A|J`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['T25']:
+1.0 Real: `Symmetry 0.5|A|J`, Model: `Symmetry 0.5|A|J`
+
+Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.png, elements ['LDN2']:
+0.0 Real: `4X R0.15 MAX`, Model: `Leader-Directed Note F65`
+Results saved to data/results/Specification_f08f00a2.csv
+
+
+#### Run on Assembly 6 and 11
+# Prompt 4
+# 5 example images each 3
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg3.txt
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg3_easy.txt
+# Gemini prompt re-write 5 img each 3
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt4_gemini_rewrite.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg3_gemini_rewrite.txt
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt4_gemini_rewrite.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg3_easy_gemini_rewrite.txt
+# Claude prompt re-write 5 img each 3
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt4_claude_rewrite.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg3_claude_rewrite.txt
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt4_claude_rewrite.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg3_easy_claude_rewrite.txt
+
+# Using best performing prompt from above
+# 1 example images each 3
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 1 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n1_eg3.txt
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 1 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n1_eg3_easy.txt
+# 1 example images each 10
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 1 --eg_per_img 10 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n1_eg10.txt
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 1 --eg_per_img 10 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n1_eg10_easy.txt
+# 5 example images each 10
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 10 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg10.txt
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 10 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg10_easy.txt
+# 5 example images each 50
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg50.txt
+python hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg50_easy.txt
+
+
+ggrep -rH -P '(Correct:\s*\d+\s*\(\d+\.\d+%\)|Incorrect:\s*\d+\s*\(\d+\.\d+%\)|Unanswered:\s*\d+\s*\(\d+\.\d+%\)|Accuracy:\s*\d+\.\d+)' data/printout/
+
+# TODO: why is easy have worse accuracy?
+data/printout/assem_6_11_n5_eg3_easy.txt:Correct: 33 (9.12%)
+data/printout/assem_6_11_n5_eg3_easy.txt:Incorrect: 51 (14.09%)
+data/printout/assem_6_11_n5_eg3_easy.txt:Unanswered: 278 (76.80%)
+data/printout/assem_6_11_n5_eg3_easy.txt:Accuracy: 0.0912
+data/printout/assem_6_11_n5_eg3_claude_rewrite.txt:Correct: 37 (10.22%)
+data/printout/assem_6_11_n5_eg3_claude_rewrite.txt:Incorrect: 47 (12.98%)
+data/printout/assem_6_11_n5_eg3_claude_rewrite.txt:Unanswered: 278 (76.80%)
+data/printout/assem_6_11_n5_eg3_claude_rewrite.txt:Accuracy: 0.1022
+data/printout/assem_6_11_n5_eg3_gemini_rewrite.txt:Correct: 33 (9.12%)
+data/printout/assem_6_11_n5_eg3_gemini_rewrite.txt:Incorrect: 52 (14.36%)
+data/printout/assem_6_11_n5_eg3_gemini_rewrite.txt:Unanswered: 277 (76.52%)
+data/printout/assem_6_11_n5_eg3_gemini_rewrite.txt:Accuracy: 0.0912
+data/printout/assem_6_11_n5_eg3.txt:Correct: 34 (9.39%)
+data/printout/assem_6_11_n5_eg3.txt:Incorrect: 50 (13.81%)
+data/printout/assem_6_11_n5_eg3.txt:Unanswered: 278 (76.80%)
+data/printout/assem_6_11_n5_eg3.txt:Accuracy: 0.0939
+data/printout/assem_6_11_n5_eg3_easy_claude_rewrite.txt:Correct: 38 (10.50%)
+data/printout/assem_6_11_n5_eg3_easy_claude_rewrite.txt:Incorrect: 46 (12.71%)
+data/printout/assem_6_11_n5_eg3_easy_claude_rewrite.txt:Unanswered: 278 (76.80%)
+data/printout/assem_6_11_n5_eg3_easy_claude_rewrite.txt:Accuracy: 0.1050

@@ -1,0 +1,130 @@
+# CAD GD&T Data Extraction Task
+
+I have a CAD render with GD&T (Geometric Dimensioning and Tolerancing) data. I will provide a single element ID and want the respective GD&T data transcribed **exactly as it appears on the image**. Your task is to:
+
+1. Find the exact element ID in the image
+2. Extract the GD&T data for that specific element ID
+3. Return ONLY the data within `<answer>` tags using the correct format
+
+## CRITICAL FORMATTING INSTRUCTIONS
+
+- Place your answer ONLY within `<answer>` tags: `<answer>YOUR TRANSCRIPTION HERE<answer>`
+- Your transcription must EXACTLY match what appears on the drawing
+- For Datum Feature Symbols (like DF1, DF2), ALWAYS format as: `Datum Feature Symbol X` (where X is the letter)
+- With symbols, use the exact symbol from the reference list below - precise symbol selection is crucial
+- DO NOT format responses as JSON or add any additional formatting
+- DO NOT include explanations outside the `<answer>` tags
+
+## Important GD&T Symbols Reference
+
+```
+gd_t_name_mapping = {
+    "⏤": ["Straightness"],
+    "⏥": ["Flatness"],
+    "○": ["Circularity"],
+    "⌭": ["Cylindricity"],
+    "⌒": ["Profile of a Line", "Profile"],
+    "⌓": ["Profile of a Surface", "Profile Surface"],
+    "⟂": ["Perpendicularity"],
+    "∠": ["Angularity"],
+    "∥": ["Parallelism"], # though the symbol may look different
+    "⌯": ["Symmetry"],
+    "⌖": ["Position"],
+    "◎": ["Concentricity"],
+    "↗": ["Circular Runout"],
+    "⌰": ["Total Runout"],
+    "⌀": ["Diameter"],
+    "⌢": ["Arc"],
+    "◯": ["Roundness"],
+    "": ["Custom GD&T Symbol 1"],
+    "": ["Custom GD&T Symbol 2"],
+    "±": ["Plus or Minus"],
+    "…": [".*"],
+    "↔": ["Connecting To"],
+    "↧": ["Depth"],
+    "⌲": ["Conical Taper"],
+    "⌳": ["Slope"],
+    "⌴": ["Counterbore"],
+    "⌵": ["Countersink"],
+    "□": ["Square"],
+}
+modifiers_name_mapping = {
+    "→": ["Directional Indicator"],
+    "⊕": ["Additive Tolerance"],
+    "⊖": ["Subtractive Tolerance"],
+    "⌂": ["Composite Tolerance"],
+    "Ⓔ": ["Envelope Requirement"],
+    "Ⓡ": ["Reference Feature"],
+    "△": [
+        "Datum Target",
+        "Datum Feature",
+        "Datum Feature Symbol",
+    ],
+    "◊": ["Basic Dimension"],
+    "○": ["All Around"],
+    "": ["Custom Modifier 1"],
+    "Ⓕ": ["Free State"],
+    "Ⓛ": ["Least Material Condition"],
+    "Ⓜ": ["Maximum Material Condition"],
+    "Ⓟ": ["Projected Tolerance Zone"],
+    "Ⓢ": ["Regardless of Feature Size"],
+    "Ⓣ": ["Tangent Plane"],
+    "Ⓤ": ["Unequal Bilateral"],
+}
+```
+
+## Transcription Rules
+
+### Feature Control Frames (Rectangles)
+- First compartment: Write the GD&T symbol name in English (e.g., "Position", "Flatness")
+- Subsequent compartments: Separate with pipe character |
+- Example: A rectangle around "⌖|⌀.095Ⓔ|X|Y" → `Position ⌀.095Ⓔ|X|Y`
+- Pay special attention to decimal points in measurements (e.g., ⌀.75 not ⌀0.75)
+
+### All Around Symbol
+- A small circular arrow indicates "All Around"
+- If present, append a new line with "All Around" to that element's transcription
+- Example: `Profile .04|D|E-F
+All Around`
+
+### Datum Feature Symbols
+- If you see a standalone symbol with a letter, transcribe as `Datum Feature Symbol A` (or B, C, etc.)
+- Always write the full phrase exactly this way
+
+### Standard Elements
+- For "RLE" elements: `Represented line element`
+- For "LDN" elements: `Leader-Directed Note X` (where X is the note identifier)
+- For "STR" elements: Return the exact text (e.g., `EACH LINE ELEMENT`, `ALL SURFACES INSIDE POCKET`)
+- For "FN" elements: Return `Flag Note Symbol X` (where X is the note number)
+
+### Multiple Specifications
+- If a GD&T symbol applies to stacked compartments, list each specification on a new line:
+Example:
+```
+Profile .040|D|B|C
+Profile .005|D|B|C
+```
+
+### Dimensions with Tolerances
+- For stacked tolerances, use slash notation: `5X ⌀.333 +.008/-.002`
+- For simple dimensions: `⌀6 ±0.15`, `15 ±0.2`, etc.
+
+## Example Format for Various Element Types
+
+- T1: `<answer>Flatness 0.2<answer>`
+- DF1: `<answer>Datum Feature Symbol A<answer>`
+- D1: `<answer>⌀6 ±0.15<answer>`
+- STR2: `<answer>ALL SURFACES INSIDE POCKET<answer>`
+- RLE1: `<answer>Represented line element<answer>`
+- T23 (with all-around symbol): `<answer>Profile 1.5|A|B|C
+All Around<answer>`
+
+{{{Example}}}
+
+Remember to take your time, go slow over the whole image until you find the element ID, then transcribe the GD&T data precisely. Place the return within `<answer>` tags. Note that some text is slightly rotated, so mentally correct for that. Also some text will be presented head-on and some text is slanted.
+
+Do not add explanations, JSON formatting, or any other text outside the answer tags. Simply return the transcription within the tags.
+
+Selecting the correct GD&T symbol is the hardest part, make sure it is exactly what's on the page for exactly that element ID. Pay careful attention to decimal points and use exactly what's shown (.5 not 0.5). If multiple specifications are associated with one element ID, put each on a new line.
+
+{{{Question}}}
