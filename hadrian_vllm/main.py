@@ -424,6 +424,9 @@ async def main():
     parser.add_argument(
         "--eval_all", action="store_true", help="Run evaluation on all element IDs in the CSV"
     )
+    # only in evalutions.py
+    parser.add_argument("--eval-easy", action="store_true", help="Use easy evaluation mode")
+
     args = parser.parse_args()
 
     # Process a single element ID

@@ -1,5 +1,6 @@
 # %%
 # evaluation.py
+import argparse
 import re
 import json
 import os
@@ -68,6 +69,25 @@ def normalize_gdt(text, symbols_mapping):
     return normalize_text(normalized)
 
 
+# This will be set by parse_args() when the script runs
+EASY_EVALUATION_MODE = False
+
+
+def parse_args():
+    """Parse command line arguments and set global evaluation mode flag."""
+    parser = argparse.ArgumentParser(description="Evaluation script")
+    parser.add_argument("--eval-easy", action="store_true", help="Use easy evaluation mode")
+    args, _ = parser.parse_known_args()  # Use known_args to ignore other arguments
+
+    global EASY_EVALUATION_MODE
+    EASY_EVALUATION_MODE = args.eval_easy
+    return args
+
+
+# Initialize args at import time
+parse_args()
+
+
 def evaluate_answer(prediction, ground_truth):
     """
     Evaluate whether a prediction matches the ground truth, accounting for
@@ -87,14 +107,17 @@ def evaluate_answer(prediction, ground_truth):
     # Load GD&T symbols mapping
     symbols_mapping = load_gdt_symbols()
 
+    # Choose evaluation function based on mode flag
+    eval_func = evaluate_single_answer_easy if EASY_EVALUATION_MODE else evaluate_single_answer
+
     # Handle the case where prediction is a list (multiple completions)
     if isinstance(prediction, list):
         for pred in prediction:
-            if evaluate_single_answer(pred, ground_truth, symbols_mapping) == 1.0:
+            if eval_func(pred, ground_truth, symbols_mapping) == 1.0:
                 return 1.0
         return 0.0
     else:
-        return evaluate_single_answer(prediction, ground_truth, symbols_mapping)
+        return eval_func(prediction, ground_truth, symbols_mapping)
 
 
 def evaluate_single_answer(prediction, ground_truth, symbols_mapping):
@@ -279,11 +302,7 @@ def calculate_metrics(df, result_column):
 
 
 if __name__ == "__main__":
-
     symbols_mapping = load_gdt_symbols()
-    with open("data/results_printout.txt", "r") as f:
-
-
     with open("data/results_printout.txt", "r") as f:
         content = f.read()  # Read the entire file as a single string
 
@@ -330,44 +349,44 @@ if __name__ == "__main__":
                     print("-" * 50)
     print(ct)
 
-#%%
+# %%
 # same as above but prints out header.
-if __name__ == "__main__":
+if __name__ == "__main__" and False:
     symbols_mapping = load_gdt_symbols()
     with open("data/results_printout.txt", "r") as f:
         content = f.read()  # Read the entire file as a single string
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         # Find all section headers (line with "python" and preceding line)
         sections = []
         current_section_start = 0
         for i, line in enumerate(lines):
             if line.startswith("python"):
-                header_line = lines[i-1] if i > 0 else ""
+                header_line = lines[i - 1] if i > 0 else ""
 
                 # Find the first line with "result" after the header
                 first_result_line = None
-                for j in range(i+1, len(lines)):
+                for j in range(i + 1, len(lines)):
                     if "result" in lines[j].lower():
                         first_result_line = j
                         break
 
                 # If no result line found, set to the end of this section
                 if first_result_line is None:
-                    first_result_line = i+1
+                    first_result_line = i + 1
 
                 # Create section data
                 section = {
-                    "start_line": i-1 if i > 0 else i,
+                    "start_line": i - 1 if i > 0 else i,
                     "header": f"{header_line}\n{line}" if header_line else line,
                     "first_result_line": first_result_line,
-                    "printed": False
+                    "printed": False,
                 }
                 sections.append(section)
 
                 # Set end line for previous section
                 if len(sections) > 1:
-                    sections[-2]["end_line"] = i-1 if i > 0 else i
+                    sections[-2]["end_line"] = i - 1 if i > 0 else i
 
         # Set end line for last section
         if sections:
@@ -393,14 +412,19 @@ if __name__ == "__main__":
                     # Find and print the section header and intro if not already printed
                     if result_line is not None:
                         for section in sections:
-                            if section["start_line"] <= result_line < section["end_line"] and not section["printed"]:
+                            if (
+                                section["start_line"] <= result_line < section["end_line"]
+                                and not section["printed"]
+                            ):
                                 print("\n" + "=" * 80)
                                 print(f"SECTION HEADER:")
-                                print(section['header'])
+                                print(section["header"])
 
                                 # Print everything between header and first result line
                                 print("\nSECTION INTRODUCTION:")
-                                header_end = section["start_line"] + (2 if section["start_line"] > 0 else 1)  # Account for header being 1-2 lines
+                                header_end = section["start_line"] + (
+                                    2 if section["start_line"] > 0 else 1
+                                )  # Account for header being 1-2 lines
                                 for i in range(header_end, section["first_result_line"]):
                                     print(lines[i])
 
