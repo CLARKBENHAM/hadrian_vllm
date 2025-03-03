@@ -5,6 +5,7 @@
 # some is dumb answer naming (eg. dataum )
 # including too much data
 # getting wrong symbol
+# prompts are super correlated
 
 import os
 import glob
@@ -277,3 +278,4 @@ if __name__ == "__main__":
 
 # python scripts/aggr_multiple_evaluations.py  --threshold 0.01 --eval-easy
 # python scripts/aggr_multiple_evaluations.py  --threshold 0.01 --eval-easy --print_difficult --hours 20
+# python scripts/aggr_multiple_evaluations.py  --threshold 0.3 --eval-easy  --hours 20
