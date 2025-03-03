@@ -2033,6 +2033,8 @@ data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Unanswered: 333 (91.99%
 
 
 # So changing prompt didn't help all that much, but llms slightly better
+# 50ish few shot gets us up to 59% vs 1/3rd before
+# much better when don't send dup images
 # Changing code to only send unique images in mutli-turn not a new image per element id question.
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg50_uniq_img.txt
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg50_easy_uniq_img.txt
@@ -2072,5 +2074,35 @@ data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite_uniq_img.txt:Correct: 51 (1
 data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite_uniq_img.txt:Incorrect: 34 (9.39%)
 data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite_uniq_img.txt:Unanswered: 277 (76.52%)
 
+# Get files matching *uniq_img* but not containing "easy"
+files=$(find data/printout -maxdepth 1 -type f -name "*uniq_img*" | grep -v easy)
 
+for file in $files; do
+    echo "Processing file: $file"
+    # Use awk with RS="" to treat blocks separated by blank lines as records.
+    awk 'BEGIN { RS=""; FS="\n" }
+         # Check that the block starts with "Results for model" and its second line starts with "0.0"
+         $1 ~ /^Results for model/ && $2 ~ /^0\.0/ { print $0 "\n" }' "$file"
+done
+
+
+Reasons for Errors
+2 seperate IDs on etop fo each other and transcribed the wrong one:
+Element_ID was to the right of element not the left eg for ID2, "ID1 text1 text2 ID2":
+Or Errors the other way: 3 ids on left and 1 id on right of text is taken as refering to all 3 rows on right
+
+used  +.020/-.000 instead of ±.02
+Missed 'S' at start of completion
+wrong GD&T symbol
+wrong number
+
+
+#### RE-write prompts
+# Claude prompt re-write 5 img each 50
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_claude_try.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg50_prompt6_claude_try.txt
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_claude_try.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg50_prompt6_claude_try_easy.txt
+
+# O3
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_o3_try.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg50_prompt6_o3_try.txt
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_o3_try.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg50_prompt6_o3_try_easy.txt
 
