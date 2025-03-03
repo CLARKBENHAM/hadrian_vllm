@@ -63,7 +63,7 @@ def _load_and_encode(image_path):
     return encoded
 
 
-def preload_images(image_paths, max_workers=10):
+def preload_images(image_paths, max_workers=16):
     """
     Preload many images into the cache concurrently.
 
@@ -353,69 +353,6 @@ def get_cache_key(prompt_or_messages, image_paths, model):
         return f"{model}:{serialized_msgs}:{','.join(img_paths)}"
 
 
-async def call_model(prompt_or_messages, image_paths=None, model="gpt-4o", cache=True):
-    """
-    Call the model with the given prompt/messages and images.
-
-    Args:
-        prompt_or_messages: Either a text prompt or a list of messages
-        image_paths: List of paths to images (only used if prompt_or_messages is a string)
-        model: The model to use
-        cache: Whether to use caching
-
-    Returns:
-        The model's response
-    """
-    # Determine if this is a multi-turn conversation
-    is_multiturn = isinstance(prompt_or_messages, list)
-
-    # Create a cache key
-    cache_key = get_cache_key(prompt_or_messages, image_paths if not is_multiturn else [], model)
-
-    # Check if we have a cached response
-    if cache and cache_key in response_cache:
-        return response_cache[cache_key]
-
-    # Ensure we respect rate limits
-    await under_ratelimit(model)
-
-    try:
-        # Prepare the request based on the model type and conversation style
-        if is_multiturn:
-            if model.startswith("claude"):
-                request = prepare_anthropic_multiturn_request(prompt_or_messages, model)
-            elif model.startswith("gemini"):
-                request = prepare_gemini_multiturn_request(prompt_or_messages, model)
-            else:  # OpenAI models
-                request = prepare_openai_multiturn_request(prompt_or_messages, model)
-        else:
-            if model.startswith("claude"):
-                request = prepare_anthropic_request(prompt_or_messages, image_paths, model)
-            elif model.startswith("gemini"):
-                request = prepare_gemini_request(prompt_or_messages, image_paths, model)
-            else:  # OpenAI models
-                request = prepare_openai_request(prompt_or_messages, image_paths, model)
-
-        # Make the API call
-        response = await asyncio.to_thread(completion, **request)
-
-        # Extract the content
-        if model.startswith("claude"):
-            content = response.choices[0].message.content
-        else:  # OpenAI or Gemini
-            content = response.choices[0].message.content
-
-        # Cache the response
-        if cache:
-            response_cache[cache_key] = content
-
-        return content
-    except Exception as e:
-        print(f"Error calling {model}: {e}")
-        raise e  # GRIB
-        return ""
-
-
 async def call_model(
     prompt_or_messages,
     image_paths=None,
@@ -450,7 +387,11 @@ async def call_model(
     if cache and cache_key in response_cache:
         cached_response = response_cache[cache_key]
         # Make sure we're not caching errors
-        if cached_response and not cached_response.startswith("Error:"):
+        if (
+            cached_response
+            and not cached_response.startswith("Error:")
+            and cached_response != "None"
+        ):
             return cached_response
 
     # Attempt with retries
@@ -509,23 +450,3 @@ async def call_model(
                     return error_response
                 else:
                     raise RuntimeError(error_response) from e
-
-
-def get_openai_messages(prompt_or_messages, image_paths=None):
-    """
-    Get the messages list in OpenAI format for litellm.
-
-    Args:
-                    prompt_or_messages: Either a text prompt or a list of messages
-                    image_paths: List of paths to images (only used if prompt_or_messages is a string)
-
-    Returns:
-                    List of message objects in OpenAI format
-    """
-    # Determine if this is a multi-turn conversation
-    is_multiturn = isinstance(prompt_or_messages, list)
-
-    if is_multiturn:
-        return prepare_openai_multiturn_request(prompt_or_messages, "gpt-4o")["messages"]
-    else:
-        return prepare_openai_request(prompt_or_messages, image_paths, "gpt-4o")["messages"]

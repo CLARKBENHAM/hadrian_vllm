@@ -2,6 +2,7 @@
 import os
 import argparse
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 import json
 from typing import Dict, List, Tuple, Any
@@ -270,6 +271,10 @@ async def run_evaluation(
         question_images
         + [os.path.join(eval_dir, f) for f in os.listdir(eval_dir) if f.endswith(".png")]
     )
+
+    # for IO, but sending images with request so might delay a tad
+    loop = asyncio.get_running_loop()
+    loop.set_default_executor(ThreadPoolExecutor(max_workers=32))
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")

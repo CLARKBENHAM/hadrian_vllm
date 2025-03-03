@@ -296,8 +296,8 @@ def element_ids_per_img_few_shot(
         "examples_as_multiturn": examples_as_multiturn,
     }
 
-    config_str = json.dumps(shared_config, sort_keys=True)
-    shared_hash = hashlib.md5(config_str.encode()).hexdigest()[:8]
+    shared_config_str = json.dumps(shared_config, sort_keys=True)
+    shared_hash = hashlib.md5(shared_config_str.encode()).hexdigest()[:8]
     config = {
         **shared_config,
         # specific to this call
