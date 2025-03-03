@@ -235,6 +235,7 @@ async def run_evaluation(
                         examples_as_multiturn,
                         cache=num_completions == 1,
                     )
+                    # tasks take 0.5 sec to start but still getting a few gemini rate limits
                     await asyncio.sleep(0)  # so so many tasks not all started right away
 
                     # Store task with its metadata
