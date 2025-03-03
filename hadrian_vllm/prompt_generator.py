@@ -206,6 +206,7 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
     prompt_template = re.sub("\{\{\{Example\}\}\}\S*", "", prompt_template)
     system_prompt = re.sub("\S*\{\{\{Question\}\}\}\S*", "", prompt_template)
     messages = [{"role": "system", "content": system_prompt}]
+    sent_images = set()
 
     # Add few-shot examples as separate turns
     for i, (img_path, element_ids, element_to_spec) in enumerate(examples):
@@ -217,8 +218,16 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
                 user_message = f"Img{img_num}:\n"
                 for element_id in element_ids:
                     user_message += f"{element_id}:\n"
+                message_data = {"role": "user", "content": user_message}
+                # Only include image if it hasn't been sent yet.
+                if img_path not in sent_images:
+                    message_data["image_path"] = img_path
+                    sent_images.add(img_path)
+                else:
+                    # Optionally, prepend a note to indicate that it refers to the previous image.
+                    message_data["content"] = "the previous image\n" + message_data["content"]
 
-                messages.append({"role": "user", "content": user_message, "image_path": img_path})
+                messages.append(message_data)
 
                 # Add assistant message with all answers
                 assistant_message = ""
