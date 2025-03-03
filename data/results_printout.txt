@@ -1943,7 +1943,7 @@ Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.
 Results saved to data/results/Specification_f08f00a2.csv
 
 
-#### Run on Assembly 6 and 11
+#### Run on Assembly 6 and 11, 85 element ids of which 1 DNE
 # Prompt 4
 # 5 example images each 3
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg3.txt
@@ -2005,36 +2005,35 @@ data/printout/assem_6_11_n5_eg3_easy_claude_rewrite.txt:Incorrect: 46 (12.71%)
 data/printout/assem_6_11_n5_eg3_easy_claude_rewrite.txt:Unanswered: 278 (76.80%)
 data/printout/assem_6_11_n5_eg3_easy_claude_rewrite.txt:Accuracy: 0.1050
 
-# Just had a ton of timeouts so little unique code
+# Just had a ton of timeouts so little unique results
+data/printout/assem_6_11_n5_eg50.txt:Accuracy: 0.0166
 data/printout/assem_6_11_n5_eg50.txt:Correct: 6 (1.66%)
 data/printout/assem_6_11_n5_eg50.txt:Incorrect: 12 (3.31%)
 data/printout/assem_6_11_n5_eg50.txt:Unanswered: 344 (95.03%)
-data/printout/assem_6_11_n5_eg50.txt:Accuracy: 0.0166
-data/printout/assem_6_11_n5_eg50_claude_rewrite.txt:Correct: 8 (2.21%)
-data/printout/assem_6_11_n5_eg50_claude_rewrite.txt:Incorrect: 8 (2.21%)
-data/printout/assem_6_11_n5_eg50_claude_rewrite.txt:Unanswered: 346 (95.58%)
-data/printout/assem_6_11_n5_eg50_claude_rewrite.txt:Accuracy: 0.0221
+data/printout/assem_6_11_n5_eg50_easy.txt:Accuracy: 0.0304
 data/printout/assem_6_11_n5_eg50_easy.txt:Correct: 11 (3.04%)
 data/printout/assem_6_11_n5_eg50_easy.txt:Incorrect: 14 (3.87%)
 data/printout/assem_6_11_n5_eg50_easy.txt:Unanswered: 337 (93.09%)
-data/printout/assem_6_11_n5_eg50_easy.txt:Accuracy: 0.0304
+data/printout/assem_6_11_n5_eg50_claude_rewrite.txt:Accuracy: 0.0221
+data/printout/assem_6_11_n5_eg50_claude_rewrite.txt:Correct: 8 (2.21%)
+data/printout/assem_6_11_n5_eg50_claude_rewrite.txt:Incorrect: 8 (2.21%)
+data/printout/assem_6_11_n5_eg50_claude_rewrite.txt:Unanswered: 346 (95.58%)
+data/printout/assem_6_11_n5_eg50_easy_claude_rewrite.txt:Accuracy: 0.0221
 data/printout/assem_6_11_n5_eg50_easy_claude_rewrite.txt:Correct: 8 (2.21%)
 data/printout/assem_6_11_n5_eg50_easy_claude_rewrite.txt:Incorrect: 8 (2.21%)
 data/printout/assem_6_11_n5_eg50_easy_claude_rewrite.txt:Unanswered: 346 (95.58%)
-data/printout/assem_6_11_n5_eg50_easy_claude_rewrite.txt:Accuracy: 0.0221
-data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Correct: 16 (4.42%)
-data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Incorrect: 13 (3.59%)
-data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Unanswered: 333 (91.99%)
-data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Accuracy: 0.0442
+data/printout/assem_6_11_n5_eg50_gemini_rewrite.txt:Accuracy: 0.0276
 data/printout/assem_6_11_n5_eg50_gemini_rewrite.txt:Correct: 10 (2.76%)
 data/printout/assem_6_11_n5_eg50_gemini_rewrite.txt:Incorrect: 5 (1.38%)
 data/printout/assem_6_11_n5_eg50_gemini_rewrite.txt:Unanswered: 347 (95.86%)
-data/printout/assem_6_11_n5_eg50_gemini_rewrite.txt:Accuracy: 0.0276
+data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Accuracy: 0.0442
+data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Correct: 16 (4.42%)
+data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Incorrect: 13 (3.59%)
+data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite.txt:Unanswered: 333 (91.99%)
 
 
-
+# So changing prompt didn't help all that much, but llms slightly better
 # Changing code to only send unique images in mutli-turn not a new image per element id question.
-
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg50_uniq_img.txt
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg50_easy_uniq_img.txt
 
@@ -2047,14 +2046,31 @@ python -u hadrian_vllm/main.py --prompt data/prompts/prompt4_claude_rewrite.txt 
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt4_claude_rewrite.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg50_easy_claude_rewrite_uniq_img.txt
 
 
-
-# Changes made
-not using Nones in cache
-increase timeout and clean up model_caller.py prompt_generatory.py
-increase number of threads to 32
-
-
-increase number of threads to 128 when not sending dup images
+ggrep -rH -P '(Correct:\s*\d+\s*\(\d+\.\d+%\)|Incorrect:\s*\d+\s*\(\d+\.\d+%\)|Unanswered:\s*\d+\s*\(\d+\.\d+%\)|Accuracy:\s*\d+\.\d+)' data/printout/*_uniq_img* |  sort -t':' -k1,1
+data/printout/assem_6_11_n5_eg50_uniq_img.txt:Accuracy: 0.1326
+data/printout/assem_6_11_n5_eg50_uniq_img.txt:Correct: 48 (13.26%)
+data/printout/assem_6_11_n5_eg50_uniq_img.txt:Incorrect: 37 (10.22%)
+data/printout/assem_6_11_n5_eg50_uniq_img.txt:Unanswered: 277 (76.52%)
+data/printout/assem_6_11_n5_eg50_easy_uniq_img.txt:Accuracy: 0.1354
+data/printout/assem_6_11_n5_eg50_easy_uniq_img.txt:Correct: 49 (13.54%)
+data/printout/assem_6_11_n5_eg50_easy_uniq_img.txt:Incorrect: 36 (9.94%)
+data/printout/assem_6_11_n5_eg50_easy_uniq_img.txt:Unanswered: 277 (76.52%)
+data/printout/assem_6_11_n5_eg50_claude_rewrite_uniq_img.txt:Accuracy: 0.1354
+data/printout/assem_6_11_n5_eg50_claude_rewrite_uniq_img.txt:Correct: 49 (13.54%)
+data/printout/assem_6_11_n5_eg50_claude_rewrite_uniq_img.txt:Incorrect: 35 (9.67%)
+data/printout/assem_6_11_n5_eg50_claude_rewrite_uniq_img.txt:Unanswered: 278 (76.80%)
+data/printout/assem_6_11_n5_eg50_easy_claude_rewrite_uniq_img.txt:Accuracy: 0.1409
+data/printout/assem_6_11_n5_eg50_easy_claude_rewrite_uniq_img.txt:Correct: 51 (14.09%)
+data/printout/assem_6_11_n5_eg50_easy_claude_rewrite_uniq_img.txt:Incorrect: 33 (9.12%)
+data/printout/assem_6_11_n5_eg50_easy_claude_rewrite_uniq_img.txt:Unanswered: 278 (76.80%)
+data/printout/assem_6_11_n5_eg50_gemini_rewrite_uniq_img.txt:Accuracy: 0.1354
+data/printout/assem_6_11_n5_eg50_gemini_rewrite_uniq_img.txt:Correct: 49 (13.54%)
+data/printout/assem_6_11_n5_eg50_gemini_rewrite_uniq_img.txt:Incorrect: 36 (9.94%)
+data/printout/assem_6_11_n5_eg50_gemini_rewrite_uniq_img.txt:Unanswered: 277 (76.52%)
+data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite_uniq_img.txt:Accuracy: 0.1409
+data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite_uniq_img.txt:Correct: 51 (14.09%)
+data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite_uniq_img.txt:Incorrect: 34 (9.39%)
+data/printout/assem_6_11_n5_eg50_easy_gemini_rewrite_uniq_img.txt:Unanswered: 277 (76.52%)
 
 
 
