@@ -39,7 +39,7 @@ Profile Surface .01|D",T10,Surfaces are grouped,6,3
 ,,2 SURFACES,STR3,Groups surfaces for T10,6,3
 ,,Represented line element,RLE5,,6,3
 ,,Represented line element,RLE6,,6,3
-,,-1.106,D6,Applies to datum target lines,6,3
+,,(1.106),D6,Applies to datum target lines,6,3
 F16-F17,Spherical Diameter Surfaces,2X S⌀ 1.250 ±.008,D7,,6,1
 ,,Position S⌀.025|D|B|C,T11,,6,1
 F18-21,Counterbored Holes - Set 1,4X ⌀.415 ±.008,D8,,6,1

@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # aggregate_results.py
+
+# Lots of mistakes happen in same place
+# some is dumb answer naming (eg. dataum )
+# including too much data
+# getting wrong symbol
+
 import os
 import glob
 import pandas as pd
