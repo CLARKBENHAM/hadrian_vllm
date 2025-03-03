@@ -38,90 +38,20 @@ async def process_element_id(
     examples_as_multiturn=False,
     cache=True,
 ):
-    """
-    Process a single element ID query.
-
-    Args:
-        text_prompt_path: Path to the prompt template
-        csv_path: Path to the GD&T data CSV
-        eval_dir: Directory with evaluation images
-        question_image: Path to the question image
-        element_id: Element ID to query
-        model_name: Name of the model to use
-        n_shot_imgs: Number of few-shot example images
-        eg_per_img: Number of examples per image
-            total example ids: n_shot_imgs*eg_per_img*1
-        examples_as_multiturn: Whether to format examples as multiple turns
-        cache should it be used
-    Returns:
-        The extracted answer and updated DataFrame
-    """
-    # Generate the prompt and get image paths
-    assert isinstance(element_id, str), element_id
-
-    prompt_or_messages, image_paths, config = element_ids_per_img_few_shot(
+    answers, df = await process_element_ids(
         text_prompt_path,
         csv_path,
         eval_dir,
         question_image,
         [element_id],
-        n_shot_imgs,
-        eg_per_img,
-        examples_as_multiturn,
+        model_name,
+        n_shot_imgs=n_shot_imgs,
+        eg_per_img=eg_per_img,
+        examples_as_multiturn=examples_as_multiturn,
+        cache=cache,
     )
-
-    try:
-        # Call the model
-        if examples_as_multiturn:
-            response = await call_model(prompt_or_messages, model=model_name, cache=cache)
-        else:
-            response = await call_model(
-                prompt_or_messages, image_paths, model=model_name, cache=cache
-            )
-
-        # Check if response is an error message
-        if response and response.startswith("Error:"):
-            logger.warning(f"Model returned error: {response}")
-            answer = None
-        else:
-            # Extract the answer
-            answer = extract_answer(response, element_id)
-    except Exception as e:
-        logger.error(f"Exception during model call: {str(e)}")
-        response = f"Error: {str(e)}"
-        answer = None
-
-    # Load the DataFrame
-    df = load_csv(csv_path)
-
-    # Update config with model info
-    config["model_name"] = model_name
-
-    # Save the results
-    df = save_results(df, prompt_or_messages, image_paths, element_id, response, answer, config)
-
-    if is_debug_mode():
-        img_path = image_paths[-1]
-        assembly_id, page_id = extract_assembly_and_page_from_filename(img_path)
-
-        print(
-            f"\nResults for model {model_name}, image {os.path.basename(img_path)}, elements"
-            f" {element_id}:"
-        )
-
-        element_details = get_element_details(
-            csv_path,
-            element_id,
-            assembly_id=assembly_id,
-            page_id=page_id,
-        )
-        real_answer = element_details["Specification"]
-        print(
-            f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`, Model: `{answer}` from"
-            f" `{response}`"
-        )
-
-    return answer, df
+    assert len(answers) == 1, answers
+    return answers[0], df
 
 
 async def process_element_ids(
@@ -274,7 +204,7 @@ async def run_evaluation(
 
     # for IO, but sending images with request so might delay a tad
     loop = asyncio.get_running_loop()
-    loop.set_default_executor(ThreadPoolExecutor(max_workers=32))
+    loop.set_default_executor(ThreadPoolExecutor(max_workers=128))
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
