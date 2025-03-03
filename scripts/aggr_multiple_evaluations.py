@@ -14,12 +14,7 @@ from hadrian_vllm.utils import load_csv
 
 
 def aggregate_results(
-    base_csv_path,
-    results_dir="data/results",
-    threshold=0.5,
-    verbose=False,
-    min_num_wrong=2,
-    hours=None,
+    base_csv_path, results_dir="data/results", threshold=0.5, hours=None, verbose=False
 ):
     """
     Analyze results across multiple prediction files to find consistently difficult rows.
@@ -28,9 +23,8 @@ def aggregate_results(
         base_csv_path: Path to the original CSV with ground truth
         results_dir: Directory containing result CSV files
         threshold: Fraction of correct predictions required to consider a row "correct" in aggregate
+        hours: If provided, only consider files modified within the past X hours
         verbose: Whether to print detailed information
-        min_num_wrong: how many mistakes to count as difficult
-        hours: only results within past hours
 
     Returns:
         DataFrame with aggregated results and statistics
@@ -150,11 +144,7 @@ def aggregate_results(
         correct_fraction = stats["correct"] / attempted if attempted > 0 else 0
 
         # Mark as difficult if below threshold
-        is_difficult = (
-            correct_fraction < threshold
-            if attempted > 0 and stats["incorrect"] >= min_num_wrong
-            else None
-        )
+        is_difficult = correct_fraction < threshold if attempted > 0 else None
 
         results_list.append(
             {
@@ -203,12 +193,6 @@ def main():
         help="Fraction of correct predictions required to consider a row 'correct' in aggregate",
     )
     parser.add_argument(
-        "--min_num_wrong",
-        type=int,
-        default=2,
-        help="Number of times wrong to be considered difficult",
-    )
-    parser.add_argument(
         "--hours",
         type=float,
         default=None,
@@ -229,12 +213,7 @@ def main():
 
     # Run the aggregation
     results_df = aggregate_results(
-        args.csv,
-        args.results_dir,
-        args.threshold,
-        args.verbose,
-        args.min_num_wrong,
-        args.hours,
+        args.csv, args.results_dir, args.threshold, args.hours, args.verbose
     )
 
     # Save the results
@@ -251,8 +230,8 @@ def main():
     print("\nSummary:")
     print(f"Total rows: {total_rows}")
     print(
-        f"Difficult rows (below {args.threshold} correct fraction and"
-        f" {args.min_num_wrong} mistakes): {difficult_rows} ({difficult_rows/total_rows:.1%})"
+        f"Difficult rows (below {args.threshold} correct fraction):"
+        f" {difficult_rows} ({difficult_rows/total_rows:.1%})"
     )
     print(
         f"Easy rows (above {args.threshold} correct fraction):"
@@ -262,8 +241,8 @@ def main():
 
     # Print difficult rows if requested
     if args.print_difficult and difficult_rows > 0:
-        print("\nFirst 50 Difficult rows:")
-        difficult_df = results_df[results_df["Is Difficult"] == True].head(50)  # Limit to top 10
+        difficult_df = results_df[results_df["Is Difficult"] == True].head(50)  # limited
+        print(f"\{len(difficult_df)} Difficult rows:")
         for _, row in difficult_df.iterrows():
             print(
                 f"Assembly: {row['Assembly ID']}, Page: {row['Page ID']}, Element:"
@@ -289,5 +268,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 # python scripts/aggr_multiple_evaluations.py  --threshold 0.01 --eval-easy
 # python scripts/aggr_multiple_evaluations.py  --threshold 0.01 --eval-easy --print_difficult --hours 20
