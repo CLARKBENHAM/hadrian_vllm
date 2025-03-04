@@ -3,6 +3,7 @@
 import os
 import json
 import threading
+import time
 
 
 class PersistentCache:
@@ -53,13 +54,17 @@ class PersistentCache:
     def __getitem__(self, key):
         """Get an item from the cache"""
         with self.lock:
+            if not isinstance(key, str):
+                o = self._cache.get(key)
+                if o:
+                    return o
+                print("INFO: key type converted to string when write to disk, retry as str")
+                key = str(key)
             return self._cache.get(key)
 
     def __setitem__(self, key, value):
         """Set an item in the cache and append only the updated item to disk"""
         with self.lock:
-            if value == self.get(key):
-                return
             self._cache[key] = value
             with open(self.cache_file_path, "a") as f:
                 f.write(json.dumps({key: value}) + "\n")
@@ -75,6 +80,12 @@ class PersistentCache:
     def get(self, key, default=None):
         """Get an item with a default value if not found"""
         with self.lock:
+            if not isinstance(key, str):
+                o = self._cache.get(key, default)
+                if o:
+                    return o
+                print("INFO: key type converted to string when write to disk, retry as str")
+                key = str(key)
             return self._cache.get(key, default)
 
     def clear(self):
@@ -121,6 +132,9 @@ def _migrate_cache(old_cache_path="data/old_cache.json", new_cache_path="data/ca
 
 
 if __name__ == "__main__":
-    _migrate_cache()
+    # _migrate_cache()
     c = PersistentCache()
-    print(c._cache)
+    print(c[1], time.time())
+    c[1] = 1
+    print(c[1], time.time())
+    # print(c._cache)
