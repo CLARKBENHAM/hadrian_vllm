@@ -429,7 +429,6 @@ async def call_model(
         prompt_or_messages, image_paths or [], model
     )
     logger.info(f"Estimated tokens for request: {total_tokens}, estimated cost: ${total_cost:.6f}")
-    assert cache_key in response_cache, "GRIB"
 
     # Attempt with retries
     for attempt in range(max_retries):
@@ -455,8 +454,9 @@ async def call_model(
 
             # Make the API call
             response = await asyncio.to_thread(
-                completion, **request, timeout=60
-            )  # was 10min by default
+                lambda: completion(**request, timeout=60)
+                # completion, **request, timeout=60
+            )  # timeout was 10min by default
             content = response.choices[0].message.content
 
             # Cache the response

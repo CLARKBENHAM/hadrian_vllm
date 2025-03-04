@@ -1943,9 +1943,9 @@ Results for model gemini-2.0-flash-001, image nist_ftc_10_asme1_rb_elem_ids_pg2.
 Results saved to data/results/Specification_f08f00a2.csv
 
 
-#### Run on Assembly 6 and 11, 85 element ids of which 1 DNE
+#### Run on Assembly 6 and 11, 85 element ids 5 images total of which 1 DNE
 # Prompt 4
-# 5 example images each 3
+# 4 example images each 3 (writing 5 was mistaken)
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/assem_6_11_n5_eg3.txt
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt4.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/assem_6_11_single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 5 --eg_per_img 3 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/assem_6_11_n5_eg3_easy.txt
 # Gemini prompt re-write 5 img each 3
@@ -2133,3 +2133,11 @@ data/printout/assem_6_11_n5_eg50_prompt6_o3_try_easy.txt:Incorrect: 33 (9.12%)
 data/printout/assem_6_11_n5_eg50_prompt6_o3_try_easy.txt:Unanswered: 277 (76.52%)
 
 
+### Run full eval, using all data other data as fewshot
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_claude_try.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/all_n21_eg50_prompt6_claude_try.txt # this got overwritten with easy
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_claude_try.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/all_n21_eg50_prompt6_claude_try_easy.txt
+
+# Note all previous caches got broken
+# TODO:
+
+#change the dupllicate images back

@@ -118,7 +118,6 @@ async def process_element_ids(
     except Exception as e:
         logger.error(f"Exception during model call: {str(e)}")
         response = f"Error: {str(e)}"
-        raise e
         answers = [None] * len(element_ids)
 
     # Load the DataFrame
@@ -205,7 +204,7 @@ async def run_evaluation(
 
     # for IO, but sending images with request so might delay a tad
     loop = asyncio.get_running_loop()
-    loop.set_default_executor(ThreadPoolExecutor(max_workers=128))
+    loop.set_default_executor(ThreadPoolExecutor(max_workers=64))
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
@@ -414,7 +413,7 @@ async def main():
                     element_ids_by_image[image_path] = []
                 element_ids_by_image[image_path].append(element_id)
 
-        print("HARDCODE: Ony eval on asem6 and asem11")
+        print("WARN: HARDCODE: Ony eval on asem6 and asem11")
         question_images = [
             i for i in element_ids_by_image.keys() if "nist_ftc_06_" in i or "nist_ftc_11_" in i
         ]

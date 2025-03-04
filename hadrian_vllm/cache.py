@@ -58,7 +58,7 @@ class PersistentCache:
     def __setitem__(self, key, value):
         """Set an item in the cache and append only the updated item to disk"""
         with self.lock:
-            if self._cache[key] == value:
+            if value == self.get(key):
                 return
             self._cache[key] = value
             with open(self.cache_file_path, "a") as f:

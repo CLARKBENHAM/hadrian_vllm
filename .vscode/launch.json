@@ -14,11 +14,11 @@
                 "--csv",
                 "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv",
                 "--eval_dir",
-                "data/eval_on/assem_6_11_single_images/",
+                "data/eval_on/single_images/",
                 "--model",
                 "gemini-2.0-flash-001",
                 "--n_shot_imgs",
-                "5",
+                "21",
                 "--eg_per_img",
                 "50",
                 "--n_element_ids",
@@ -27,7 +27,7 @@
                 "1",
                 "--multiturn",
                 "--eval_all",
-                "--eval-easy"
+                // "--eval-easy"
             ]
             // "args": [
             //     "--prompt",
