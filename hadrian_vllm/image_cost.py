@@ -2,7 +2,7 @@
 from math import ceil
 from PIL import Image
 import difflib
-
+import tiktoken
 from typing import Union, List
 
 # Define model-specific parameters
@@ -79,6 +79,9 @@ def calculate_image_tokens_and_cost(image_path, model="o1"):
     params = MODEL_PARAMS[model]
 
     # Open the image and get its dimensions
+    if getattr(calculate_image_tokens_and_cost, image_path, None) is not None:
+        return getattr(calculate_image_tokens_and_cost, image_path)
+
     with Image.open(image_path) as img:
         width, height = img.size
 
@@ -99,7 +102,44 @@ def calculate_image_tokens_and_cost(image_path, model="o1"):
     # Calculate cost
     cost = tokens * (params["price_per_1m_tokens_in"] / 1e6)
 
+    setattr(calculate_image_tokens_and_cost, image_path, (tokens, cost))
     return tokens, cost
+
+
+# (MODEL_PARAMS, find_closest_model, and calculate_image_tokens_and_cost remain as before)
+def calculate_request_tokens_and_cost(prompt_or_messages, image_paths, model="o1"):
+    """
+    Estimate the total number of tokens and cost for a request given the prompt (or messages)
+    and a list of image paths. Always uses tiktoken for the prompt.
+    """
+    # Use a default encoding (you can choose a different one if needed)
+    encoding = tiktoken.get_encoding("cl100k_base")
+    # Extract text from prompt_or_messages:
+    if isinstance(prompt_or_messages, list):
+        text = ""
+        for message in prompt_or_messages:
+            # If the content is a list (for multi-part messages), join the text parts:
+            if isinstance(message.get("content"), list):
+                for part in message["content"]:
+                    if part.get("type") == "text":
+                        text += part.get("text", "")
+            else:
+                text += message.get("content", "")
+    else:
+        text = prompt_or_messages
+
+    prompt_tokens = len(encoding.encode(text))
+    text_cost = prompt_tokens * (MODEL_PARAMS[model]["price_per_1m_tokens_in"] / 1e6)
+
+    total_image_tokens = 0
+    total_image_cost = 0.0
+    for img in image_paths:
+        tokens, cost = calculate_image_tokens_and_cost(img, model)
+        total_image_tokens += tokens
+        total_image_cost += cost
+
+    total_tokens = prompt_tokens + total_image_tokens
+    return total_tokens, total_image_cost + text_cost
 
 
 def validate_cost(image_path: Union[str, List[str]], model="o1", cutoff=3):

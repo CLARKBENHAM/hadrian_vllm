@@ -12,6 +12,7 @@ import litellm
 from litellm import completion
 
 from hadrian_vllm.cache import PersistentCache
+from hadrian_vllm.image_cost import calculate_request_tokens_and_cost
 
 litellm.vertex_project = "gen-lang-client-0392240747"
 litellm.drop_params = True  # o1 only allows temp=1, hack in case of others
@@ -27,11 +28,17 @@ RATE_LIMITS = {
     "gemini-2.0-pro-exp-02-05": 5,
     "gemini-2.0-flash-001": 2000,
 }
-
-# Request tracking for each model
-model_request_timestamps = {
-    model_name: deque(maxlen=RATE_LIMITS[model_name]) for model_name in RATE_LIMITS
+TOKEN_LIMITS = {
+    "o1": 100000,
+    "o3-mini": 200000,
+    "gpt-4o": 300000,
+    "gemini-2.0-flash-001": 250000,
 }
+
+
+# Initialize a deque to track tokens used per model in the last 60 seconds.
+# (timestamp, tokens)
+model_token_usage = {model_name: deque() for model_name in RATE_LIMITS}
 
 # Lock for accessing the timestamps safely in async context
 model_locks = {model_name: asyncio.Lock() for model_name in RATE_LIMITS}
@@ -97,25 +104,48 @@ def get_base64_image(image_path):
         return base64_data
 
 
-async def under_ratelimit(model):
-    """Ensure we don't exceed rate limits for a model"""
+async def under_ratelimit(model, new_tokens=100):
+    """
+    Ensure that both the request count and the token usage for the model do not exceed their per-minute limits.
+    new_tokens: the estimated tokens of the new request.
+    """
     async with model_locks[model]:
         current_time = time.time()
-        # If we've reached the limit of requests per minute
-        if len(model_request_timestamps[model]) >= RATE_LIMITS[model]:
-            # Calculate how long until a slot opens up (oldest request + 60 seconds)
-            oldest_request = model_request_timestamps[model][0]
+        # Clean up old token entries (older than 60 seconds)
+        while model_token_usage[model] and model_token_usage[model][0][0] + 60 < current_time:
+            model_token_usage[model].popleft()
+        # Sum tokens used in the last 60 seconds
+        current_token_sum = sum(entry[1] for entry in model_token_usage[model])
+        tokens_limit = TOKEN_LIMITS.get(model, 1e6)
+        if current_token_sum + new_tokens > tokens_limit:
+            extra_needed = (current_token_sum + new_tokens) - tokens_limit
+            cumulative = 0
+            wait_time = 0
+            # Iterate over the queue and sum tokens until we have enough that must expire
+            for timestamp, tokens in model_token_usage[model]:
+                cumulative += tokens
+                if cumulative >= extra_needed:
+                    wait_time = (timestamp + 60) - current_time
+                    break
+            if wait_time > 0:
+                logger.info(f"{model} token limit reached; sleeping for {wait_time:.2f} seconds")
+                await asyncio.sleep(wait_time)
+                current_time = time.time()
+
+        # Then enforce the existing requests-per-minute limit:
+        if len(model_token_usage[model]) >= RATE_LIMITS[model]:
+            oldest_request = model_token_usage[model][0]
             time_until_available = oldest_request + 60 - current_time
             if time_until_available > 0:
-                if time_until_available > 2:
-                    print(
-                        f"{model} Lock Sleeping for {time_until_available};"
-                        f"Q (first 10): {list(model_request_timestamps[model])[:10]} "
+                if time_until_available > 1:
+                    logger.info(
+                        f"{model} request limit reached; sleeping for"
+                        f" {time_until_available:.2f} seconds"
                     )
                 await asyncio.sleep(time_until_available)
-            model_request_timestamps[model].pop()
-        # Add this request's timestamp
-        model_request_timestamps[model].append(current_time)
+                current_time = time.time()
+        # Record the new tokens usage with the current timestamp
+        model_token_usage[model].append((current_time, new_tokens))
 
 
 def prepare_openai_request(prompt, image_paths, model):
@@ -393,12 +423,16 @@ async def call_model(
             and cached_response != "None"
         ):
             return cached_response
+    total_tokens, total_cost = calculate_request_tokens_and_cost(
+        prompt_or_messages, image_paths or [], model
+    )
+    logger.info(f"Estimated tokens for request: {total_tokens}, estimated cost: ${total_cost:.6f}")
 
     # Attempt with retries
     for attempt in range(max_retries):
         try:
-            # Ensure we respect rate limits
-            await under_ratelimit(model)
+            # Enforce both request count and token limits:
+            await under_ratelimit(model, new_tokens=total_tokens)
 
             # Prepare the request based on the model type and conversation style
             if is_multiturn:
@@ -417,7 +451,9 @@ async def call_model(
                     request = prepare_openai_request(prompt_or_messages, image_paths, model)
 
             # Make the API call
-            response = await asyncio.to_thread(completion, **request)
+            response = await asyncio.to_thread(
+                completion, **request, timeout=60
+            )  # was 10min by default
             content = response.choices[0].message.content
 
             # Cache the response
