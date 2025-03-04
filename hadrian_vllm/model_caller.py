@@ -29,10 +29,11 @@ RATE_LIMITS = {
     "gemini-2.0-flash-001": 2000,
 }
 TOKEN_LIMITS = {
-    "o1": 100000,
-    "o3-mini": 200000,
-    "gpt-4o": 300000,
-    "gemini-2.0-flash-001": 250000,
+    "o1": 3000000,
+    "o3-mini": 5000000,
+    "gpt-4o": 450000,
+    "gemini-2.0-pro-exp-02-05": 5000,
+    "gemini-2.0-flash-001": 2000000,
 }
 
 
@@ -423,10 +424,12 @@ async def call_model(
             and cached_response != "None"
         ):
             return cached_response
+
     total_tokens, total_cost = calculate_request_tokens_and_cost(
         prompt_or_messages, image_paths or [], model
     )
     logger.info(f"Estimated tokens for request: {total_tokens}, estimated cost: ${total_cost:.6f}")
+    assert cache_key in response_cache, "GRIB"
 
     # Attempt with retries
     for attempt in range(max_retries):

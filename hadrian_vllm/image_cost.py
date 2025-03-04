@@ -47,6 +47,12 @@ MODEL_PARAMS = {
         "tokens_per_tile": 258,
         "price_per_1m_tokens_in": 0.075,  # $0.075 per 1M tokens
     },
+    "gemini-2.0-flash-001": {
+        "max_dim": 2304,
+        "tile_size": 768,
+        "tokens_per_tile": 258,
+        "price_per_1m_tokens_in": 0.075,  # $0.075 per 1M tokens
+    },
     "gemini-1.5-pro": {
         "max_dim": 2304,
         "tile_size": 768,

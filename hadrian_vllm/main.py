@@ -118,6 +118,7 @@ async def process_element_ids(
     except Exception as e:
         logger.error(f"Exception during model call: {str(e)}")
         response = f"Error: {str(e)}"
+        raise e
         answers = [None] * len(element_ids)
 
     # Load the DataFrame
