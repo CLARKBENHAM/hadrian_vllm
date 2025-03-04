@@ -88,19 +88,12 @@ def select_few_shot_examples(
 
         # If we have enough element IDs, create eg_per_img examples with question_ids_count IDs each
         if len(all_element_ids) >= question_ids_count:
-            for _ in range(eg_per_img):
-                # Try to select question_ids_count random element IDs
-                if len(all_element_ids) >= question_ids_count:
-                    selected_ids = random.sample(all_element_ids, question_ids_count)
-                    all_element_ids = [e for e in all_element_ids if e not in selected_ids]
-                    results.append((img_path, selected_ids))
-                else:
-                    # If not enough IDs, use what we have (with potential duplicates)
-                    all_element_ids = extract_element_ids_from_image(csv_path, img_path)
-                    selected_ids = random.choices(all_element_ids, k=question_ids_count)
-                    results.append((img_path, selected_ids))
+            for _ in range(0, min(eg_per_img, len(all_element_ids)), question_ids_count):
+                selected_ids = random.sample(all_element_ids, question_ids_count)
+                all_element_ids = [e for e in all_element_ids if e not in selected_ids]
+                results.append((img_path, selected_ids))
         else:
-            # If we don't have enough element IDs, use what we have (with potential duplicates)
+            # If not enough IDs will have duplicates
             for _ in range(eg_per_img):
                 selected_ids = random.choices(all_element_ids, k=question_ids_count)
                 if selected_ids:
@@ -209,24 +202,25 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
     sent_images = set()
 
     # Add few-shot examples as separate turns
+    img_num = 0
     for i, (img_path, element_ids, element_to_spec) in enumerate(examples):
-        img_num = i + 1
 
         for element_id in element_ids:
             if element_id in element_to_spec:
                 # Add user message with all element IDs
-                user_message = f"Img{img_num}:\n"
-                for element_id in element_ids:
-                    user_message += f"{element_id}:\n"
-                message_data = {"role": "user", "content": user_message}
                 # Only include image if it hasn't been sent yet.
+                message_data = {"role": "user"}
                 if img_path not in sent_images:
+                    img_num += 1
+                    user_message = f"Img{img_num}:\n"
                     message_data["image_path"] = img_path
                     sent_images.add(img_path)
                 else:
                     # Optionally, prepend a note to indicate that it refers to the previous image.
-                    message_data["content"] = "the previous image\n" + message_data["content"]
-
+                    user_message = f"the previous image\nImg{img_num}:\n"
+                for element_id in element_ids:
+                    user_message += f"{element_id}:\n"
+                message_data["content"] = user_message
                 messages.append(message_data)
 
                 # Add assistant message with all answers
@@ -239,7 +233,7 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
                 messages.append({"role": "assistant", "content": assistant_message})
 
     # Add the actual question
-    img_num = len(examples) + 1
+    img_num = len(sent_images) + 1
     user_message = f"Img{img_num}:\n"
     for element_id in question_ids:
         user_message += f"{element_id}:\n"
