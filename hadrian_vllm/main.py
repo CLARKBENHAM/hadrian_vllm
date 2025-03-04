@@ -413,13 +413,18 @@ async def main():
                     element_ids_by_image[image_path] = []
                 element_ids_by_image[image_path].append(element_id)
 
+        print("HARDCODE: Ony eval on asem6 and asem11")
+        question_images = [
+            i for i in element_ids_by_image.keys() if "nist_ftc_06_" in i or "nist_ftc_11_" in i
+        ]
+
         # Run evaluation
         model_names = [args.model]  # You can add more models here if needed
         results = await run_evaluation(
             args.prompt,
             args.csv,
             args.eval_dir,
-            list(element_ids_by_image.keys()),
+            question_images,
             element_ids_by_image,
             model_names,
             args.n_shot_imgs,
