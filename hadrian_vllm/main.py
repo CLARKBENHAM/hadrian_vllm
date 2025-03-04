@@ -7,6 +7,7 @@ import pandas as pd
 import json
 from typing import Dict, List, Tuple, Any
 import logging
+import traceback
 
 from hadrian_vllm.prompt_generator import element_ids_per_img_few_shot
 from hadrian_vllm.model_caller import call_model, preload_images
@@ -118,6 +119,7 @@ async def process_element_ids(
     except Exception as e:
         logger.error(f"Exception during model call: {str(e)}")
         response = f"Error: {str(e)}"
+        traceback.print_exception(type(e), e, e.__traceback__)
         answers = [None] * len(element_ids)
 
     # Load the DataFrame

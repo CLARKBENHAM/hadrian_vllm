@@ -7,6 +7,7 @@ import json
 import random
 import logging
 from concurrent.futures import ThreadPoolExecutor
+import traceback
 
 import litellm
 from litellm import completion
@@ -430,44 +431,34 @@ async def call_model(
     )
     logger.info(f"Estimated tokens for request: {total_tokens}, estimated cost: ${total_cost:.6f}")
 
+    # Prepare the request based on the model type and conversation style
+    if is_multiturn:
+        if model.startswith("claude"):
+            request = prepare_anthropic_multiturn_request(prompt_or_messages, model)
+        elif model.startswith("gemini"):
+            request = prepare_gemini_multiturn_request(prompt_or_messages, model)
+        else:  # OpenAI models
+            request = prepare_openai_multiturn_request(prompt_or_messages, model)
+    else:
+        if model.startswith("claude"):
+            request = prepare_anthropic_request(prompt_or_messages, image_paths, model)
+        elif model.startswith("gemini"):
+            request = prepare_gemini_request(prompt_or_messages, image_paths, model)
+        else:  # OpenAI models
+            request = prepare_openai_request(prompt_or_messages, image_paths, model)
+
     # Attempt with retries
     for attempt in range(max_retries):
         try:
-            # Enforce both request count and token limits:
             await under_ratelimit(model, new_tokens=total_tokens)
-
-            # Prepare the request based on the model type and conversation style
-            if is_multiturn:
-                if model.startswith("claude"):
-                    request = prepare_anthropic_multiturn_request(prompt_or_messages, model)
-                elif model.startswith("gemini"):
-                    request = prepare_gemini_multiturn_request(prompt_or_messages, model)
-                else:  # OpenAI models
-                    request = prepare_openai_multiturn_request(prompt_or_messages, model)
-            else:
-                if model.startswith("claude"):
-                    request = prepare_anthropic_request(prompt_or_messages, image_paths, model)
-                elif model.startswith("gemini"):
-                    request = prepare_gemini_request(prompt_or_messages, image_paths, model)
-                else:  # OpenAI models
-                    request = prepare_openai_request(prompt_or_messages, image_paths, model)
-
-            # Make the API call
             response = await asyncio.to_thread(
                 lambda: completion(**request, timeout=60)
                 # completion, **request, timeout=60
             )  # timeout was 10min by default
-            content = response.choices[0].message.content
-
-            # Cache the response
-            if cache and content:
-                response_cache[cache_key] = content
-
-            return content
-
         except Exception as e:
             error_msg = f"Error calling {model} (attempt {attempt+1}/{max_retries}): {str(e)}"
-            logger.warning(error_msg)
+            logger.error(error_msg, exc_info=True)
+            logger.info(e.__traceback__)
 
             if attempt < max_retries - 1:
                 # Calculate backoff delay with jitter to avoid thundering herd
@@ -489,3 +480,7 @@ async def call_model(
                     return error_response
                 else:
                     raise RuntimeError(error_response) from e
+        content = response.choices[0].message.content
+        if cache and content:
+            response_cache[cache_key] = content
+        return content
