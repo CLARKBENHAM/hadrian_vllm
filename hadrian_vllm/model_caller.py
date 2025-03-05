@@ -452,13 +452,13 @@ async def call_model(
         try:
             await under_ratelimit(model, new_tokens=total_tokens)
             response = await asyncio.to_thread(
-                lambda: completion(**request, timeout=60)
-                # completion, **request, timeout=60
+                completion,
+                **request,
+                timeout=60,
             )  # timeout was 10min by default
         except Exception as e:
             error_msg = f"Error calling {model} (attempt {attempt+1}/{max_retries}): {str(e)}"
             logger.error(error_msg, exc_info=True)
-            logger.info(e.__traceback__)
 
             if attempt < max_retries - 1:
                 # Calculate backoff delay with jitter to avoid thundering herd
@@ -480,6 +480,7 @@ async def call_model(
                     return error_response
                 else:
                     raise RuntimeError(error_response) from e
+            continue
         content = response.choices[0].message.content
         if cache and content:
             response_cache[cache_key] = content

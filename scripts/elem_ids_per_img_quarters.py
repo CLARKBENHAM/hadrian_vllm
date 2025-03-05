@@ -207,6 +207,7 @@ def compute_metrics(pred_mapping, csv_labeling):
     return hallucinations, missed, disagreements, common_count
 
 
+# Make quarter images and then run analysis
 if __name__ == "__main__":
     csv_path = "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv"
     image_dir = "data/eval_on/single_images/"

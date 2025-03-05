@@ -96,7 +96,6 @@ async def process_element_ids(
         eg_per_img,
         examples_as_multiturn,
     )
-
     try:
         # Call the model
         if examples_as_multiturn:
@@ -206,7 +205,7 @@ async def run_evaluation(
 
     # for IO, but sending images with request so might delay a tad
     loop = asyncio.get_running_loop()
-    loop.set_default_executor(ThreadPoolExecutor(max_workers=64))
+    loop.set_default_executor(ThreadPoolExecutor(max_workers=64))  # adjust here
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")

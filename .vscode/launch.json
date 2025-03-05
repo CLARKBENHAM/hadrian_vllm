@@ -27,7 +27,7 @@
                 "1",
                 "--multiturn",
                 "--eval_all",
-                // "--eval-easy"
+                "--eval-easy"
             ]
             // "args": [
             //     "--prompt",
