@@ -205,7 +205,9 @@ async def run_evaluation(
 
     # for IO, but sending images with request so might delay a tad
     loop = asyncio.get_running_loop()
-    loop.set_default_executor(ThreadPoolExecutor(max_workers=64))  # adjust here
+    loop.set_default_executor(
+        ThreadPoolExecutor(max_workers=8)
+    )  # adjust here, seems litellm fails with 64 threads. Debug failed with 16 also?
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
@@ -236,11 +238,10 @@ async def run_evaluation(
                         examples_as_multiturn,
                         cache=num_completions == 1,
                     )
+                    all_tasks.append((model_name, img_path, element_ids, i, task))
                     # tasks take 0.5 sec to start but still getting a few gemini rate limits
                     await asyncio.sleep(0)  # so so many tasks not all started right away
-
-                    # Store task with its metadata
-                    all_tasks.append((model_name, img_path, element_ids, i, task))
+        # await asyncio.sleep(0.5)  # only start all req given image at same time
 
     # Run all tasks concurrently
     all_results = await asyncio.gather(*(task for _, _, _, _, task in all_tasks))

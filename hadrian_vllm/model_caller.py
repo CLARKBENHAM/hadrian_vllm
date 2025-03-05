@@ -9,6 +9,11 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 import traceback
 
+from google.cloud import aiplatform
+from vertexai.generative_models import GenerativeModel, Content, Part, GenerationConfig
+from vertexai.preview.generative_models import SafetySetting, HarmCategory, HarmBlockThreshold
+import vertexai
+
 import litellm
 from litellm import completion
 
@@ -139,13 +144,13 @@ async def under_ratelimit(model, new_tokens=100):
             oldest_request = model_token_usage[model][0]
             time_until_available = oldest_request + 60 - current_time
             if time_until_available > 0:
-                if time_until_available > 1:
+                if time_until_available > 0:
                     logger.info(
                         f"{model} request limit reached; sleeping for"
                         f" {time_until_available:.2f} seconds"
                     )
-                await asyncio.sleep(time_until_available)
-                current_time = time.time()
+                    await asyncio.sleep(time_until_available)
+                    current_time = time.time()
         # Record the new tokens usage with the current timestamp
         model_token_usage[model].append((current_time, new_tokens))
 
@@ -385,6 +390,125 @@ def get_cache_key(prompt_or_messages, image_paths, model):
         return f"{model}:{serialized_msgs}:{','.join(img_paths)}"
 
 
+async def call_gemini_directly(prompt_or_messages, image_paths=None, model="gemini-2.0-flash-001"):
+    """
+    Call the Gemini model directly using the Vertex AI SDK.
+
+    Args:
+        prompt_or_messages: Either a string prompt or a list of messages
+        image_paths: List of image paths to include
+        model: Which Gemini model to use
+
+    Returns:
+        Generated text from Gemini
+    """
+    # Initialize Vertex AI
+    vertexai.init(project="gen-lang-client-0392240747", location="us-central1")
+
+    # Create generation config
+    generation_config = GenerationConfig(
+        temperature=0.2,
+        max_output_tokens=4000,
+    )
+
+    # Set up safety settings
+    safety_settings = [
+        SafetySetting(
+            category=HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold=HarmBlockThreshold.BLOCK_NONE,
+        ),
+        SafetySetting(
+            category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold=HarmBlockThreshold.BLOCK_NONE,
+        ),
+        SafetySetting(
+            category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold=HarmBlockThreshold.BLOCK_NONE,
+        ),
+        SafetySetting(
+            category=HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold=HarmBlockThreshold.BLOCK_NONE,
+        ),
+    ]
+
+    # Get the Gemini model
+    model_obj = GenerativeModel(
+        model_name=model, generation_config=generation_config, safety_settings=safety_settings
+    )
+
+    # Handle single-turn with images
+    if isinstance(prompt_or_messages, str):
+        # Create content parts
+        parts = [Part.from_text(prompt_or_messages)]
+
+        # Add images if provided
+        if image_paths:
+            for image_path in image_paths:
+                image_base64 = get_base64_image(image_path)
+                image_bytes = base64.b64decode(image_base64)
+                parts.append(Part.from_data(mime_type="image/png", data=image_bytes))
+
+        # Create content
+        content = Content(role="user", parts=parts)
+        response = await asyncio.to_thread(
+            model_obj.generate_content,
+            content,
+        )
+        return response.text
+
+    # Handle multi-turn conversation
+    else:
+        # Create history
+        history = []
+        system_prompt = None
+
+        for msg in prompt_or_messages:
+            if msg["role"] == "system":
+                system_prompt = msg["content"]
+                continue
+
+            role = "user" if msg["role"] == "user" else "model"
+
+            if "image_path" in msg and msg["role"] == "user":
+                # User message with image
+                image_base64 = get_base64_image(msg["image_path"])
+                image_bytes = base64.b64decode(image_base64)
+
+                parts = [
+                    Part.from_text(msg["content"]),
+                    Part.from_data(mime_type="image/png", data=image_bytes),
+                ]
+                content = Content(role=role, parts=parts)
+            else:
+                # Text-only message
+                content = Content(role=role, parts=[Part.from_text(msg["content"])])
+
+            history.append(content)
+
+        # Prepend system prompt to first user message if exists
+        if system_prompt:
+            for i, content in enumerate(history):
+                if content.role == "user":
+                    # Update the first user message with system prompt
+                    original_text = content.parts[0].text
+                    content.parts[0] = Part.from_text(f"{system_prompt}\n\n{original_text}")
+                    history[i] = content
+                    break
+
+        if len(history) > 1:  # Use history if more than one message
+            chat = model_obj.start_chat(history=history[:-1])
+            response = await asyncio.to_thread(
+                chat.send_message,
+                history[-1],
+            )
+        else:
+            response = await asyncio.to_thread(
+                model_obj.generate_content,
+                history[0],
+            )
+        return response.text
+
+
 async def call_model(
     prompt_or_messages,
     image_paths=None,
@@ -451,11 +575,17 @@ async def call_model(
     for attempt in range(max_retries):
         try:
             await under_ratelimit(model, new_tokens=total_tokens)
-            response = await asyncio.to_thread(
-                completion,
-                **request,
-                timeout=60,
-            )  # timeout was 10min by default
+            if "gemini" in model:
+                content = await call_gemini_directly(
+                    prompt_or_messages, image_paths if not is_multiturn else None, model
+                )
+            else:
+                response = await asyncio.to_thread(
+                    completion,
+                    **request,
+                    timeout=60,
+                )  # timeout was 10min by default
+                content = response.choices[0].message.content
         except Exception as e:
             error_msg = f"Error calling {model} (attempt {attempt+1}/{max_retries}): {str(e)}"
             logger.error(error_msg, exc_info=True)
@@ -476,12 +606,11 @@ async def call_model(
                 if return_error_message:
                     # Cache the error to avoid repeated failures
                     if cache:
-                        response_cache[cache_key] = error_response
+                        await response_cache.async_save(cache_key, error_response)
                     return error_response
                 else:
                     raise RuntimeError(error_response) from e
             continue
-        content = response.choices[0].message.content
         if cache and content:
-            response_cache[cache_key] = content
+            await response_cache.async_save(cache_key, content)
         return content

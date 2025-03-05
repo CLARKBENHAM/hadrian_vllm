@@ -2132,10 +2132,10 @@ data/printout/assem_6_11_n5_eg50_prompt6_o3_try_easy.txt:Correct: 52 (14.36%)
 data/printout/assem_6_11_n5_eg50_prompt6_o3_try_easy.txt:Incorrect: 33 (9.12%)
 data/printout/assem_6_11_n5_eg50_prompt6_o3_try_easy.txt:Unanswered: 277 (76.52%)
 
-# Note all previous caches got broken
 ### Run full eval, using all data other data as fewshot
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_claude_try.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/all_n21_eg50_prompt6_claude_try.txt # this got overwritten with easy
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_claude_try.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/all_n21_eg50_prompt6_claude_try_easy.txt
+# Note all previous caches got broken
 
 # Even with all few-shot examples only get to 50/85 correct (hard) but 59/85 easy
 
