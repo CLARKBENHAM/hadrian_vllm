@@ -205,6 +205,9 @@ def undo_formatting_rules(text):
 
     # 3. Handle datum feature format
     text = re.sub(r"datum\s*feature\s*([a-z])", r"df\1", text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"datum\s*target\s*symbols?", "", text, flags=re.IGNORECASE
+    )  # asem6 has problems with adding 's'
 
     # 4. Simplify special text elements
     # just smushed to 0 for all this stuff if even identifies basics
@@ -219,10 +222,12 @@ def undo_formatting_rules(text):
     # 5. Remove untoleranced surfaces text
     # text = text.replace("appliestoalluntolerancedsurfaces", "")
     # grib
-    text = re.sub(r"applies\s*to\s*all\s*untoleranced\s*surfaces", "aus", text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"applies\s*to\s*all\s*untoleranced\s*surfaces\.?", "aus", text, flags=re.IGNORECASE
+    )
 
     # 6. Handle profile symbol conversion
-    # GD&T expects Profile
+    # GD&T expects Profile in capital; this is worst part
     text = re.sub(r"profile\s*surface", "Profile", text, flags=re.IGNORECASE)
     text = re.sub(r"profile\s*of\s*a\s*line", "Profile", text, flags=re.IGNORECASE)
     text = re.sub(r"profile\s*of\s*a\s*surface", "Profile", text, flags=re.IGNORECASE)
