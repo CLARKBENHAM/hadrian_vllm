@@ -224,19 +224,17 @@ async def run_evaluation(
                 print(f"Batch Element IDs: {element_ids}")
 
                 for i in range(num_completions):
-                    task = asyncio.create_task(
-                        process_element_ids(
-                            text_prompt_path,
-                            csv_path,
-                            eval_dir,
-                            img_path,
-                            element_ids,
-                            model_name,
-                            n_shot_imgs,
-                            eg_per_img,
-                            examples_as_multiturn,
-                            cache=num_completions == 1,
-                        )
+                    task = process_element_ids(
+                        text_prompt_path,
+                        csv_path,
+                        eval_dir,
+                        img_path,
+                        element_ids,
+                        model_name,
+                        n_shot_imgs,
+                        eg_per_img,
+                        examples_as_multiturn,
+                        cache=num_completions == 1,
                     )
                     all_tasks.append((model_name, img_path, element_ids, i, task))
                     # with asyncio.sleep(0) tasks would still take 0.5 sec to start but still getting a few gemini rate limits
