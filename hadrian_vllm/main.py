@@ -239,8 +239,9 @@ async def run_evaluation(
                         cache=num_completions == 1,
                     )
                     all_tasks.append((model_name, img_path, element_ids, i, task))
-                    # tasks take 0.5 sec to start but still getting a few gemini rate limits
-                    await asyncio.sleep(0)  # so so many tasks not all started right away
+                    # with asyncio.sleep(0) tasks would still take 0.5 sec to start but still getting a few gemini rate limits
+                    # not sure what's happenign there.
+                    await asyncio.sleep(0.2)  # so so many tasks not all started right away
         # await asyncio.sleep(0.5)  # only start all req given image at same time
 
     # Run all tasks concurrently

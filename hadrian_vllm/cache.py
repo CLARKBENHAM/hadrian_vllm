@@ -4,7 +4,9 @@ import os
 import json
 import threading
 import time
-import aiofiles
+
+# import aiofiles
+# import asyncio
 
 
 class PersistentCache:
@@ -12,6 +14,7 @@ class PersistentCache:
 
     def __init__(self, cache_file_path="data/cache.jsonl"):
         self.cache_file_path = cache_file_path
+        # self.async_lock = asyncio.Lock()
         self.lock = threading.Lock()
         self._ensure_cache_file_exists()
         self._cache = self._load_cache()
@@ -73,14 +76,17 @@ class PersistentCache:
             if self._store_count % 1000 == 0:
                 self._remove_duplicates()
 
-    async def async_save(self, key, value):
-        with self.lock:
-            self._cache[key] = value
-            async with aiofiles.open(self.cache_file_path, mode="a") as f:
-                await f.write(json.dumps({key: value}) + "\n")
-            self._store_count += 1
-            if self._store_count % 1000 == 0:
-                self._remove_duplicates()
+    # not a big deal to block on these calls
+    # async def async_save(self, key, value):
+    #     async with self.async_lock:
+    #         self._cache[key] = value
+    #         print("saving", str(key)[:10], str(value)[:10])
+    #         async with aiofiles.open(self.cache_file_path, mode="a") as f:
+    #             await f.write(json.dumps({key: value}) + "\n")
+    #         self._store_count += 1
+    #         if self._store_count % 1000 == 0:
+    #             self._remove_duplicates()
+    #         print("saved", str(key)[:10], str(value)[:10])
 
     def __contains__(self, key):
         """Check if key exists in cache"""

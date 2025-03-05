@@ -553,8 +553,6 @@ async def call_model(
     total_tokens, total_cost = calculate_request_tokens_and_cost(
         prompt_or_messages, image_paths or [], model
     )
-    logger.info(f"Estimated tokens for request: {total_tokens}, estimated cost: ${total_cost:.6f}")
-
     # Prepare the request based on the model type and conversation style
     if is_multiturn:
         if model.startswith("claude"):
@@ -575,6 +573,9 @@ async def call_model(
     for attempt in range(max_retries):
         try:
             await under_ratelimit(model, new_tokens=total_tokens)
+            logger.info(
+                f"Estimated tokens for request: {total_tokens}, estimated cost: ${total_cost:.6f}"
+            )
             if "gemini" in model:
                 content = await call_gemini_directly(
                     prompt_or_messages, image_paths if not is_multiturn else None, model
@@ -606,11 +607,13 @@ async def call_model(
                 if return_error_message:
                     # Cache the error to avoid repeated failures
                     if cache:
-                        await response_cache.async_save(cache_key, error_response)
+                        # await response_cache.async_save(cache_key, error_response)
+                        response_cache[cache_key] = error_response
                     return error_response
                 else:
                     raise RuntimeError(error_response) from e
             continue
         if cache and content:
-            await response_cache.async_save(cache_key, content)
+            # await response_cache.async_save(cache_key, content)
+            response_cache[cache_key] = content
         return content
