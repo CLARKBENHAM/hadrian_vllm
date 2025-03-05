@@ -209,41 +209,41 @@ async def run_evaluation(
         ThreadPoolExecutor(max_workers=8)
     )  # adjust here, seems litellm fails with 64 threads. Debug failed with 16 also?
 
-    for model_name in model_names:
-        print(f"\nEvaluating model: {model_name}")
+    for img_path in question_images:
+        all_element_ids = element_ids_by_image.get(img_path, [])
+        if not all_element_ids:
+            continue
 
-        for img_path in question_images:
-            all_element_ids = element_ids_by_image.get(img_path, [])
-            if not all_element_ids:
-                continue
+        print(f"Processing image: {os.path.basename(img_path)}")
+        print(f"Element IDs: {all_element_ids}")
 
-            print(f"Processing image: {os.path.basename(img_path)}")
-            print(f"Element IDs: {all_element_ids}")
+        for start in range(0, len(all_element_ids), n_element_ids):
+            element_ids = all_element_ids[start : start + n_element_ids]
+            print(f"Batch Element IDs: {element_ids}")
 
-            for start in range(0, len(all_element_ids), n_element_ids):
-                element_ids = all_element_ids[start : start + n_element_ids]
-                print(f"Batch Element IDs: {element_ids}")
-
-                # Create task but don't await it yet
+            for model_name in model_names:
+                print(f"\nEvaluating model: {model_name}")
                 for i in range(num_completions):
-                    task = process_element_ids(
-                        text_prompt_path,
-                        csv_path,
-                        eval_dir,
-                        img_path,
-                        element_ids,
-                        model_name,
-                        n_shot_imgs,
-                        eg_per_img,
-                        examples_as_multiturn,
-                        cache=num_completions == 1,
+                    task = asyncio.create_task(
+                        process_element_ids(
+                            text_prompt_path,
+                            csv_path,
+                            eval_dir,
+                            img_path,
+                            element_ids,
+                            model_name,
+                            n_shot_imgs,
+                            eg_per_img,
+                            examples_as_multiturn,
+                            cache=num_completions == 1,
+                        )
                     )
                     all_tasks.append((model_name, img_path, element_ids, i, task))
                     # with asyncio.sleep(0) tasks would still take 0.5 sec to start but still getting a few gemini rate limits
                     # not sure what's happenign there.
-                    await asyncio.sleep(0.2)  # so so many tasks not all started right away
+                    # await asyncio.sleep(0.1)  # so so many tasks not all started right away
         # await asyncio.sleep(0.5)  # only start all req given image at same time
-
+        # Try and create all tasks as fast as possible, but run them concurrenlty later
     # Run all tasks concurrently
     all_results = await asyncio.gather(*(task for _, _, _, _, task in all_tasks))
 

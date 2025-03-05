@@ -151,6 +151,8 @@ async def under_ratelimit(model, new_tokens=100):
                     )
                     await asyncio.sleep(time_until_available)
                     current_time = time.time()
+        elif len(model_token_usage[model]) > RATE_LIMITS[model] // 60:
+            await asyncio.sleep(0)  # Thundering heard problem
         # Record the new tokens usage with the current timestamp
         model_token_usage[model].append((current_time, new_tokens))
 
@@ -587,6 +589,7 @@ async def call_model(
                     timeout=60,
                 )  # timeout was 10min by default
                 content = response.choices[0].message.content
+            logger.info(f"Req success: {content[:20]}")
         except Exception as e:
             error_msg = f"Error calling {model} (attempt {attempt+1}/{max_retries}): {str(e)}"
             logger.error(error_msg, exc_info=True)
@@ -616,4 +619,5 @@ async def call_model(
         if cache and content:
             # await response_cache.async_save(cache_key, content)
             response_cache[cache_key] = content
+        logger.info(f"Cache saved: {content[:20]}")
         return content
