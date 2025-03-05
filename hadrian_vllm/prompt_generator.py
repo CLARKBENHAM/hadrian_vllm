@@ -181,8 +181,8 @@ def generate_few_shot_prompt(
         assert page_answers, page_answers
         ans_text = ", ".join(map(lambda i: f'"{i}"', page_answers))
         answers_text = (
-            "The Answers is one of the elements Below. Make sure to only return an entry from this"
-            f" list:\n{ans_text}"
+            "The Answer is one of the elements Below. Make sure you return an entry from this"
+            f" between <answer> tags. list:\n{ans_text}"
         )
         prompt = re.sub(r"\{\{\{Answer\}\}\}", answers_text, prompt, flags=re.DOTALL)
 
@@ -251,17 +251,17 @@ def generate_multiturn_messages(
 
     # Add the actual question
     img_num = len(sent_images) + 1
-    user_message = f"Img{img_num}:\n"
-    for element_id in question_ids:
-        user_message += f"{element_id}:\n"
+    user_message = ""
     if add_answers:
         assert page_answers, page_answers
         ans_text = ", ".join(map(lambda i: f'"{i}"', page_answers))
         user_message += (
-            "The Answers is one of the elements Below. Make sure to only return an entry from this"
-            f" list:\n{ans_text}"
+            "The Answer is one of the elements Below. Make sure you return an entry from this"
+            f" between <answer> tags. list:\n{ans_text}"
         )
-
+    user_message += f"\nImg{img_num}:\n"
+    for element_id in question_ids:
+        user_message += f"{element_id}:\n"
     messages.append({"role": "user", "content": user_message, "image_path": question_image})
 
     return messages

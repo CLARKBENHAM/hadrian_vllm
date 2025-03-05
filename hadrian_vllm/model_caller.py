@@ -619,5 +619,5 @@ async def call_model(
         if cache and content:
             # await response_cache.async_save(cache_key, content)
             response_cache[cache_key] = content
-        logger.info(f"Cache saved: {content[:20]}")
+        # logger.info(f"Cache saved: {content[:20]}")
         return content
