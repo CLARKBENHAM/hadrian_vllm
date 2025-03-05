@@ -10,7 +10,7 @@
             "justMyCode": false,
             "args": [
                 "--prompt",
-                "data/prompts/prompt6_claude_try.txt",
+                "data/prompts/prompt6_claude_try_answers.txt",
                 "--csv",
                 "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv",
                 "--eval_dir",

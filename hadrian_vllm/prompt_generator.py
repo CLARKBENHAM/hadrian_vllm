@@ -136,7 +136,7 @@ def get_example_answers(csv_path, img_path, element_ids=None):
 
 
 # handles multiple correctly?
-def generate_few_shot_prompt(prompt_template, examples, question_image, question_ids):
+def generate_few_shot_prompt(prompt_template, examples, question_image, question_ids, page_answers=None):
     """
     Generate a few-shot single string prompt with examples and the target question.
 
@@ -173,6 +173,12 @@ def generate_few_shot_prompt(prompt_template, examples, question_image, question
     # Replace placeholders in the template
     prompt = re.sub(r"\{\{\{Example\}\}\}", few_shot_text.strip(), prompt_template, flags=re.DOTALL)
     prompt = re.sub(r"\{\{\{Question\}\}\}", question_text.strip(), prompt, flags=re.DOTALL)
+    if '{{{Answer}}}' in prompt:
+        assert page_answers
+        answers_text = f"The Answers is one of the elements Below. Make sure to only return an entry from this list:\n{'\n'.join(map(lambda i: f'`{i}`', page_answers))}"
+        prompt = re.sub(r"\{\{\{Answer\}\}\}", answers_text, prompt, flags=re.DOTALL)
+    else:
+        assert not page_answers
 
     for _, es, _ in examples:
         for e in es:
@@ -182,7 +188,7 @@ def generate_few_shot_prompt(prompt_template, examples, question_image, question
     return prompt
 
 
-def generate_multiturn_messages(prompt_template, examples, question_image, question_ids):
+def generate_multiturn_messages(prompt_template, examples, question_image, question_ids, page_answers=None):
     """
     Generate messages for a multi-turn conversation with examples and the target question.
 
@@ -198,6 +204,9 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
     # remove single prompt replacement examples to get only system prompt
     prompt_template = re.sub("\{\{\{Example\}\}\}\S*", "", prompt_template)
     system_prompt = re.sub("\S*\{\{\{Question\}\}\}\S*", "", prompt_template)
+    add_answers= '{{{Answers}}' in system_prompt
+    system_prompt=  re.sub("\S*\{\{\{Answers\}\}\}\S*", "", system_prompt)
+
     messages = [{"role": "system", "content": system_prompt}]
     sent_images = set()
 
@@ -237,6 +246,12 @@ def generate_multiturn_messages(prompt_template, examples, question_image, quest
     user_message = f"Img{img_num}:\n"
     for element_id in question_ids:
         user_message += f"{element_id}:\n"
+    if add_answers:
+        assert page_answers, page_answers
+        user_message += f"The Answers is one of the elements Below. Make sure to only return an entry from this list:\n{'\n'.join(map(lambda i: f'`{i}`', page_answers))}"
+    else:
+        assert not page_answers, page_answers # should be a page_answer in the prompt
+
     messages.append({"role": "user", "content": user_message, "image_path": question_image})
 
     return messages
@@ -310,6 +325,7 @@ def element_ids_per_img_few_shot(
         "question_image": question_image,
         "result_column": f"Specification {shared_hash}",
     }
+    page_answers = list(sorted(get_example_answers(csv_path, img_path).values()))
 
     if examples_as_multiturn:
         # Create messages for multi-turn conversation
@@ -318,6 +334,7 @@ def element_ids_per_img_few_shot(
             examples,
             question_image,
             question_ids if isinstance(question_ids, list) else [question_ids],
+            page_answers=page_answers,
         )
         config["messages"] = messages
         # [ # want to send along image paths
@@ -334,6 +351,7 @@ def element_ids_per_img_few_shot(
             examples,
             question_image,
             question_ids if isinstance(question_ids, list) else [question_ids],
+            page_answers=page_answers,
         )
         config["generated_prompt"] = prompt
         config_str = json.dumps(config, sort_keys=True)
