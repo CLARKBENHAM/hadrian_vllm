@@ -209,20 +209,20 @@ async def run_evaluation(
         ThreadPoolExecutor(max_workers=8)
     )  # adjust here, seems litellm fails with 64 threads. Debug failed with 16 also?
 
-    for img_path in question_images:
-        all_element_ids = element_ids_by_image.get(img_path, [])
-        if not all_element_ids:
-            continue
+    for model_name in model_names:
+        print(f"\nEvaluating model: {model_name}")
+        for img_path in question_images:
+            all_element_ids = element_ids_by_image.get(img_path, [])
+            if not all_element_ids:
+                continue
 
-        print(f"Processing image: {os.path.basename(img_path)}")
-        print(f"Element IDs: {all_element_ids}")
+            print(f"Processing image: {os.path.basename(img_path)}")
+            print(f"Element IDs: {all_element_ids}")
 
-        for start in range(0, len(all_element_ids), n_element_ids):
-            element_ids = all_element_ids[start : start + n_element_ids]
-            print(f"Batch Element IDs: {element_ids}")
+            for start in range(0, len(all_element_ids), n_element_ids):
+                element_ids = all_element_ids[start : start + n_element_ids]
+                print(f"Batch Element IDs: {element_ids}")
 
-            for model_name in model_names:
-                print(f"\nEvaluating model: {model_name}")
                 for i in range(num_completions):
                     task = asyncio.create_task(
                         process_element_ids(
