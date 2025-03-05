@@ -2158,5 +2158,16 @@ python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_o3_try_answers.txt 
 python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_o3_try_answers.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/all_n21_eg50_prompt6_o3_try_answer_easy.txt
 
 TODO: Why so many's Nones?
-# Breaking Cache Again
+
+# Breaking Cache Again to get format with fewer nones.  ad265c59fbebe9
+
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_claude_try_answers.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/all_n21_eg50_prompt6_claude_try_answer_v2.txt
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_claude_try_answers.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/all_n21_eg50_prompt6_claude_try_answer_easy_v2.txt
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_o3_try_answers.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all 2>&1 | tee data/printout/all_n21_eg50_prompt6_o3_try_answer_v2.txt
+python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_o3_try_answers.txt --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --model gemini-2.0-flash-001 --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn --eval_all --eval-easy 2>&1 | tee data/printout/all_n21_eg50_prompt6_o3_try_answer_easy_v2.txt
+
+With Giving Answers
+Correct: 71 (19.61%)
+Incorrect: 14 (3.87%)
+
 

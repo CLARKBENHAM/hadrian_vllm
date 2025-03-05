@@ -43,13 +43,6 @@ TOKEN_LIMITS = {
 }
 
 
-# Initialize a deque to track tokens used per model in the last 60 seconds.
-# (timestamp, tokens)
-model_token_usage = {model_name: deque() for model_name in RATE_LIMITS}
-
-# Lock for accessing the timestamps safely in async context
-model_locks = {model_name: asyncio.Lock() for model_name in RATE_LIMITS}
-
 # Initialize the persistent cache
 response_cache = PersistentCache()
 
@@ -111,12 +104,27 @@ def get_base64_image(image_path):
         return base64_data
 
 
+# Initialize a deque to track tokens used per model in the last 60 seconds.
+# (timestamp, tokens)
+model_token_usage = {model_name: deque() for model_name in RATE_LIMITS}
+
+# Lock for accessing the timestamps safely in async context
+# model_locks = {model_name: asyncio.Lock() for model_name in RATE_LIMITS}
+model_locks = {}
+
+
+def get_model_lock(model):
+    if model not in model_locks:
+        model_locks[model] = asyncio.Lock()
+    return model_locks[model]
+
+
 async def under_ratelimit(model, new_tokens=100):
     """
     Ensure that both the request count and the token usage for the model do not exceed their per-minute limits.
     new_tokens: the estimated tokens of the new request.
     """
-    async with model_locks[model]:
+    async with get_model_lock(model):
         current_time = time.time()
         # Clean up old token entries (older than 60 seconds)
         while model_token_usage[model] and model_token_usage[model][0][0] + 60 < current_time:
@@ -151,8 +159,6 @@ async def under_ratelimit(model, new_tokens=100):
                     )
                     await asyncio.sleep(time_until_available)
                     current_time = time.time()
-        elif len(model_token_usage[model]) > RATE_LIMITS[model] // 60:
-            await asyncio.sleep(0)  # Thundering heard problem
         # Record the new tokens usage with the current timestamp
         model_token_usage[model].append((current_time, new_tokens))
 
