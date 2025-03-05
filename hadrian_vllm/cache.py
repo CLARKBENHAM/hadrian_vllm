@@ -4,6 +4,7 @@ import os
 import json
 import threading
 import time
+import aiofiles
 
 
 class PersistentCache:
@@ -68,6 +69,15 @@ class PersistentCache:
             self._cache[key] = value
             with open(self.cache_file_path, "a") as f:
                 f.write(json.dumps({key: value}) + "\n")
+            self._store_count += 1
+            if self._store_count % 1000 == 0:
+                self._remove_duplicates()
+
+    async def async_save(self, key, value):
+        with self.lock:
+            self._cache[key] = value
+            async with aiofiles.open(self.cache_file_path, mode="a") as f:
+                await f.write(json.dumps({key: value}) + "\n")
             self._store_count += 1
             if self._store_count % 1000 == 0:
                 self._remove_duplicates()
