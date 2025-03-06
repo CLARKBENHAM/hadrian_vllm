@@ -13,7 +13,8 @@ async def run_example():
         eval_dir="data/eval_on/single_images/",
         question_image="data/eval_on/quarter_images/7_2_q3.png",
         element_id="D12",
-        model_name="gemini-2.0-flash-001",  # Out of Credits for gpt-4o for now
+        # model_name="gemini-2.0-flash-001",  # Out of Credits for gpt-4o for now
+        model_name="gpt-4o",  # Out of Credits for gpt-4o for now
         n_shot_imgs=2,
         eg_per_img=3,
         examples_as_multiturn=False,
@@ -29,7 +30,8 @@ async def run_example():
         eval_dir="data/eval_on/single_images/",
         question_image="data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg2.png",
         element_id="D12",
-        model_name="gemini-2.0-flash-001",  # Out of Credits for gpt-4o for now
+        # model_name="gemini-2.0-flash-001",
+        model_name="gpt-4o",
         n_shot_imgs=2,
         eg_per_img=3,
         examples_as_multiturn=False,
@@ -47,7 +49,8 @@ async def run_example():
         eval_dir="data/eval_on/single_images/",
         question_image="data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg2.png",
         element_ids=element_ids,
-        model_name="gemini-2.0-flash-001",
+        # model_name="gemini-2.0-flash-001",
+        model_name="gpt-4o",
         n_shot_imgs=5,
         eg_per_img=3,
         examples_as_multiturn=True,

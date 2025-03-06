@@ -206,7 +206,7 @@ async def run_evaluation(
     # for IO, but sending images with request so might delay a tad
     loop = asyncio.get_running_loop()
     loop.set_default_executor(
-        ThreadPoolExecutor(max_workers=64)
+        ThreadPoolExecutor(max_workers=8)
     )  # adjust here, seems litellm fails with 64 threads. Debug failed with 16 also?
 
     for model_name in model_names:

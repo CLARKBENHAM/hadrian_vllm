@@ -8,6 +8,8 @@ import random
 import logging
 from concurrent.futures import ThreadPoolExecutor
 import traceback
+import math
+import os
 
 from google.cloud import aiplatform
 from vertexai.generative_models import GenerativeModel, Content, Part, GenerationConfig
@@ -19,13 +21,13 @@ from litellm import completion
 
 from hadrian_vllm.cache import PersistentCache
 from hadrian_vllm.image_cost import calculate_request_tokens_and_cost
+from hadrian_vllm.utils import is_debug_mode
 
 litellm.vertex_project = "gen-lang-client-0392240747"
 litellm.drop_params = True  # o1 only allows temp=1, hack in case of others
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
 # Rate limits for different models (per minute)
 RATE_LIMITS = {
     "o1": 500,
@@ -34,6 +36,9 @@ RATE_LIMITS = {
     "gemini-2.0-pro-exp-02-05": 5,
     "gemini-2.0-flash-001": 2000,
 }
+if is_debug_mode():
+    RATE_LIMITS = {k: 5 for k, v in RATE_LIMITS.items()}
+
 TOKEN_LIMITS = {
     "o1": 3000000,
     "o3-mini": 5000000,
@@ -206,8 +211,13 @@ def prepare_openai_multiturn_request(messages, model):
             formatted_messages.append({"role": "assistant", "content": message["content"]})
         elif message["role"] == "user":
             # User messages may include images
-            content = [{"type": "text", "text": message["content"]}]
+            # content_str = message["content"]
+            # if "image_path" in message:
+            #     image_base64 = get_base64_image(message["image_path"])
+            #     content_str += f"\n\n[Attached image data: data:image/png;base64,{image_base64}]"
+            # formatted_messages.append({"role": "user", "content": content_str})
 
+            content = [{"type": "text", "text": message["content"]}]
             if "image_path" in message:
                 image_base64 = get_base64_image(message["image_path"])
                 content.append(
@@ -589,6 +599,7 @@ async def call_model(
                     prompt_or_messages, image_paths if not is_multiturn else None, model
                 )
             else:
+                # print("Final request JSON:", json.dumps(request, indent=2))
                 response = await asyncio.to_thread(
                     completion,
                     **request,
