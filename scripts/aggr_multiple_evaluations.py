@@ -32,12 +32,22 @@ def aggregate_results(
         threshold: Fraction of correct predictions required to consider a row "correct" in aggregate
         hours: If provided, only consider files modified within the past X hours
         verbose: Whether to print detailed information
-
     Returns:
         DataFrame with aggregated results and statistics
     """
     print(f"Loading base CSV from {base_csv_path}")
-    base_df = load_csv(base_csv_path)
+    print("WARN: only analysis for asem6 and 11!!")
+    filter = lambda df: df.query("`Assembly ID` in (6, 11)").drop_duplicates(
+        subset=["Assembly ID", "Page ID", "Element ID"], keep="first"
+    )
+    base_df = filter(load_csv(base_csv_path))  # filter
+    # for n, g in base_df.groupby(["Assembly ID", "Element ID"]):
+    #     if len(g) > 1:
+    #         print(n, g)
+    assert len(base_df) == len(base_df.groupby(["Assembly ID", "Element ID"]).size()), (
+        len(base_df),
+        len(base_df.groupby(["Assembly ID", "Element ID"]).size()),
+    )
 
     # Get list of result files
     result_files = glob.glob(os.path.join(results_dir, "*.csv"))
@@ -70,6 +80,7 @@ def aggregate_results(
         ):
             key = f"{row['Assembly ID']}_{row['Page ID']}_{row['Element ID']}"
             base_df_index[key] = row["Specification"]
+    print(len(base_df_index))
 
     # Dictionary to store results for each row
     all_results = defaultdict(
@@ -85,7 +96,7 @@ def aggregate_results(
     # Process each result file
     for result_file in result_files:
         print(f"Processing {os.path.basename(result_file)}")
-        result_df = pd.read_csv(result_file)
+        result_df = filter(pd.read_csv(result_file))
 
         # Find the result column (should be the last one)
         result_columns = [col for col in result_df.columns if col.startswith("Specification ")]
@@ -99,16 +110,15 @@ def aggregate_results(
         # Process each row
         for _, row in result_df.iterrows():
             # Create a unique key for this row
-            if pd.isna(row["Assembly ID"]) or pd.isna(row["Page ID"]) or pd.isna(row["Element ID"]):
-                continue
-
+            assert not (
+                pd.isna(row["Assembly ID"]) or pd.isna(row["Page ID"]) or pd.isna(row["Element ID"])
+            )
             row_key = f"{row['Assembly ID']}_{row['Page ID']}_{row['Element ID']}"
 
-            # Get ground truth from base_df, not from result_df
             ground_truth = base_df_index.get(row_key)
-            if ground_truth is None or pd.isna(ground_truth) or ground_truth == "":
-                # Skip rows without ground truth
-                continue
+            assert not (
+                ground_truth is None or pd.isna(ground_truth) or ground_truth == ""
+            ), ground_truth
 
             # Get the prediction
             prediction = row.get(result_column)
@@ -175,7 +185,7 @@ def aggregate_results(
 
     # Sort by correct_fraction ascending (most difficult first)
     results_df = results_df.sort_values("Correct Fraction")
-
+    assert len(results_df) == len(base_df), len(results_df)
     return results_df
 
 
@@ -249,7 +259,7 @@ def main():
     # Print difficult rows if requested
     if args.print_difficult and difficult_rows > 0:
         difficult_df = results_df[results_df["Is Difficult"] == True].head(50)  # limited
-        print(f"\{len(difficult_df)} Difficult rows:")
+        print(f"{len(difficult_df)} Difficult rows:")
         for _, row in difficult_df.iterrows():
             print(
                 f"Assembly: {row['Assembly ID']}, Page: {row['Page ID']}, Element:"

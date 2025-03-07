@@ -2184,6 +2184,50 @@ python -u hadrian_vllm/main.py --prompt data/prompts/prompt6_o3_try_answers.txt 
 # find data/printout -name '**_v2.txt' -mmin +360 -print0 | xargs -0 ggrep -Poz '0\.0(?s).*?Results'
 
 Why do these mistakes happen? I need to cut out 12/14 mistakes.
-Both models for both prompts get the same wrong
+# note I deleted 2 dups that were mostly correct so out of 83 now.
 
+Both models for both prompts get the same wrong, 9/83 and 7/84 if use every req ever; only up to 11/83 at 0.4 threshold
+python scripts/aggr_multiple_evaluations.py  --threshold 0.05 --eval-easy --print_difficult --hours 48
+
+Why was each wrong? (when also give it answers)
+asem6_T12:
+    2: returned result for T8 (similar answer)
+    never gotⓂ
+    wrong markings on end (right 1/7)
+    2: adding 'S'
+    1: wrong entry a bit away,
+
+a6_T13:
+    1: tried D11-1 (1 entry below)
+    tried to T12 (similar text)
+    3: got to T14 (similar text)
+    2: got T11 (similar text)
+    2: adding 'S'
+
+a6_t15:
+    3: returned whole 3 row chunk (correctly?)
+    1: got D11-1 (far)
+    1: missed Ⓜ
+    1: got T12
+
+a6_t14:
+    never tried correct loc
+    2: got T11
+    1: D9-1 (bit below)
+    3: smushed whole chunk below D8(3 right),D9 -1(twice) -2(once),T12(2 r)
+    1: failed T12 (0.020 not 0.025)
+
+a6_d9-1:
+    5 got D2
+    1 D8 but added ⌴
+
+a6_t12:
+
+Are "S"'s a transcription problem?
+$ grep  'S⌀' data/cache.jsonl  | head -3  # ret nothing
+
+Problem is there's other info on page
+    try if send in tight crops? (Still get confused)
+    so if blanked everything out it would work?
+    So if changed few-shot to be everything except current answer would it get it?
 

@@ -30,9 +30,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 # Rate limits for different models (per minute)
 RATE_LIMITS = {
-    "o1": 500,
-    "o3-mini": 5000,
-    "gpt-4o": 10000,
+    "o1": 10_000,
+    "o3-mini": 30_000,
+    "gpt-4o": 50_000,
     "gemini-2.0-pro-exp-02-05": 5,
     "gemini-2.0-flash-001": 2000,
 }
@@ -40,9 +40,9 @@ if is_debug_mode():
     RATE_LIMITS = {k: 5 for k, v in RATE_LIMITS.items()}
 
 TOKEN_LIMITS = {
-    "o1": 3000000,
-    "o3-mini": 5000000,
-    "gpt-4o": 450000,
+    "o1": 30_000_000,
+    "o3-mini": 150_000_000,  # warn: no images
+    "gpt-4o": 150_000_000,
     "gemini-2.0-pro-exp-02-05": 5000,
     "gemini-2.0-flash-001": 2000000,
 }
