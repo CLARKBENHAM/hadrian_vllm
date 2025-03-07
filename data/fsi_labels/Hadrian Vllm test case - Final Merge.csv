@@ -63,11 +63,7 @@ F71,Tapered Center Rib Surface,⌳1.00 : 2.00,D16,Basic Dimension,6,2
 F72-F73,Conic Surfaces,2X 1.00 : 3.00 ⌲,D17,Basic Dimension,6,2
 ,Cone w/ G1,"Profile Surface .05|D|B|C
 Profile Surface .01|D",T17,Applies to cone and cylinder,6,2
-F74,Cylindrical Cone Support,"Profile Surface .05|D|B|C
-Profile Surface .01|D",T17,Applies to cone and cylinder,6,2
 ,Cone w/ H1,"Profile Surface .05|D|B|C
-Profile Surface .01|D",T18,Applies to cone and cylinder,6,2
-F75,Cylindrical Cone Support,"Profile Surface .05|D|B|C
 Profile Surface .01|D",T18,Applies to cone and cylinder,6,2
 F76,Cylindrical hole in cone w/ G1,⌀.250 ±.008,D18,,6,3
 ,,Position ⌀.015|D|G,T19,,6,3
