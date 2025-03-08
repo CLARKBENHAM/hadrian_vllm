@@ -2258,4 +2258,28 @@ Tell T13 has 0.015 in it: 3/8
     bad transcription and continued line: 1
 Provided all answers: 3/8
     and T13 answer: 3/8 (!)
+Provide only hard all answers: 3/8
+    still ' L⌴' not  '⌴', and extends line.
+and Go down to --n_shot_imgs 3 --eg_per_img 3: 3/8
+Provide all answers just within clipping: 3/8
+Giving full answer mapping at end of text: 6/6
+    2 Nones from not being in answer tags
+And telling to put in <answer>: 7/8
+    since D11-1 'L⌴' not '⌴'
+Move answers to system prompt: 2/8
+1 shot example and tell to fix this underscore problem: 2/8
+1 shot 3 eg: 0/8 (transcribes too much and the wrong stuff)
 
+Blank Out screenshots
+
+
+Here are all possible answers for the full image. Every answer returned should be one of these values. The values come from the answer sheet:```
+['2X ⌴ ⌀.812 ±.020',
+ '4X ⌀.415 ±.008',
+ 'Position ⌀.015|C|A|B',
+ 'Position ⌀.025Ⓜ|A|B|C',
+ 'Position ⌀.025Ⓜ|C|A|B',
+ '↧.50 ±.02',
+ '↧.56 ±.02',
+ '⌴⌀.625 ±.020']
+ ```

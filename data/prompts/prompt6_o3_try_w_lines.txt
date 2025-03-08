@@ -95,36 +95,19 @@ Return the transcribed data ONLY between <answer> and </answer> tags. Do NOT inc
 
 {{{Example}}}
 
-Remember the biggest problem is trying to transcribe the correct image. I have provided line in this case to seperate out the element ids. First make sure you've found the correct element id and only then transcribe it. I'm begging you, stop confusing the location of T13 and T14. They are seperated by big thick black lines. So just read the text along to the right, that's within the same lines. T13 is Position ⌀.015|C|A|B.
+Remember the biggest problem is trying to transcribe the correct image. I have provided line in this case to seperate out the element ids. First make sure you've found the correct element id and only then transcribe it. I'm begging you, stop confusing the location of T13 and T14. They are seperated by big thick black lines. So just read the text along to the right, that's within the same lines.
+Make sure not to transcribe 'L⌴' as '⌴'; this has been a common mistake.
 
-Here are all possible answers for the full image Every answer returned should be one of these values: ```
-['(SR.500)',
- '24X R.125 ±.020',
- '2X CR.50 ±.02',
- '2X S⌀ 1.250 ±.008',
- '2X ⌀.562 ±.008',
- '2X ⌴ ⌀.812 ±.020',
- '4X INDIVIDUALLY',
- '4X INDIVIDUALLY',
- '4X ⌀.281 ±.008',
- '4X ⌀.415 ±.008',
- 'Datum Feature Symbol A',
- 'Datum Feature Symbol D',
- 'Datum Feature Symbol F',
- 'Flatness .01',
- 'Flatness .01',
- 'Position S⌀.025|D|B|C',
- 'Position ⌀.015|C|A|B',
- 'Position ⌀.015|E|A|B',
- 'Position ⌀.025Ⓜ|A|B|C',
- 'Position ⌀.025Ⓜ|C|A|B',
- 'Position ⌀.02Ⓜ|F',
- 'Profile Surface .02|A|B|C',
- 'Profile Surface .05|A|B|C',
- '↧.31 ±.02',
- '↧.50 ±.02',
- '↧.56 ±.02',
- '⌴⌀.40 ±.01',
- '⌴⌀.625 ±.020']
- ```
+Just return these Answers I promise they're right for the very last question after the few shot examples, but make sure they're between <answer> tags to be evaluated correctly.
+    Element ID	Specification
+39	D8	4X ⌀.415 ±.008
+40	D9-1	⌴⌀.625 ±.020
+41	T12	Position ⌀.025Ⓜ|A|B|C
+42	D9-2	↧.50 ±.02
+44	T13	Position ⌀.015|C|A|B
+45	D11-1	2X ⌴ ⌀.812 ±.020
+46	T14	Position ⌀.025Ⓜ|C|A|B
+47	D11-2	↧.56 ±.02
+
+
 {{{Question}}}
