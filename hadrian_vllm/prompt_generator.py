@@ -5,12 +5,16 @@ import re
 import json
 import hashlib
 from datetime import datetime
+import logging
 
 from hadrian_vllm.utils import (
     extract_assembly_and_page_from_filename,
     get_git_hash,
     get_current_datetime,
 )
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def load_prompt_template(prompt_path):
@@ -82,7 +86,7 @@ def select_few_shot_examples(
         )
     ]
     if _available_images != available_images:
-        print(f"INFO: dropped extra images {set(_available_images) - set(available_images)}")
+        logger.debug(f"dropped extra images {set(_available_images) - set(available_images)}")
 
     # If we don't have enough images, use what we have
     n_images = min(n_shot_imgs, len(available_images))

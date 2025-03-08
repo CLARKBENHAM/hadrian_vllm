@@ -1,6 +1,6 @@
 # %%
 # Iter fast on Run the problems everythings screwed up on
-
+import sys
 import os
 import argparse
 import asyncio
@@ -10,6 +10,9 @@ import json
 from typing import Dict, List, Tuple, Any
 import logging
 import traceback
+import nest_asyncio
+
+nest_asyncio.apply()
 
 from hadrian_vllm.prompt_generator import element_ids_per_img_few_shot
 from hadrian_vllm.model_caller import call_model, preload_images
@@ -26,15 +29,28 @@ from hadrian_vllm.utils import (
     is_debug_mode,
 )
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.WARNING)
+# import logging
+#
+# def set_all_loggers_level(level=logging.WARNING):
+#     # Set the root logger level
+#     logging.getLogger().setLevel(level)
+#     # Iterate over all loggers that have been created and set their level
+#     for logger_name, logger_obj in logging.root.manager.loggerDict.items():
+#         if isinstance(logger_obj, logging.Logger):
+#             logger_obj.setLevel(level)
+#
+#
+# set_all_loggers_level(logging.WARNING)
 
 
 async def run_hard_qs(
     text_prompt_path,
     csv_path,
     eval_dir,
-    question_image,
+    question_images,
     element_ids_by_image,
     model_names,
     n_shot_imgs=21,
@@ -75,19 +91,19 @@ async def run_hard_qs(
     # Create all tasks first
     all_tasks = []  # List to track (model_name, img_path, element_ids, task)
     preload_images(
-        [question_image]
+        question_images
         + [os.path.join(eval_dir, f) for f in os.listdir(eval_dir) if f.endswith(".png")]
     )
 
     # for IO, but sending images with request so might delay a tad
     loop = asyncio.get_running_loop()
     loop.set_default_executor(
-        ThreadPoolExecutor(max_workers=8)
+        ThreadPoolExecutor(max_workers=12)
     )  # adjust here, seems litellm fails with 64 threads. Debug failed with 16 also?
 
     for model_name in model_names:
         print(f"\nEvaluating model: {model_name}")
-        for img_path in [question_image]:
+        for img_path in question_images:
             all_element_ids = element_ids_by_image.get(img_path, [])
             if not all_element_ids:
                 continue
@@ -122,6 +138,7 @@ async def run_hard_qs(
     all_results = await asyncio.gather(*(task for _, _, _, _, task in all_tasks))
 
     # Process results
+    total_right = 0
     for (model_name, img_path, element_ids, _, _), (preds, _model_df) in zip(
         all_tasks, all_results
     ):
@@ -148,7 +165,7 @@ async def run_hard_qs(
                 & (model_dfs[model_name]["Element ID"] == element_id)
             )
             model_dfs[model_name].loc[row, latest_result_columns[model_name]] = answer
-            print(model_dfs[model_name].loc[row, latest_result_columns[model_name]], answer)
+            # print(model_dfs[model_name].loc[row, latest_result_columns[model_name]], answer)
             # save multiple completions here?
 
             element_details = get_element_details(
@@ -161,10 +178,12 @@ async def run_hard_qs(
             print(
                 f"{evaluate_answer(answer, real_answer)} Real: `{real_answer}`, Model: `{answer}`"
             )
+            total_right += evaluate_answer(answer, real_answer)
 
         # If we need multiple completions, get them and use the best one
         if num_completions > 1:
             assert False, "Doesn't combine in smart way, or use saving code"
+    print(f"{total_right}/{len(all_results)}")
 
     # Calculate metrics and save results for each model
     for model_name in model_names:
@@ -323,8 +342,8 @@ async def main():
             "T15",
         ],
     }
-
     hard_element_ids_for_clip = {args.question_image: args.hard_element_ids}
+
     # assert set(args.hard_element_ids) <= set(
     #     hard_element_ids_by_image[
     #         "data/eval_on/single_images/nist_ftc_06_asme1_rd_elem_ids_pg1.png"
@@ -334,10 +353,11 @@ async def main():
     # Run evaluation
     model_names = [args.model]  # You can add more models here if needed
     results = await run_hard_qs(
-        args.prompt,
+        # args.prompt,
+        "data/prompts/prompt7.txt",
         args.csv,
         args.eval_dir,
-        args.question_image,
+        [args.question_image],
         hard_element_ids_for_clip,
         model_names,
         args.n_shot_imgs,
@@ -359,7 +379,138 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # asyncio.run(main())
+
+    # Try and run directly, but warn this overwrites the same image from multiple sources
+    element_ids_by_image = {
+        "data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_small.jpg": [
+            "D10",
+            "T13",
+            "D11-1",
+            "T14",
+            "D11-2",
+        ],
+        "data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_large.jpg": [
+            "STR5",
+            "T23",
+            "D14",
+            "D10",
+            "T13",
+            "D11-1",
+            "D11-2",
+            "T14",
+            "D8",
+            "D9-1",
+            "D9-2",
+            "T12",
+            "T1",
+            "DF1",
+            "CS1",
+            "CS2",
+            "Z1",
+            "A",
+            "B",
+            "C",
+        ],
+        "data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D8_small.jpg": [
+            "D8",
+            "D9-1",
+            "D9-2",
+            "T12",
+        ],
+        "data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_med.jpg": [
+            "D15",
+            "D13",
+            "D7",
+            "T11",
+            "T4",
+            "T5",
+            "DF4",
+        ],
+        "data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D12_small.jpg": [
+            "CS7",
+            "D12-1",
+            "T15",
+            "STR4",
+            "D12-2",
+        ],
+        "data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_medium.png": [
+            "D8",
+            "D9-1",
+            "D9-2",
+            "D10",
+            "D11-1",
+            "D11-2",
+            "T12",
+            "T13",
+            "T14",
+        ],
+        "data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_large.jpg": [
+            "D7",
+            "D12-1",
+            "D12-2",
+            "D13",
+            "D15",
+            "T4",
+            "T5",
+            "T11",
+            "T15",
+            "DF4",
+            "DF6",
+            "CS3",
+            "CS5",
+            "CS6",
+            "CS7",
+            "STR1",
+            "STR4",
+        ],
+    }
+    element_ids_by_image = {
+        k: [
+            i
+            for i in v
+            if i
+            in [
+                "D11-1",
+                "D11-2",
+                "D12-1",
+                "D13",
+                "D2",
+                "D8",
+                "D9-1",
+                "D9-2",
+                "DF6",
+                "T11",
+                "T12",
+                "T13",
+                "T14",
+                "T15",
+                "T5",
+                "T8",
+            ]
+        ]
+        for k, v in element_ids_by_image.items()
+    }
+    text_prompt_path = "data/prompts/prompt7.txt"
+
+    loop = asyncio.get_running_loop()
+    task = loop.create_task(
+        run_hard_qs(
+            text_prompt_path,
+            "data/fsi_labels/Hadrian Vllm test case - Final Merge.csv",
+            "data/eval_on/single_images/",
+            list(element_ids_by_image.keys()),
+            element_ids_by_image,
+            ["gemini-2.0-flash-001"],
+            n_shot_imgs=21,
+            eg_per_img=50,
+            n_element_ids=1,
+            num_completions=1,
+            examples_as_multiturn=True,
+        )
+    )
+    result = loop.run_until_complete(task)
+    print(result)
 
 
 def f():
@@ -369,7 +520,7 @@ def f():
     done
 
     python scripts/elem_ids_per_img.py  to get:
-    # d={'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_small.jpg': ['D10', 'T13', 'D11-1', 'T14', 'D11-2'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_large.jpg': ['STR5', 'T23', 'D14', 'D10', 'T13', 'D11-1', 'D11-2', 'T14', 'D8', 'D9-1', 'D9-2', 'T12', 'T1', 'DF1', 'CS1', 'CS2', 'Z1', 'A', 'B', 'C'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D8_small.jpg': ['D8', 'D9-1', 'D9-2', 'T12'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_med.jpg': ['D15', 'D13', 'D7', 'T11', 'T4', 'T5', 'DF4'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D12_small.jpg': ['CS7', 'D12-1', 'T15', 'STR4', 'D12-2'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_medium.png': ['D8', 'D9-1', 'D9-2', 'D10', 'D11-1', 'D11-2', 'T12', 'T13', 'T14'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_large.jpg': ['D7', 'D12-1', 'D12-2', 'D13', 'D15', 'T4', 'T5', 'T11', 'T15', 'DF4', 'DF6', 'CS3', 'CS5', 'CS6', 'CS7', 'STR1', 'STR4']}
+    element_ids_by_image={'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_small.jpg': ['D10', 'T13', 'D11-1', 'T14', 'D11-2'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_large.jpg': ['STR5', 'T23', 'D14', 'D10', 'T13', 'D11-1', 'D11-2', 'T14', 'D8', 'D9-1', 'D9-2', 'T12', 'T1', 'DF1', 'CS1', 'CS2', 'Z1', 'A', 'B', 'C'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D8_small.jpg': ['D8', 'D9-1', 'D9-2', 'T12'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_med.jpg': ['D15', 'D13', 'D7', 'T11', 'T4', 'T5', 'DF4'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D12_small.jpg': ['CS7', 'D12-1', 'T15', 'STR4', 'D12-2'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_medium.png': ['D8', 'D9-1', 'D9-2', 'D10', 'D11-1', 'D11-2', 'T12', 'T13', 'T14'], 'data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_large.jpg': ['D7', 'D12-1', 'D12-2', 'D13', 'D15', 'T4', 'T5', 'T11', 'T15', 'DF4', 'DF6', 'CS3', 'CS5', 'CS6', 'CS7', 'STR1', 'STR4']}
     # no hallucinations on hard ids
     for file, elem in sorted(d.items()):
         elem =   [i for i in elem if i in ["D11-1","D11-2","D12-1","D13","D2","D8","D9-1","D9-2","DF6","T11","T12","T13","T14","T15","T5","T8"]]
@@ -385,6 +536,7 @@ def f():
     MODEL=gemini-2.0-flash-001
 
     # Hard ids only
+    echo "" > data/printout/hard.txt
     python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_large.jpg --hard_element_ids  'T13' 'D11-1' 'D11-2' 'T14' 'D8' 'D9-1' 'D9-2' 'T12'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a data/printout/hard.txt
     python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_medium.png jpg --hard_element_ids  'D8' 'D9-1' 'D9-2' 'D11-1' 'D11-2' 'T12' 'T13' 'T14'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a data/printout/hard.txt
     python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_small.jpg --hard_element_ids  'T13' 'D11-1' 'T14' 'D11-2'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a data/printout/hard.txt
@@ -392,7 +544,7 @@ def f():
     python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_large.jpg --hard_element_ids  'D12-1' 'D13' 'T5' 'T11' 'T15' 'DF6'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a data/printout/hard.txt
     python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_med.jpg --hard_element_ids  'D13' 'T11' 'T5'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a data/printout/hard.txt
     python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D8_small.jpg --hard_element_ids  'D8' 'D9-1' 'D9-2' 'T12'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a data/printout/hard.txt
-
+    cat data/printout/hard.txt
 
     # all ids on image
     python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_small.jpg --hard_element_ids  'D10' 'T13' 'D11-1' 'T14' 'D11-2'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1
