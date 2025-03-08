@@ -2253,3 +2253,9 @@ making lines larger and bold: 1/8
 change prompt to output things outher than <anser>: 3/8
 change prompt 3/8
 beg to not screw up: 3/8
+Tell T13 has 0.015 in it: 3/8
+    wrong element labeled: 4
+    bad transcription and continued line: 1
+Provided all answers: 3/8
+    and T13 answer: 3/8 (!)
+
