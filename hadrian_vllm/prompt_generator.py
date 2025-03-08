@@ -71,7 +71,18 @@ def select_few_shot_examples(
 
     # Exclude the question image
     question_image_basename = os.path.basename(question_image) if question_image else None
-    available_images = [img for img in image_files if img != question_image_basename]
+    _available_images = [img for img in image_files if img != question_image_basename]
+    available_images = [
+        img
+        for img in image_files
+        if (img.split(".")[0] not in question_image)
+        and (
+            extract_assembly_and_page_from_filename(img)
+            != extract_assembly_and_page_from_filename(question_image)
+        )
+    ]
+    if _available_images != available_images:
+        print(f"INFO: dropped extra images {set(_available_images) - set(available_images)}")
 
     # If we don't have enough images, use what we have
     n_images = min(n_shot_imgs, len(available_images))
