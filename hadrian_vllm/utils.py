@@ -44,7 +44,9 @@ def load_csv(csv_path):
 
 def extract_assembly_and_page_from_filename(filename):
     """Extract assembly ID and page number from filename."""
-    filename = os.path.basename(filename)  # ensure just name not path
+    if "nist" in os.path.basename(filename):
+        # ensure just name not path if a real path at end, otherwise use path
+        filename = os.path.basename(filename)
 
     assembly_match = re.search(r"nist_ftc_(\d+)", filename)
     page_match = re.search(r"_pg(\d+)", filename)
