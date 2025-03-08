@@ -347,7 +347,7 @@ if __name__ == "__main__":
 
         df.to_csv("data/fsi_labels/Hadrian Vllm test case - Final Merge - page.csv", index=False)
     else:
-        d="data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1/"
+        d="data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1"
         files = [f"{d}/{f}" for f in os.listdir(d)]
         tasks = {}
         for filepath in files:
@@ -355,5 +355,5 @@ if __name__ == "__main__":
         results = await asyncio.gather(*tasks.values())
         # Build a dict mapping (assembly_id, page) -> consensus list of element IDs.
         results_dict = {key: result for key, result in zip(tasks.keys(), results)}
-        print(results_dict)
+        print({k:list(sorted(v)) for k,v in results_dict.items()})
     # print("Updated CSV with page numbers.")

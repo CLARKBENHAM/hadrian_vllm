@@ -2221,6 +2221,9 @@ a6_d9-1:
     5 got D2
     1 D8 but added ⌴
 
+a6_T2:
+
+
 a6_t12:
 
 Are "S"'s a transcription problem?
