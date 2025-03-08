@@ -104,7 +104,7 @@ async def process_element_ids(
             response = await call_model(
                 prompt_or_messages, image_paths, model=model_name, cache=cache
             )
-
+        print(response, prompt_or_messages[-1])
         # Check if response is an error message
         if response and response.startswith("Error:"):
             logger.warning(f"Model returned error: {response}")

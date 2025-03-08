@@ -2245,3 +2245,11 @@ prompt7 telling how to CoT
 9/35 with 1 sample from every image
 8/35 with 5 full img
 All in  data/printout/prompt7_multi_run.txt
+
+ D10_large was 3/8 (labeling wrong entries)
+Adding lines to seperate text: 1/8
+making lines larger: 1/8
+making lines larger and bold: 1/8
+change prompt to output things outher than <anser>: 3/8
+change prompt 3/8
+beg to not screw up: 3/8

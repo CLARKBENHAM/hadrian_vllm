@@ -237,12 +237,6 @@ async def main():
         default=None,  # "data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png",
         help="Path to specific image we're running here to test",
     )
-    # parser.add_argument(
-    #     "--og_image",
-    #     type=str,
-    #     default=None,  # "data/eval_on/single_images/nist_ftc_07_asme1_rd_elem_ids_pg1.png",
-    #     help="Path to original image the clip came from",
-    # )
     parser.add_argument(
         "--hard_element_ids",
         type=str,
@@ -352,8 +346,8 @@ async def main():
     # Run evaluation
     model_names = [args.model]  # You can add more models here if needed
     results = await run_hard_qs(
-        # args.prompt,
-        "data/prompts/prompt7.txt",
+        args.prompt,
+        # "data/prompts/prompt7.txt",
         args.csv,
         args.eval_dir,
         [args.question_image],
@@ -378,7 +372,8 @@ async def main():
 
 
 if __name__ == "__main__":
-    # asyncio.run(main())
+    asyncio.run(main())
+    sys.exit()
 
     # Try and run directly, but warn this overwrites the same image from multiple sources
     element_ids_by_image = {
