@@ -2234,3 +2234,14 @@ Problem is there's other info on page
     so if blanked everything out it would work?
     So if changed few-shot to be everything except current answer would it get it?
 
+
+
+
+#### Hard Screenshots
+prompt7 telling how to CoT
+12.0/35 with full few-shot examples
+0/35 with no shot examples (all Nones since wrong format)
+8/35 with 1 full img
+9/35 with 1 sample from every image
+8/35 with 5 full img
+All in  data/printout/prompt7_multi_run.txt

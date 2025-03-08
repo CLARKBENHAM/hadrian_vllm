@@ -151,7 +151,6 @@ async def run_hard_qs(
         ), f"Same run_eval had different col {latest_result_columns[model_name]} {answer_col}"
 
         assembly_id, page_id = extract_assembly_and_page_from_filename(img_path)
-        print(assembly_id, page_id)
 
         print(
             f"\nResults for model {model_name}, image {os.path.basename(img_path)}, elements"

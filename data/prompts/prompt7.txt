@@ -1,0 +1,108 @@
+I have a CAD render with GD&T data. I will provide a single element ID and want ONLY the GD&T data directly associated with that element transcribed.
+
+IMPORTANT: All basic formatting (whitespace removal, lowercasing, symbol-to-hash conversion) is handled in post‐processing. Your task is to avoid raw transcription errors—do not conflate text from adjacent or separate element IDs.
+
+Your FIRST task is to carefully identify the GD&T symbol that is associated with the provided element ID. Do NOT proceed until you have matched the symbol EXACTLY to the list below. If the element ID starts with "DF", handle it immediately using the Datum Feature Symbol Mapping provided.
+
+Here are the GD&T symbols and their exact meanings:
+  * "⏤" : Straightness
+  * "⏥" : Flatness
+  * "○"  : Circularity (or Roundness)
+  * "⌭"  : Cylindricity
+  * "⌒"  : Profile of a Line (or Profile)
+  * "⌓"  : Profile of a Surface (or Profile Surface)
+  * "⟂"  : Perpendicularity
+  * "∠"  : Angularity
+  * "∥"  : Parallelism
+  * "⌯"  : Symmetry
+  * "⌖"  : Position
+  * "◎"  : Concentricity
+  * "↗"  : Circular Runout
+  * "⌰"  : Total Runout
+  * "⌀"  : Diameter
+  * "⌢"  : Arc
+  * ""  : Custom GD&T Symbol 1
+  * ""  : Custom GD&T Symbol 2
+  * "±"  : Plus or Minus
+  * "…"  : .*
+  * "↔"  : Connecting To
+  * "↧"  : Depth
+  * "⌲"  : Conical Taper
+  * "⌳"  : Slope
+  * "⌴"  : Counterbore
+  * "⌵"  : Countersink
+  * "□"  : Square
+
+Modifier symbols:
+  * "→" : Directional Indicator
+  * "⊕" : Additive Tolerance
+  * "⊖" : Subtractive Tolerance
+  * "⌂" : Composite Tolerance
+  * "Ⓔ" : Envelope Requirement
+  * "Ⓡ" : Reference Feature
+     * "△" : Datum Target / Datum Feature / Datum Feature Symbol
+  * "◊" : Basic Dimension
+  * "○" : All Around
+  * "" : Custom Modifier 1
+  * "Ⓕ" : Free State
+  * "Ⓛ" : Least Material Condition
+  * "Ⓜ" : Maximum Material Condition
+  * "Ⓟ" : Projected Tolerance Zone
+  * "Ⓢ" : Regardless of Feature Size
+  * "Ⓣ" : Tangent Plane
+  * "Ⓤ" : Unequal Bilateral
+
+Datum Feature Symbol Mapping:
+  * DF1: Datum Feature A
+  * DF2: Datum Feature B
+  * DF3: Datum Feature C
+  * DF4: Datum Feature D
+  * DF9: Datum Feature J
+
+Transcription Rules:
+1. **Feature Control Frames (FCF):**
+   - For an FCF with multiple compartments, transcribe only the first compartment (the primary GD&T symbol) in English (e.g., "Position", "Flatness", "Profile", etc.).
+   - Subsequent compartments (tolerance value, modifiers, datum references) must be separated by a pipe character (|).
+   - Example: A rectangle around “⌖|⌀.095Ⓔ|X|Y” must be transcribed as:
+     <answer>Position ⌀.095Ⓔ|X|Y</answer>
+
+2. **All Around Symbol:**
+   - If a small circular arrow hooks outside the FCF, it indicates "All Around". Append "\nAll Around" (newline plus text) to the transcription.
+   - Example: “⌒|.04|D|E-F” with a circular arrow becomes:
+     <answer>Profile .04|D|E-F
+All Around</answer>
+
+3. **Handling Multiple Element IDs:**
+   - If multiple element IDs appear in a row (for example, three on the left and one on the right or vice versa), transcribe ONLY the data that is directly associated with the provided element ID.
+   - **Do not** merge data from separate element IDs. For instance, if the text line reads "ID1 text1 text2 ID2", and your provided ID is ID2, only transcribe the text directly following ID2—not the text from ID1.
+   - Similarly, if three IDs appear on the left and one on the right, do not assume the right-side text applies to all three; it should only be transcribed for the corresponding single element.
+
+4. **Numeric Tolerances:**
+   - When transcribing stacked numeric tolerances, if the numbers are part of the same dimension and vertically aligned, join them with a slash (/) as indicated.
+   - IMPORTANT: Use the exact "±" symbol for tolerances. Do not convert a stacked "+.020" over "-.000" into a "+.020/-.000" format—instead, if the tolerance reads as ±.02, transcribe it exactly as "±.02".
+
+5. **Datum Features and Other Special Cases:**
+   - If the element ID starts with "DF", use the Datum Feature Symbol Mapping to transcribe it (e.g., DF1 → "Datum Feature A").
+   - For elements with no direct text (RLE, LDN, CH), transcribe the standard phrase (e.g., "Represented line element", "Leader-Directed Note <name>", "Crosshatch between <line1> and <line2>") along with specifying involved items.
+
+6. **General Instructions:**
+   - Focus ONLY on the element ID provided. Ignore all other elements—even if they are nearby.
+   - Do not hallucinate any values or symbols. Only transcribe the data that is visible and directly associated with the provided element ID.
+   - Mentally adjust for any slight rotation or slant in the text; transcribe only the data from the exact row corresponding to the provided element ID.
+   - Ensure you do not merge text from multiple element IDs due to their proximity. Use the relative position (left/right) to decide which text belongs exclusively to the provided ID.
+
+Return the transcribed data ONLY between <answer> and </answer> tags. Do NOT include any other text, formatting, or a dictionary. The final output MUST be ONLY the GD&T data within these tags.
+
+{{{Example}}}
+
+The process:
+	Start In the top left corner and move in a right spiral inwards until you see the element ID.
+	Explicitly say outloud which section you're checking: "Not in Outer top left. Not in Outer Top middle. Not in Outter Top Right. Not in Outer middle Left, ... "
+	Once you have identified the element id say where it is. "Eelement ID is in Bottom Right Middle".
+	Then identify which way the text for that element id is going. either "Text is to right of element ID" or "Text is to Left of element ID".
+	Then identify which row the element ID is. eg. "Element ID is not the top ID. Element is not the middle ID. Element is the bottom ID".
+	Using This position then return the correct element id.
+
+{{{Question}}}
+
+Still Return the one of the options in the format given above, between <answer> tags.
