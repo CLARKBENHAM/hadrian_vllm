@@ -277,6 +277,10 @@ def generate_multiturn_messages(
     user_message += f"\nImg{img_num}:\n"
     for element_id in question_ids:
         user_message += f"{element_id}:\n"
+    user_message += (
+        "This element has been bounded via a red oval. Transcribe exactly the GD&T data within and"
+        " return within <answer> tags"
+    )
     messages.append({"role": "user", "content": user_message, "image_path": question_image})
 
     return messages
