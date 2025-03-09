@@ -1,6 +1,6 @@
 # Blanked out except for 1 screenshots
 PROMPT=data/prompts/prompt4.txt
-MODEL=gemini-2.0-flash-001
+MODEL=gpt-4o #gemini-2.0-flash-001
 python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D8.png --hard_element_ids  D8 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a data/printout/hard.txt
 python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D10.png --hard_element_ids D10 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a data/printout/hard.txt
 python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D91.png --hard_element_ids D9-1 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 21 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a data/printout/hard.txt

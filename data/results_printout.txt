@@ -2294,8 +2294,12 @@ in tags and encourage: 6/8
     'L ⌴' not '⌴, '6' as '8'
     D9-2 wrong loc, one above (make img cleaner?)
     T-13 wrong, did line above
-
-Run with O1:
+Run with O1: 4/8 (worse)
+    D9-1 0.0 Real: `⌴⌀.625 ±.020`, Model: `L ⌀.825 ±.020`
+    D9-2 0.0 Real: `↧.50 ±.02`, Model: `7.50 ±.02`
+    D11-1 0.0 Real: `2X ⌴ ⌀.812 ±.020`, Model: `2X ⌳ ⌀.812 ±.020`
+    T14 0.0 Real: `Position ⌀.025Ⓜ|C|A|B`, Model: `2X ⌀.812 +.020 ∇.56 ±.02|C|A|B`
+With gpt-4o:
 
 
 
