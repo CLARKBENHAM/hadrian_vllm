@@ -279,7 +279,10 @@ def generate_multiturn_messages(
         user_message += f"{element_id}:\n"
     user_message += (
         "This element has been bounded via a red oval. Transcribe exactly the GD&T data within and"
-        " return within <answer> tags"
+        " return within <answer> tags. All the other element Ids have been covered up. The correct"
+        " text to return is the at most single line within the red oval.There is no ambiguity here"
+        " aside from selecting the right symbols, just return what's within the red for the correct"
+        " element id."
     )
     messages.append({"role": "user", "content": user_message, "image_path": question_image})
 
