@@ -2289,7 +2289,12 @@ python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_
 
 Blank out just element ids and box around text to transcribe. (prompt4): 0/7 and 1 None
 and Become sterner in last user prompt: 2/8
-Nicer in prompt:
+Nicer in prompt: 2/3, most not in ansswer tags.
+in tags and encourage: 6/8
+    'L ⌴' not '⌴, '6' as '8'
+    D9-2 wrong loc, one above (make img cleaner?)
+    T-13 wrong, did line above
+
 Run with O1:
 
 

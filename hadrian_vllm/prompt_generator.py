@@ -283,7 +283,8 @@ def generate_multiturn_messages(
         " bright red Oval. Look at the element ID and oval and return the appropriate text. There's"
         " been a lot of problems with returning the text from multiple different elemnent IDs. Just"
         " return the single line of text, or half line if there's 2 element IDs on either side of"
-        " the line. Do not return more than that."
+        " the line. Do not return more symbols than those. Still return the answer within <answer>"
+        " tags. You got it this time! I really believe you're going to crush it."
     )
     messages.append({"role": "user", "content": user_message, "image_path": question_image})
 
