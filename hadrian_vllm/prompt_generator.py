@@ -277,14 +277,23 @@ def generate_multiturn_messages(
     user_message += f"\nImg{img_num}:\n"
     for element_id in question_ids:
         user_message += f"{element_id}:\n"
+    # user_message += (
+    #     "The examples above were from the full image. Since question was a little harder I have"
+    #     " blanked out all the other element IDs and highlighted the text on the image within a"
+    #     " bright red Oval. Look at the element ID and oval and return the appropriate text. There's"
+    #     " been a lot of problems with returning the text from multiple different elemnent IDs. Just"
+    #     " return the single line of text, or half line if there's 2 element IDs on either side of"
+    #     " the line. Do not return more symbols than those. Still return the answer within <answer>"
+    #     " tags. You got it this time! I really believe you're going to crush it."
+    # )
     user_message += (
         "The examples above were from the full image. Since question was a little harder I have"
-        " blanked out all the other element IDs and highlighted the text on the image within a"
-        " bright red Oval. Look at the element ID and oval and return the appropriate text. There's"
-        " been a lot of problems with returning the text from multiple different elemnent IDs. Just"
-        " return the single line of text, or half line if there's 2 element IDs on either side of"
-        " the line. Do not return more symbols than those. Still return the answer within <answer>"
-        " tags. You got it this time! I really believe you're going to crush it."
+        " blanked out all the other element IDs. So there's only 1 element ID to return from this"
+        " question. There's been a lot of problems with returning the text from multiple different"
+        " elemnent IDs. Just return the single line of text, or half line if there's 2 element IDs"
+        " on either side of the line. Do not return more symbols than those. Also make sure '⌴'"
+        " doesnt get transcribed as 'L⌴'.  Still return the answer within <answer> tags. You got it"
+        " this time! I really believe you're going to crush it."
     )
     messages.append({"role": "user", "content": user_message, "image_path": question_image})
 

@@ -2300,13 +2300,15 @@ Run with O1: 4/8 (worse)
     D11-1 0.0 Real: `2X ⌴ ⌀.812 ±.020`, Model: `2X ⌳ ⌀.812 ±.020`
     T14 0.0 Real: `Position ⌀.025Ⓜ|C|A|B`, Model: `2X ⌀.812 +.020 ∇.56 ±.02|C|A|B`
 With gpt-4o:
+    D11-1 0.0 Real: `2X ⌴ ⌀.812 ±.020`, Model: `2X ⌲ ⌀.812 ±.020`
+    T14 0.0 Real: `Position ⌀.025Ⓜ|C|A|B`, Model: `⌀.812 +.020 Ⓜ|C|A|B`
 
 
-
-
-Blank Out screenshots (21,50, extra prompt at end telling that blanked out element ids):
-
-
+Blank Out screenshots with encouragement (21,50, extra prompt at end telling that blanked out element ids): 1/8
+    0.0 Real: `2X ⌀.562 ±.008`, Model: `2X ⌴⌀.812 ±.020 ↧.56 ±.02`
+    0.0 Real: `⌴⌀.625 ±.020`, Model: `4X ⌀.415 ±.008`
+    0.0 Real: `2X ⌴ ⌀.812 ±.020`, Model: `2X ⌴⌀.812 ±.020 ↧.56 ±.02`
+    D11-2 0.0 Real: `↧.56 ±.02`, Model: `2X ⌀.562 ±.008`
 
 Here are all possible answers for the full image. Every answer returned should be one of these values. The values come from the answer sheet:```
 ['2X ⌴ ⌀.812 ±.020',
