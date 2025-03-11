@@ -141,11 +141,6 @@ def get_example_answers(csv_path, img_path, element_ids=None):
     if element_ids is None:
         element_ids = filtered_df["Element ID"].to_list()
 
-    if not re.match("data/eval_on/.*_nist_ftc_06_asme1_rd_elem_ids_pg1", img_path):
-        assert (
-            assembly_id != 6 or page_id != 1
-        ), f"TEMP for hard debug only {img_path} {assembly_id} {page_id}"
-
     # Create a dictionary of element IDs to GD&T data
     element_to_spec = {}
     for _, row in filtered_df.iterrows():
@@ -306,14 +301,14 @@ def generate_multiturn_messages(
         user_message += f"{element_id}:\n"
     if add_answers or add_all_answers:
         user_message += ans_text(img2page_answers[question_image])
-    # TEMP
-    user_message += (
-        "The image here is cropped and expanded to make sure your answer is even higher quality."
-        " Make sure to only transcribe the line with the element id, or the half line if there's 2"
-        " element IDs on the same line. The text maybe be slanted, project out from the line where"
-        " the text is to the matching element ID. A common mistake was to return the text of the"
-        " line above or below the correct element."
-    )
+    # # TEMP
+    # user_message += (
+    #     "The image here is cropped and expanded to make sure your answer is even higher quality."
+    #     " Make sure to only transcribe the line with the element id, or the half line if there's 2"
+    #     " element IDs on the same line. The text maybe be slanted, project out from the line where"
+    #     " the text is to the matching element ID. A common mistake was to return the text of the"
+    #     " line above or below the correct element."
+    # )
     # # trials for hard
     # user_message += (
     #     "The examples above were from the full image. Since question was a little harder I have"
