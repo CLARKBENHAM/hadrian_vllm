@@ -258,6 +258,7 @@ def main():
 
     # Print difficult rows if requested
     if args.print_difficult and difficult_rows > 0:
+        asem2hard = {}
         difficult_df = results_df[results_df["Is Difficult"] == True].head(50)  # limited
         print(f"{len(difficult_df)} Difficult rows:")
         for _, row in difficult_df.iterrows():
@@ -267,7 +268,10 @@ def main():
             )
             print(f"Ground Truth: {row['Ground Truth']}")
             print(f"Correct: {row['Correct']}/{row['Attempted']} ({row['Correct Fraction']:.1%})")
-
+            a = row["Assembly ID"]
+            if a not in asem2hard:
+                asem2hard[a] = []
+            asem2hard[a] += [(row["Page ID"], row["Element ID"])]
             # Print individual model predictions
             print("\nModel predictions:")
             for model, prediction in row["Predictions"].items():
@@ -281,6 +285,9 @@ def main():
                 print(f"  {status} {model}: {prediction_str}")
 
             print("-" * 80)
+        for a, l in asem2hard.items():
+            print("Assembly ", a)
+            print(list(sorted(l)))
 
 
 if __name__ == "__main__":

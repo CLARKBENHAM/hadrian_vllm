@@ -2327,9 +2327,16 @@ Here are all possible answers for the full image. Every answer returned should b
 
  ### Fewshots also have example images
 # 1/83 Better to use 3 images with all cases than 21 images.
-# no difference in easy vs hard evals.
+# no real difference in easy vs hard evals.
 n3_eg50 gemini 77/83
 n3_eg50 4o 67/83
+
+The Mistakes are the same hard questions IDs as before; generally getting the wrong adjactent row
+but 4o would return asem 11, T4 not T2 and D4 not D2 both which are far away. Like in previous results 4o has a harder time ID'ing the correct element_id on the page
+    python scripts/aggr_multiple_evaluations.py  --threshold 0.5 --eval-easy --print_difficult --hours 20
+
+Run Image on cropped highlight on past hard q's with full text and other element ids
+
 
 
 
