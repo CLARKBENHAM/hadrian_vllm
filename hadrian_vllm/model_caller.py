@@ -159,7 +159,7 @@ async def under_ratelimit(model, new_tokens=100):
 
         # Then enforce the existing requests-per-minute limit:
         if len(model_token_usage[model]) >= RATE_LIMITS[model]:
-            oldest_request = model_token_usage[model][0]
+            oldest_request, _ = model_token_usage[model][0]
             time_until_available = oldest_request + 60 - current_time
             if time_until_available > 0:
                 if time_until_available > 0:
@@ -169,6 +169,24 @@ async def under_ratelimit(model, new_tokens=100):
                     )
                     await asyncio.sleep(time_until_available)
                     current_time = time.time()
+        else:  # check not making too many in last second to avoid bursts
+            recent_requests = sum(
+                1 for timestamp, _ in model_token_usage[model] if current_time - timestamp <= 1.0
+            )
+
+            BURST_FACTOR = 4  # could be tuned
+            max_requests_per_second = (RATE_LIMITS[model] / 60) * BURST_FACTOR
+
+            # If recent requests exceed the allowed burst rate, add delay
+            if recent_requests > max_requests_per_second:
+                # Calculate delay needed to bring rate back to acceptable level
+                delay_needed = 1.0 - (max_requests_per_second / recent_requests)
+                logger.info(
+                    f"{model} burst limit reached ({recent_requests} requests in last second); "
+                    f"sleeping for {delay_needed:.2f} seconds"
+                )
+                await asyncio.sleep(delay_needed)
+                current_time = time.time()
         # Record the new tokens usage with the current timestamp
         model_token_usage[model].append((current_time, new_tokens))
 

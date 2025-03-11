@@ -2326,4 +2326,10 @@ Here are all possible answers for the full image. Every answer returned should b
 
 
  ### Fewshots also have example images
+# 1/83 Better to use 3 images with all cases than 21 images.
+# no difference in easy vs hard evals.
+n3_eg50 gemini 77/83
+n3_eg50 4o 67/83
+
+
 
