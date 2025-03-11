@@ -2310,6 +2310,9 @@ Blank Out screenshots with encouragement (21,50, extra prompt at end telling tha
     0.0 Real: `2X ⌴ ⌀.812 ±.020`, Model: `2X ⌴⌀.812 ±.020 ↧.56 ±.02`
     D11-2 0.0 Real: `↧.56 ±.02`, Model: `2X ⌀.562 ±.008`
 
+Removing elmenet ids took out useful info. Actually want those in there
+
+
 Here are all possible answers for the full image. Every answer returned should be one of these values. The values come from the answer sheet:```
 ['2X ⌴ ⌀.812 ±.020',
  '4X ⌀.415 ±.008',

@@ -50,6 +50,7 @@ ITAR compliant:
 			unclear if can finetune
 		but none of o-class model yet https://learn.microsoft.com/en-us/azure/ai-services/openai/azure-government
 	Google "Assured Workflows"
+		ITAR doesn't have vertex AI but others do: https://cloud.google.com/assured-workloads/docs/supported-products
 		ITAR services https://cloud.google.com/assured-workloads/docs/itar-restrictions-limitations
 			doesn't seem to include an models?
 		Requires an org to start using: https://console.cloud.google.com/projectselector2/compliance/assuredworkloads?hl=en&pli=1&supportedpurview=organizationId&orgonly=true
