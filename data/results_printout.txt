@@ -2336,7 +2336,29 @@ but 4o would return asem 11, T4 not T2 and D4 not D2 both which are far away. Li
     python scripts/aggr_multiple_evaluations.py  --threshold 0.5 --eval-easy --print_difficult --hours 20
 
 Run Image on cropped highlight on past hard q's with full text and other element ids
+calc() {
+local FILE="$1"
+  ggrep -A2 "Results for " "$FILE" | grep -E "Correct:|Incorrect:" | awk '
+  /Correct:/ {correct += $2}
+  /Incorrect:/ {incorrect += $2}
+  END {
+    total = correct + incorrect;
+    accuracy = (correct / total) * 100;
+    printf "Correct: %d, Incorrect: %d, Accuracy: %.1f%% (%d/%d)\n",
+      correct, incorrect, accuracy, correct, total
+  }'
+}
+Gemini clipping
+Correct: 23, Incorrect: 12, Accuracy: 65.7% (23/35)
+gemini blank ids
+Correct: 3, Incorrect: 6, Accuracy: 33.3% (3/9)
+gemini blank and box
+Correct: 4, Incorrect: 5, Accuracy: 44.4% (4/9)
 
-
-
+4o clipping
+Correct: 15, Incorrect: 20, Accuracy: 42.9% (15/35)
+4o blank ids
+Correct: 1, Incorrect: 8, Accuracy: 11.1% (1/9)
+4o blank and box
+Correct: 9, Incorrect: 1, Accuracy: 90.0% (9/10)
 

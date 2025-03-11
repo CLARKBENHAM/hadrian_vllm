@@ -141,7 +141,9 @@ def get_example_answers(csv_path, img_path, element_ids=None):
     if element_ids is None:
         element_ids = filtered_df["Element ID"].to_list()
 
-    assert page_id != 6, f"TEMP for hard debug only {img_path}"
+    assert (
+        assembly_id != 6 or page_id != 1
+    ), f"TEMP for hard debug only {img_path} {assembly_id} {page_id}"
 
     # Create a dictionary of element IDs to GD&T data
     element_to_spec = {}

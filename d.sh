@@ -1,18 +1,34 @@
 PROMPT=data/prompts/prompt6_o3_v2_few_shot_ans.txt
 
+calculate_model_stats() {
+  local MODEL=$1
+  local RECORD="data/printout/hard2_${MODEL}_crop_msg.txt"
+
+  echo -n "$MODEL: "
+  ggrep -A2 "Results for $MODEL" "$RECORD" | grep -E "Correct:|Incorrect:" | awk '
+  /Correct:/ {correct += $2}
+  /Incorrect:/ {incorrect += $2}
+  END {
+    total = correct + incorrect;
+    accuracy = (correct / total) * 100;
+    printf "Correct: %d, Incorrect: %d, Accuracy: %.1f%% (%d/%d)\n",
+      correct, incorrect, accuracy, correct, total
+  }'
+}
+
 for MODEL in gemini-2.0-flash-001 gpt-4o; do
-	record=data/printout/hard2_$MODEL.txt
-	echo "" > $record
-	# Run with all hard elem from asem6_pt1 on each clipping
+	record=data/printout/hard2_${MODEL}_crop_msg.txt
+	echo "# Run with all hard elem from asem6_pt1 on each clipping" >> $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_large.jpg --hard_element_ids  'T13' 'D11-1' 'D11-2' 'T14' 'D8' 'D9-1' 'D9-2' 'T12'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a $record
-	python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_medium.png jpg --hard_element_ids  'D8' 'D9-1' 'D9-2' 'D11-1' 'D11-2' 'T12' 'T13' 'T14'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_medium.png --hard_element_ids  'D8' 'D9-1' 'D9-2' 'D11-1' 'D11-2' 'T12' 'T13' 'T14'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D10_small.jpg --hard_element_ids  'T13' 'D11-1' 'T14' 'D11-2'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D12_small.jpg --hard_element_ids  'D12-1' 'T15'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_large.jpg --hard_element_ids  'D12-1' 'D13' 'T5' 'T11' 'T15' 'DF6'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D15_med.jpg --hard_element_ids  'D13' 'T11' 'T5'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image data/eval_on/clipped_nist_ftc_06_asme1_rd_elem_ids_pg1//D8_small.jpg --hard_element_ids  'D8' 'D9-1' 'D9-2' 'T12'  --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>&1 | tee -a $record
+	calculate_model_stats $MODEL
 
-	# # Blanked out except for 1 screenshots
+	echo "# Blanked out except for 1 element id and cropped screenshots" >> $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D8.png --hard_element_ids  D8 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D10.png --hard_element_ids D10 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D91.png --hard_element_ids D9-1 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
@@ -21,5 +37,18 @@ for MODEL in gemini-2.0-flash-001 gpt-4o; do
 	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D112.png --hard_element_ids D11-2 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_T12.png --hard_element_ids T12 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
 	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_T13.png --hard_element_ids T13 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
-	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_T14.png --hard_element_ids T14 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_T14.png --hard_element_ids T14 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $recor
+	calculate_model_stats $MODEL
+
+	echo "# Blanked and GD&T data within red oval" >> $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D8.png --hard_element_ids  D8 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D10.png --hard_element_ids D10 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D91.png --hard_element_ids D9-1 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D92.png --hard_element_ids D9-2 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D111.png --hard_element_ids D11-1 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_D112.png --hard_element_ids D11-2 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_T12.png --hard_element_ids T12 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_T13.png --hard_element_ids T13 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	python -u hadrian_vllm/run_hard_ids.py --question_image  data/eval_on/blank_and_box_d10_large_nist_ftc_06_asme1_rd_elem_ids_pg1/D10_large_T14.png --hard_element_ids T14 --model $MODEL --prompt $PROMPT  --csv 'data/fsi_labels/Hadrian Vllm test case - Final Merge.csv' --eval_dir data/eval_on/single_images/ --n_shot_imgs 3 --eg_per_img 50 --n_element_ids 1 --num_completions 1 --multiturn 2>1 | tee -a $record
+	calculate_model_stats $MODEL
 done
