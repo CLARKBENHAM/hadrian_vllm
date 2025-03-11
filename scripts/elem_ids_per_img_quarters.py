@@ -22,6 +22,9 @@ from google.genai import types
 
 from hadrian_vllm.image_cost import validate_cost
 
+import google.auth
+
+_, project_id = google.auth.default()
 # Initialize genai with your API key - IMPORTANT!
 # genai.configure(
 #     api_key=os.environ["GEMINI_API_KEY"]
@@ -74,7 +77,8 @@ async def lock_model(model):
 async def generate_gemini(prompt, base64_bytes, model="gemini-2.0-flash-001"):
     client = genai.Client(
         vertexai=True,
-        project="gen-lang-client-0392240747",
+        # project="sound-memory-453322-k8",
+        project=project_id,
         location="us-central1",
     )
 

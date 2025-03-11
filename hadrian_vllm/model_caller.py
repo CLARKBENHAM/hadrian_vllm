@@ -15,6 +15,9 @@ from google.cloud import aiplatform
 from vertexai.generative_models import GenerativeModel, Content, Part, GenerationConfig
 from vertexai.preview.generative_models import SafetySetting, HarmCategory, HarmBlockThreshold
 import vertexai
+import google.auth
+
+_, PROJECT_ID = google.auth.default()
 
 import litellm
 from litellm import completion
@@ -23,7 +26,9 @@ from hadrian_vllm.cache import PersistentCache
 from hadrian_vllm.image_cost import calculate_request_tokens_and_cost
 from hadrian_vllm.utils import is_debug_mode
 
-litellm.vertex_project = "gen-lang-client-0392240747"
+litellm.vertex_project = (
+    PROJECT_ID  # "gen-lang-client-0392240747" # old don't use this, should use .env anyway
+)
 litellm.drop_params = True  # o1 only allows temp=1, hack in case of others
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -421,7 +426,7 @@ async def call_gemini_directly(prompt_or_messages, image_paths=None, model="gemi
         Generated text from Gemini
     """
     # Initialize Vertex AI
-    vertexai.init(project="gen-lang-client-0392240747", location="us-central1")
+    vertexai.init(project=PROJECT_ID, location="us-central1")
 
     # Create generation config
     generation_config = GenerationConfig(

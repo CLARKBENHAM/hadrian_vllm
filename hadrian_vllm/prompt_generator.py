@@ -152,9 +152,21 @@ def get_example_answers(csv_path, img_path, element_ids=None):
     return element_to_spec
 
 
+def ans_text(page_answers):
+    ans = ", ".join(map(lambda i: f'"{i}"', page_answers))
+    return (
+        "The Answer is one of the elements Below. Make sure you return an entry from this"
+        f" between <answer> tags. list:\n{ans}"
+    )
+
+
 # handles multiple correctly?
 def generate_few_shot_prompt(
-    prompt_template, examples, question_image, question_ids, page_answers=None
+    prompt_template,
+    examples,
+    question_image,
+    question_ids,
+    img2page_answers={},
 ):
     """
     Generate a few-shot single string prompt with examples and the target question.
@@ -180,6 +192,9 @@ def generate_few_shot_prompt(
             if element_id in element_to_spec:
                 spec = element_to_spec[element_id]
                 few_shot_text += f"Img{img_num}:\n{element_id}: <answer>{spec}<answer>\n"
+                if "{{{all_img_possible_answer}}}" in prompt_template:
+                    few_shot_text += ans_text(img2page_answers[path])
+
         few_shot_text += "\n"  # Add all element IDs for this image as a group
 
     # Add the question
@@ -192,25 +207,31 @@ def generate_few_shot_prompt(
     # Replace placeholders in the template
     prompt = re.sub(r"\{\{\{Example\}\}\}", few_shot_text.strip(), prompt_template, flags=re.DOTALL)
     prompt = re.sub(r"\{\{\{Question\}\}\}", question_text.strip(), prompt, flags=re.DOTALL)
-    if "{{{Answer}}}" in prompt:
-        assert page_answers, page_answers
-        ans_text = ", ".join(map(lambda i: f'"{i}"', page_answers))
-        answers_text = (
-            "The Answer is one of the elements Below. Make sure you return an entry from this"
-            f" between <answer> tags. list:\n{ans_text}"
-        )
-        prompt = re.sub(r"\{\{\{Answer\}\}\}", answers_text, prompt, flags=re.DOTALL)
-
+    for t in ["{{{Answer}}}", "{{{all_img_possible_answer}}}"]:
+        # use '"{{{all_img_possible_answer}}}"' instead of Answer
+        if t in prompt:
+            prompt = re.sub(
+                t,
+                ans_text(img2page_answers[question_image]),
+                prompt,
+                flags=re.DOTALL,
+            )
     for _, es, _ in examples:
         for e in es:
             assert e in prompt, f"`{e}` not in prompt {prompt}"
     for e in question_ids:
         assert e in prompt, f"question `{e}` not in prompt {prompt}"
+
+    assert "{{{" not in prompt, prompt
     return prompt
 
 
 def generate_multiturn_messages(
-    prompt_template, examples, question_image, question_ids, page_answers=None
+    prompt_template,
+    examples,
+    question_image,
+    question_ids,
+    img2page_answers={},
 ):
     """
     Generate messages for a multi-turn conversation with examples and the target question.
@@ -227,8 +248,14 @@ def generate_multiturn_messages(
     # remove single prompt replacement examples to get only system prompt
     prompt_template = re.sub("\{\{\{Example\}\}\}\S*", "", prompt_template)
     system_prompt = re.sub("\S*\{\{\{Question\}\}\}\S*", "", prompt_template)
+    # deprecated, only to append answers
     add_answers = "{{{Answers}}" in system_prompt
     system_prompt = re.sub("\S*\{\{\{Answers\}\}\}\S*", "", system_prompt)
+    # Answers provided for all few shot cases
+    add_all_answers = "{{{all_img_possible_answer}}}" in system_prompt
+    system_prompt = system_prompt.replace("{{{all_img_possible_answer}}}", "")
+
+    assert "{{{" not in system_prompt, system_prompt
 
     messages = [{"role": "system", "content": system_prompt}]
     sent_images = set()
@@ -252,6 +279,9 @@ def generate_multiturn_messages(
                     user_message = f"the previous image\nImg{img_num}:\n"
                 for element_id in element_ids:
                     user_message += f"{element_id}:\n"
+                # all possible ans for this q
+                if add_all_answers:
+                    user_message += ans_text(img2page_answers[img_path])
                 message_data["content"] = user_message
                 messages.append(message_data)
 
@@ -266,17 +296,12 @@ def generate_multiturn_messages(
 
     # Add the actual question
     img_num = len(sent_images) + 1
-    user_message = ""
-    if add_answers:
-        assert page_answers, page_answers
-        ans_text = ", ".join(map(lambda i: f'"{i}"', page_answers))
-        user_message += (
-            "The Answer is one of the elements Below. Make sure you return an entry from this"
-            f" between <answer> tags. list:\n{ans_text}"
-        )
-    user_message += f"\nImg{img_num}:\n"
+    user_message = f"\nImg{img_num}:\n"
     for element_id in question_ids:
         user_message += f"{element_id}:\n"
+    if add_answers or add_all_answers:
+        user_message += ans_text(img2page_answers[question_image])
+    # # trials for hard
     # user_message += (
     #     "The examples above were from the full image. Since question was a little harder I have"
     #     " blanked out all the other element IDs and highlighted the text on the image within a"
@@ -286,15 +311,16 @@ def generate_multiturn_messages(
     #     " the line. Do not return more symbols than those. Still return the answer within <answer>"
     #     " tags. You got it this time! I really believe you're going to crush it."
     # )
-    user_message += (
-        "The examples above were from the full image. Since question was a little harder I have"
-        " blanked out all the other element IDs. So there's only 1 element ID to return from this"
-        " question. There's been a lot of problems with returning the text from multiple different"
-        " elemnent IDs. Just return the single line of text, or half line if there's 2 element IDs"
-        " on either side of the line. Do not return more symbols than those. Also make sure '⌴'"
-        " doesnt get transcribed as 'L⌴'.  Still return the answer within <answer> tags. You got it"
-        " this time! I really believe you're going to crush it."
-    )
+    # # This didn't go better
+    # user_message += (
+    #     "The examples above were from the full image. Since question was a little harder I have"
+    #     " blanked out all the other element IDs. So there's only 1 element ID to return from this"
+    #     " question. There's been a lot of problems with returning the text from multiple different"
+    #     " elemnent IDs. Just return the single line of text, or half line if there's 2 element IDs"
+    #     " on either side of the line. Do not return more symbols than those. Also make sure '⌴'"
+    #     " doesnt get transcribed as 'L⌴'.  Still return the answer within <answer> tags. You got it"
+    #     " this time! I really believe you're going to crush it."
+    # )
     messages.append({"role": "user", "content": user_message, "image_path": question_image})
 
     return messages
@@ -368,7 +394,13 @@ def element_ids_per_img_few_shot(
         "question_image": question_image,
         "result_column": f"Specification {shared_hash}",
     }
-    page_answers = list(sorted(get_example_answers(csv_path, question_image).values()))
+
+    img2page_answers = {}
+    for img_path, _, _ in examples:
+        img2page_answers[img_path] = list(sorted(get_example_answers(csv_path, img_path).values()))
+    img2page_answers[question_image] = list(
+        sorted(get_example_answers(csv_path, question_image).values())
+    )
 
     if examples_as_multiturn:
         # Create messages for multi-turn conversation
@@ -377,7 +409,7 @@ def element_ids_per_img_few_shot(
             examples,
             question_image,
             question_ids if isinstance(question_ids, list) else [question_ids],
-            page_answers=page_answers,
+            img2page_answers=img2page_answers,
         )
         config["messages"] = messages
         # [ # want to send along image paths
@@ -394,7 +426,7 @@ def element_ids_per_img_few_shot(
             examples,
             question_image,
             question_ids if isinstance(question_ids, list) else [question_ids],
-            page_answers=page_answers,
+            img2page_answers=img2page_answers,
         )
         config["generated_prompt"] = prompt
         config_str = json.dumps(config, sort_keys=True)

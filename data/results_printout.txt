@@ -2323,3 +2323,7 @@ Here are all possible answers for the full image. Every answer returned should b
  '↧.56 ±.02',
  '⌴⌀.625 ±.020']
  ```
+
+
+ ### Fewshots also have example images
+

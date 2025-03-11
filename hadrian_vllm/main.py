@@ -104,7 +104,8 @@ async def process_element_ids(
             response = await call_model(
                 prompt_or_messages, image_paths, model=model_name, cache=cache
             )
-        print(response, prompt_or_messages[-1])
+        print(response, prompt_or_messages[-1])  # grib
+
         # Check if response is an error message
         if response and response.startswith("Error:"):
             logger.warning(f"Model returned error: {response}")
@@ -206,7 +207,7 @@ async def run_evaluation(
     # for IO, but sending images with request so might delay a tad
     loop = asyncio.get_running_loop()
     loop.set_default_executor(
-        ThreadPoolExecutor(max_workers=8)
+        ThreadPoolExecutor(max_workers=16)
     )  # adjust here, seems litellm fails with 64 threads. Debug failed with 16 also?
 
     for model_name in model_names:
