@@ -2325,11 +2325,11 @@ Here are all possible answers for the full image. Every answer returned should b
  ```
 
 
- ### Fewshots also have example images
+ ### Fewshots also have example images, big improvement here
 # 1/83 Better to use 3 images with all cases than 21 images.
 # no real difference in easy vs hard evals.
-n3_eg50 gemini 77/83
-n3_eg50 4o 67/83
+n3_eg50 gemini 77/83 93%
+n3_eg50 4o 67/83 81%
 
 The Mistakes are the same hard questions IDs as before; generally getting the wrong adjactent row
 but 4o would return asem 11, T4 not T2 and D4 not D2 both which are far away. Like in previous results 4o has a harder time ID'ing the correct element_id on the page
@@ -2348,6 +2348,7 @@ local FILE="$1"
       correct, incorrect, accuracy, correct, total
   }'
 }
+35 total for first, 9 for 2nd and 3rd run
 Gemini clipping
 Correct: 23, Incorrect: 12, Accuracy: 65.7% (23/35)
 gemini blank ids
@@ -2361,4 +2362,32 @@ Correct: 15, Incorrect: 20, Accuracy: 42.9% (15/35)
 Correct: 1, Incorrect: 8, Accuracy: 11.1% (1/9)
 4o blank and box
 Correct: 9, Incorrect: 1, Accuracy: 90.0% (9/10)
+
+
+Run again, with extra message at end asking to get right: (Had a few timeouts)
+gemini-2.0-flash-001: Summary Correct: 20, Incorrect: 15, Accuracy: 20/35
+gemini-2.0-flash-001: Summary Correct: 3, Incorrect: 5, Accuracy: 3/8
+gemini-2.0-flash-001: Summary Correct: 5, Incorrect: 4, Accuracy: 5/9
+
+gpt-4o: Summary Correct: 19, Incorrect: 24, Accuracy: 44.2% (19/43)
+gpt-4o: Summary Correct: 2, Incorrect: 6, Accuracy: 44.2% (19/43)
+gpt-4o: Summary Correct: 8, Incorrect: 1, Accuracy: 48.3% (29/60)
+
+Asking at end id 1 better when actualy blanked out, worse when just cropped.
+Note: since I used T11 when that was already correct so 4/8 and 7/8 as accuracy.
+
+if crop close then previous errors 6/83 times (1- new success rate *23/35; still failed) = 2.05/83 = 97% right
+if crop close then previous errors 16/83 times (1-new success rate *20/35; still failed) = 6.86/83 = 92% right
+
+If box 1-(6/83*(1-4/8))=96%
+if box 1-(16/83*(1-7/8))=98%
+
+
+
+So I'll summarize these changes as error rate's halfed for gemini-2.0, though didn't exactly line up element ids
+ran T11, didn't run a couple others the new models thought was hard. So mostly ran on a harder subset
+    python scripts/aggr_multiple_evaluations.py  --threshold 0.6 --eval-easy  --hours 20 --print_difficult
+    pbpaste | grep -o "'[A-Z0-9-]\+'" | sort | uniq -c
+
+
 
